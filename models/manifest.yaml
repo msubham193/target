@@ -1,0 +1,4 @@
+# Model registry source of truth (blueprint section 14.1).
+# No model has been selected or validated yet (decision log U-001, U-002).
+# Entries with `locality: remote` are refused by the loader.
+models: []

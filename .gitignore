@@ -1,0 +1,33 @@
+# secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+apps/web/test-results/
+apps/web/playwright-report/
+
+# data, weights and caches never belong in the repository
+data/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.gguf
+*.log
+
+# editors / OS
+.vscode/
+.idea/
+Thumbs.db

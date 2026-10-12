@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* System fonts only: nothing is fetched from the network. */
+body {
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  @apply bg-slate-50 text-slate-900;
+}

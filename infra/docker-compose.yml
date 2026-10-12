@@ -1,0 +1,26 @@
+# PostgreSQL + PostGIS for local development only.
+# Run from the repository root:  docker compose --env-file .env -f infra/docker-compose.yml up -d
+name: geopoc
+
+services:
+  db:
+    image: postgis/postgis:17-3.5-alpine
+    container_name: geopoc-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${GEOPOC_DB_USER:?set GEOPOC_DB_USER in .env}
+      POSTGRES_PASSWORD: ${GEOPOC_DB_PASSWORD:?set GEOPOC_DB_PASSWORD in .env}
+      POSTGRES_DB: ${GEOPOC_DB_NAME:?set GEOPOC_DB_NAME in .env}
+    ports:
+      # loopback only; 5432 on this machine belongs to another project
+      - "127.0.0.1:${GEOPOC_DB_PORT:-5433}:5432"
+    volumes:
+      - geopoc-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  geopoc-pgdata:
