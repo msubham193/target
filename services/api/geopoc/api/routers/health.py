@@ -1,7 +1,9 @@
 import platform
 import shutil
 
+import PIL
 import pyproj
+import rasterio
 import sqlalchemy
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -12,6 +14,7 @@ import geopoc
 from geopoc.api.deps import SessionDep
 from geopoc.api.schemas import HealthOut, ModelHealthOut
 from geopoc.config import get_settings
+from geopoc.ingestion.video import tool_path
 from geopoc.registry.manifest import read_manifest
 
 router = APIRouter(tags=["health"])
@@ -43,13 +46,18 @@ def health(session: SessionDep):
         status="ok" if ok else "unavailable",
         database=database,
         storage=storage,
-        worker={"implemented": False, "note": "The job worker is delivered in Phase 2."},
+        worker={"implemented": False, "note": "No background worker yet; ingestion validates during upload."},
         versions={
             "app": geopoc.__version__,
             "python": platform.python_version(),
             "sqlalchemy": sqlalchemy.__version__,
             "pyproj": pyproj.__version__,
             "proj": pyproj.proj_version_str,
+            "rasterio": rasterio.__version__,
+            "gdal": rasterio.__gdal_version__,
+            "pillow": PIL.__version__,
+            "ffprobe": "available" if tool_path("ffprobe") else "not found",
+            "ffmpeg": "available" if tool_path("ffmpeg") else "not found",
         },
         online={"enabled": settings.online_enabled, "proj_network": pyproj.network.is_network_enabled()},
         bind_host=settings.api_host,

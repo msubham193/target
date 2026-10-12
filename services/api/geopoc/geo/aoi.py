@@ -60,11 +60,7 @@ def build_aoi(geometry: dict[str, Any], crs_id: str) -> Aoi:
 
     geom_4326 = shapely.transform(geom, to_storage_crs)
     coords = shapely.get_coordinates(geom_4326)
-    if (
-        not np.isfinite(coords).all()
-        or (np.abs(coords[:, 0]) > 180).any()
-        or (np.abs(coords[:, 1]) > 90).any()
-    ):
+    if not np.isfinite(coords).all() or (np.abs(coords[:, 0]) > 180).any() or (np.abs(coords[:, 1]) > 90).any():
         raise AoiError(
             "AOI_COORDINATES_OUT_OF_RANGE",
             "The AOI coordinates are outside the valid range of the stated CRS. Check the CRS and the "

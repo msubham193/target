@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { type Project, type ProjectUpdate, updateProject } from "../api/client";
 import { Button, ErrorNotice, Field, inputClass, Notice, PageTitle } from "../components/ui";
@@ -138,10 +139,16 @@ export function ProjectOverviewPage() {
 
       <section className="max-w-2xl space-y-2">
         <h2 className="font-semibold">Assets and analysis</h2>
-        <Notice>
-          Uploading files and running analysis are not part of this phase. This project has no assets, jobs or
-          observations.
-        </Notice>
+        <p className="text-sm">
+          <Link className="text-blue-700 underline" to="assets/new">
+            Upload files
+          </Link>{" "}
+          ·{" "}
+          <Link className="text-blue-700 underline" to="assets">
+            View assets
+          </Link>
+        </p>
+        <Notice>Running analysis is not part of this phase. This project has no jobs or observations.</Notice>
       </section>
     </div>
   );

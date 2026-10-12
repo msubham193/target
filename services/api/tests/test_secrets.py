@@ -28,9 +28,7 @@ def test_database_password_never_appears_in_responses_logs_or_settings_repr(clie
 
 
 def test_env_file_is_git_ignored_and_example_has_no_password():
-    result = subprocess.run(
-        ["git", "check-ignore", ".env"], cwd=REPO_ROOT, capture_output=True, text=True, check=False
-    )
+    result = subprocess.run(["git", "check-ignore", ".env"], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
     assert result.returncode == 0, ".env must be ignored by git"
     example = Path(REPO_ROOT / ".env.example").read_text(encoding="utf-8")
     assert "GEOPOC_DB_PASSWORD=\n" in example

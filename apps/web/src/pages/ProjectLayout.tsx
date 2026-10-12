@@ -7,6 +7,7 @@ import { ErrorNotice, Loading, Notice } from "../components/ui";
 const links: [string, string][] = [
   ["", "Overview"],
   ["assets/new", "Upload"],
+  ["assets", "Assets"],
   ["map", "Map"],
   ["observations", "Observations"],
   ["reports", "Reports"],
@@ -45,7 +46,7 @@ export function ProjectLayout() {
             <NavLink
               key={label}
               to={to}
-              end={to === ""}
+              end={to === "" || to === "assets/new"}
               className={({ isActive }) =>
                 `rounded px-2 py-1 text-sm ${isActive ? "bg-slate-200 font-medium" : "hover:bg-slate-100"}`
               }

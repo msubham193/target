@@ -12,9 +12,7 @@ router = APIRouter(prefix="/api/v1/crs", tags=["crs"], responses=problem_respons
 
 @router.get("", response_model=CrsSearchResult)
 def search_crs(
-    q: Annotated[
-        str, Query(min_length=1, max_length=100, description="Authority code or words in the CRS name")
-    ],
+    q: Annotated[str, Query(min_length=1, max_length=100, description="Authority code or words in the CRS name")],
     limit: Annotated[int, Query(ge=1, le=50)] = 20,
 ):
     """Search the local PROJ registry. Works offline. A search hit is a candidate, never an assignment."""

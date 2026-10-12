@@ -114,7 +114,6 @@ test("later-phase screens say so, settings state the DSM position, and nothing l
   await enterWorkspace(page);
   await page.getByRole("list", { name: "Project list" }).getByRole("link", { name: "With location" }).click();
   for (const [link, title, phase] of [
-    ["Upload", "Data Upload & Ingestion", 2],
     ["Map", "Map & Analysis", 4],
     ["Observations", "Observations", 4],
     ["Reports", "Reports", 5],

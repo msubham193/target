@@ -1,21 +1,40 @@
+import logging
 import re
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 
 import geopoc
 from geopoc.api.errors import install_error_handlers
-from geopoc.api.routers import crs, health, projects, workspace
+from geopoc.api.routers import assets, crs, health, projects, workspace
+from geopoc.storage import store
+
+logger = logging.getLogger("geopoc.api")
 
 REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._\-]{1,64}$")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        store.init_storage()
+        removed = store.remove_orphaned_uploads()
+        if removed:
+            logger.info("Removed %d interrupted upload(s) older than a day", removed)
+    except OSError:
+        # /health reports the storage problem; the API still starts so the problem can be diagnosed.
+        logger.error("Local storage could not be initialised")
+    yield
 
 
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Geospatial PoC API",
         version=geopoc.__version__,
-        description="Local-first geospatial observation workbench. Phase 1: workspace profiles, projects, "
-        "CRS search and health.",
+        description="Local-first geospatial observation workbench. Phases 1-2: workspace profiles, projects, "
+        "CRS search, asset ingestion and health.",
+        lifespan=lifespan,
     )
 
     @app.middleware("http")
@@ -30,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(workspace.router)
     app.include_router(projects.router)
+    app.include_router(assets.router)
     app.include_router(crs.router)
     return app
 

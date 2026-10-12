@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy.exc import InterfaceError, OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("geopoc.api")
@@ -45,16 +46,13 @@ def problem_responses(*statuses: int) -> dict[int | str, dict[str, Any]]:
     """OpenAPI documentation for the error statuses a route can return."""
     schema = Problem.model_json_schema()
     return {
-        status: {"description": "Error", "content": {PROBLEM_MEDIA_TYPE: {"schema": schema}}}
-        for status in statuses
+        status: {"description": "Error", "content": {PROBLEM_MEDIA_TYPE: {"schema": schema}}} for status in statuses
     }
 
 
 def _respond(request: Request, status: int, code: str, title: str, detail=None, errors=None) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
-    body = Problem(
-        title=title, status=status, detail=detail, code=code, request_id=request_id, errors=errors or []
-    )
+    body = Problem(title=title, status=status, detail=detail, code=code, request_id=request_id, errors=errors or [])
     headers = {"X-Request-ID": request_id} if request_id else None
     return JSONResponse(body.model_dump(), status_code=status, media_type=PROBLEM_MEDIA_TYPE, headers=headers)
 
@@ -67,8 +65,7 @@ def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(RequestValidationError)
     async def _validation(request: Request, exc: RequestValidationError) -> JSONResponse:
         errors = [
-            {"field": ".".join(str(part) for part in err["loc"]), "message": str(err["msg"])}
-            for err in exc.errors()
+            {"field": ".".join(str(part) for part in err["loc"]), "message": str(err["msg"])} for err in exc.errors()
         ]
         return _respond(request, 422, "VALIDATION_ERROR", "Request validation failed", errors=errors)
 
@@ -77,6 +74,18 @@ def install_error_handlers(app: FastAPI) -> None:
         codes = {400: "BAD_REQUEST", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
         code = codes.get(exc.status_code, "HTTP_ERROR")
         return _respond(request, exc.status_code, code, str(exc.detail))
+
+    @app.exception_handler(OperationalError)
+    @app.exception_handler(InterfaceError)
+    async def _database(request: Request, exc: Exception) -> JSONResponse:
+        logger.error("Database unavailable (request_id=%s)", getattr(request.state, "request_id", None))
+        return _respond(
+            request,
+            503,
+            "DATABASE_UNAVAILABLE",
+            "The local database is not available",
+            "Check that Docker Desktop and the database container are running, then retry.",
+        )
 
     @app.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:

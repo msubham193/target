@@ -11,9 +11,7 @@ _engine: Engine | None = None
 def get_engine() -> Engine:
     global _engine
     if _engine is None:
-        _engine = create_engine(
-            get_settings().database_url(), pool_pre_ping=True, connect_args={"connect_timeout": 3}
-        )
+        _engine = create_engine(get_settings().database_url(), pool_pre_ping=True, connect_args={"connect_timeout": 3})
     return _engine
 
 

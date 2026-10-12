@@ -57,8 +57,7 @@ def _kind(crs: pyproj.CRS) -> str:
 def describe(identifier: str) -> dict[str, Any]:
     crs = resolve(identifier)
     axes = [
-        {"abbreviation": axis.abbrev, "direction": axis.direction, "unit": axis.unit_name}
-        for axis in crs.axis_info
+        {"abbreviation": axis.abbrev, "direction": axis.direction, "unit": axis.unit_name} for axis in crs.axis_info
     ]
     area = crs.area_of_use
     return {

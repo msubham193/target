@@ -10,8 +10,7 @@ from geopoc.db.models import WorkspaceUser
 router = APIRouter(prefix="/api/v1/workspace", tags=["workspace"], responses=problem_responses(422))
 
 NOTICE = (
-    "Local profiles attribute changes in the audit history. They are not authentication and provide no "
-    "access control."
+    "Local profiles attribute changes in the audit history. They are not authentication and provide no access control."
 )
 
 

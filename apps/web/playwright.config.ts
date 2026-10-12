@@ -24,7 +24,7 @@ export default defineConfig({
     {
       command: "uv run --no-sync python -m geopoc.devtools reset-db && uv run --no-sync python -m geopoc",
       cwd: "../../services/api",
-      env: { ...baseEnv, GEOPOC_DB_NAME: "geopoc_e2e", GEOPOC_API_PORT: String(apiPort) },
+      env: { ...baseEnv, GEOPOC_DB_NAME: "geopoc_e2e", GEOPOC_DATA_SUBDIR: "_e2e", GEOPOC_API_PORT: String(apiPort) },
       url: `http://127.0.0.1:${apiPort}/health`,
       reuseExistingServer: false,
       timeout: 90_000,

@@ -4,11 +4,11 @@ Local-first workbench for general-purpose geospatial observation, imagery analys
 
 The application does not make operational targeting or engagement decisions and must not be extended to do so.
 
-**Status: Phase 1 of 6.** Workspace profile, dashboard, project creation and reopening, offline CRS search, service health. No uploads, analysis, map, reports or 3D yet. See [docs/phase-1-report.md](docs/phase-1-report.md).
+**Status: Phase 2 of 6.** Workspace profile, dashboard, projects, offline CRS search, service health, and asset ingestion (upload, validation, checksums, duplicate detection, metadata) for all three kinds of input. No analysis, map, reports or 3D yet. See [docs/phase-2-report.md](docs/phase-2-report.md) and [docs/ingestion.md](docs/ingestion.md).
 
 ## Requirements
 
-Windows, PowerShell 5.1+, Git, Python 3.11, [uv](https://docs.astral.sh/uv/), Node.js with pnpm, Docker Desktop, Microsoft Edge (for browser tests).
+Windows, PowerShell 5.1+, Git, Python 3.11, [uv](https://docs.astral.sh/uv/), Node.js with pnpm, Docker Desktop, FFmpeg (`ffmpeg` and `ffprobe` on PATH, for video), Microsoft Edge (for browser tests).
 
 ## First-time setup
 
@@ -40,7 +40,8 @@ Tests use scratch databases (`geopoc_test`, `geopoc_e2e`) and never touch the wo
 
 - **Local profiles are not authentication.** A profile is a name recorded in the audit history. There is no access control; do not expose the application beyond this computer.
 - **Nothing is sent off the machine.** Online sources are off, PROJ network access is off, and no cloud AI service is used.
-- **Dependency pins.** `psycopg[binary]` and `pyproj` are pinned because Windows Smart App Control on the development machine blocks the native libraries in their newest releases. See the comment in `services/api/pyproject.toml`.
+- **Uploaded originals** are stored unmodified and read-only under `GEOPOC_DATA_ROOT` (default `D:/geopoc-data`), named by checksum.
+- **Dependency pins.** `psycopg[binary]`, `pyproj` and `rasterio` are pinned because Windows Smart App Control on the development machine blocks the native libraries in their newest releases. See the comment in `services/api/pyproject.toml`.
 - **API types.** After changing the API, regenerate the client types:
   ```powershell
   Set-Location services\api

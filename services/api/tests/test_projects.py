@@ -10,9 +10,7 @@ URL = "/api/v1/projects"
 
 def audit_actions(entity_id: str) -> list[str]:
     with get_engine().connect() as conn:
-        rows = conn.execute(
-            text("SELECT action FROM audit_event WHERE entity_id = :id ORDER BY at"), {"id": entity_id}
-        )
+        rows = conn.execute(text("SELECT action FROM audit_event WHERE entity_id = :id ORDER BY at"), {"id": entity_id})
         return [row[0] for row in rows]
 
 
@@ -136,9 +134,7 @@ def test_invalid_aoi_geometry_is_rejected_not_repaired(client, headers, geometry
 def test_list_search_tag_filter_and_pagination(client, headers):
     for index in range(5):
         client.post(URL, json={"name": f"Harbour {index}", "tags": ["coast"]}, headers=headers)
-    client.post(
-        URL, json={"name": "Inland", "description": "100% dry_land", "tags": ["plain"]}, headers=headers
-    )
+    client.post(URL, json={"name": "Inland", "description": "100% dry_land", "tags": ["plain"]}, headers=headers)
 
     first = client.get(URL, params={"limit": 4}).json()
     assert len(first["items"]) == 4 and first["next_cursor"]
@@ -150,9 +146,7 @@ def test_list_search_tag_filter_and_pagination(client, headers):
 
     assert len(client.get(URL, params={"q": "harbour"}).json()["items"]) == 5
     assert [p["name"] for p in client.get(URL, params={"q": "dry_land"}).json()["items"]] == ["Inland"]
-    assert (
-        client.get(URL, params={"q": "%"}).json()["items"][0]["name"] == "Inland"
-    )  # literal %, not a wildcard
+    assert client.get(URL, params={"q": "%"}).json()["items"][0]["name"] == "Inland"  # literal %, not a wildcard
     assert len(client.get(URL, params={"q": "100% dry"}).json()["items"]) == 1
     assert [p["name"] for p in client.get(URL, params={"tag": "plain"}).json()["items"]] == ["Inland"]
 

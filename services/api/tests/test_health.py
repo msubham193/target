@@ -13,7 +13,9 @@ def test_health_ok(client):
     assert body["status"] == "ok"
     assert body["database"]["reachable"] is True
     assert body["database"]["postgis_version"].startswith("3.")
-    assert body["database"]["schema_revision"] == "0001"
+    assert body["database"]["schema_revision"] == "0002"
+    assert body["versions"]["gdal"] and body["versions"]["rasterio"] and body["versions"]["pillow"]
+    assert body["versions"]["ffprobe"] in {"available", "not found"}
     assert body["storage"]["data_root_ok"] is True
     assert body["storage"]["free_bytes"] > 0
     assert body["online"] == {"enabled": False, "proj_network": False}

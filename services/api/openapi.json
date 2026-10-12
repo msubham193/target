@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Geospatial PoC API",
-    "description": "Local-first geospatial observation workbench. Phase 1: workspace profiles, projects, CRS search and health.",
+    "description": "Local-first geospatial observation workbench. Phases 1-2: workspace profiles, projects, CRS search, asset ingestion and health.",
     "version": "0.1.0"
   },
   "paths": {
@@ -1301,6 +1301,1515 @@
         }
       }
     },
+    "/api/v1/ingestion/rules": {
+      "get": {
+        "tags": [
+          "assets"
+        ],
+        "summary": "Ingestion Rules",
+        "description": "Accepted formats and size limits, so the UI states exactly what the server enforces.",
+        "operationId": "ingestion_rules_api_v1_ingestion_rules_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionRules"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "title": "Type",
+                      "default": "about:blank"
+                    },
+                    "title": {
+                      "type": "string",
+                      "title": "Title"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "title": "Status"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "type": "string",
+                      "title": "Code"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "title": "Errors",
+                      "default": []
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/assets": {
+      "post": {
+        "tags": [
+          "assets"
+        ],
+        "summary": "Upload Asset",
+        "description": "Upload one original file into a project. The body is validated, checksummed and stored unmodified.",
+        "operationId": "upload_asset_api_v1_projects__project_id__assets_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "modality",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "ground_image",
+                "overhead_raster",
+                "video"
+              ],
+              "type": "string",
+              "description": "Which kind of input this file is",
+              "title": "Modality"
+            },
+            "description": "Which kind of input this file is"
+          },
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Original file name",
+              "title": "Filename"
+            },
+            "description": "Original file name"
+          },
+          {
+            "name": "x-workspace-profile",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID of the active local profile. Audit attribution only; not authentication.",
+              "title": "X-Workspace-Profile"
+            },
+            "description": "ID of the active local profile. Audit attribution only; not authentication."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetUploadOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "The raw bytes of the file. Not multipart: the body is streamed straight to storage.",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "assets"
+        ],
+        "summary": "List Assets",
+        "operationId": "list_assets_api_v1_projects__project_id__assets_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "modality",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "ground_image",
+                    "overhead_raster",
+                    "video"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modality"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "validated",
+                    "validated_with_warnings"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/{asset_id}": {
+      "get": {
+        "tags": [
+          "assets"
+        ],
+        "summary": "Get Asset",
+        "operationId": "get_asset_api_v1_assets__asset_id__get",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/{asset_id}/content": {
+      "get": {
+        "tags": [
+          "assets"
+        ],
+        "summary": "Get Asset Content",
+        "description": "Download the stored original exactly as uploaded. Supports HTTP Range.",
+        "operationId": "get_asset_content_api_v1_assets__asset_id__content_get",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The original bytes, unmodified",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "422": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Partial content"
+          },
+          "416": {
+            "description": "Range not satisfiable"
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Detail"
+                    },
+                    "code": {
+                      "title": "Code",
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "title": "Request Id"
+                    },
+                    "errors": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "title": "Errors",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "code"
+                  ],
+                  "title": "Problem",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/crs": {
       "get": {
         "tags": [
@@ -1472,6 +2981,219 @@
           "warnings"
         ],
         "title": "AoiOut"
+      },
+      "AssetOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "ground_image",
+              "overhead_raster",
+              "video"
+            ],
+            "title": "Modality"
+          },
+          "detected_format": {
+            "type": "string",
+            "title": "Detected Format"
+          },
+          "media_type": {
+            "type": "string",
+            "title": "Media Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "validated",
+              "validated_with_warnings"
+            ],
+            "title": "Status"
+          },
+          "duplicate_of_asset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Asset Id"
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Flags"
+          },
+          "unknowns": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Unknowns",
+            "description": "Field name -> why its value is unknown. Never guessed."
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "acquisition_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acquisition Time"
+          },
+          "uploaded_by": {
+            "$ref": "#/components/schemas/ProfileOut"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          },
+          "raster": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RasterOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "video": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VideoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "project_id",
+          "original_filename",
+          "modality",
+          "detected_format",
+          "media_type",
+          "size_bytes",
+          "sha256",
+          "status",
+          "duplicate_of_asset_id",
+          "quality_flags",
+          "unknowns",
+          "metadata",
+          "acquisition_time",
+          "uploaded_by",
+          "ingested_at",
+          "raster",
+          "video"
+        ],
+        "title": "AssetOut"
+      },
+      "AssetPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AssetOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "AssetPage"
+      },
+      "AssetUploadOut": {
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/AssetOut"
+          },
+          "duplicate": {
+            "type": "boolean",
+            "title": "Duplicate",
+            "description": "True when this project already holds an asset with identical content."
+          },
+          "duplicate_of_asset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Of Asset Id"
+          },
+          "stored_original_reused": {
+            "type": "boolean",
+            "title": "Stored Original Reused",
+            "description": "True when identical content was already stored and no second copy was written."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "asset",
+          "duplicate",
+          "duplicate_of_asset_id",
+          "stored_original_reused",
+          "message"
+        ],
+        "title": "AssetUploadOut"
       },
       "CrsAreaOfUse": {
         "properties": {
@@ -1665,6 +3387,66 @@
           "bind_host"
         ],
         "title": "HealthOut"
+      },
+      "IngestionRule": {
+        "properties": {
+          "modality": {
+            "type": "string",
+            "enum": [
+              "ground_image",
+              "overhead_raster",
+              "video"
+            ],
+            "title": "Modality"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "extensions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Extensions"
+          },
+          "max_bytes": {
+            "type": "integer",
+            "title": "Max Bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "modality",
+          "label",
+          "extensions",
+          "max_bytes"
+        ],
+        "title": "IngestionRule"
+      },
+      "IngestionRules": {
+        "properties": {
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/IngestionRule"
+            },
+            "type": "array",
+            "title": "Rules"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rules",
+          "notes"
+        ],
+        "title": "IngestionRules"
       },
       "ModelHealthOut": {
         "properties": {
@@ -2023,6 +3805,291 @@
         "additionalProperties": false,
         "type": "object",
         "title": "ProjectUpdate"
+      },
+      "RasterOut": {
+        "properties": {
+          "driver": {
+            "type": "string",
+            "title": "Driver"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "band_count": {
+            "type": "integer",
+            "title": "Band Count"
+          },
+          "dtypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dtypes"
+          },
+          "nodata": {
+            "items": {},
+            "type": "array",
+            "title": "Nodata"
+          },
+          "crs_status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "missing",
+              "invalid"
+            ],
+            "title": "Crs Status"
+          },
+          "crs_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crs Identifier"
+          },
+          "crs_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crs Name"
+          },
+          "crs_wkt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crs Wkt"
+          },
+          "georeferenced": {
+            "type": "boolean",
+            "title": "Georeferenced",
+            "description": "True only with a valid CRS, a usable geotransform and coordinates that fit the CRS."
+          },
+          "geotransform": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geotransform"
+          },
+          "pixel_size_x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pixel Size X"
+          },
+          "pixel_size_y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pixel Size Y"
+          },
+          "pixel_units": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pixel Units"
+          },
+          "bounds_native": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bounds Native"
+          },
+          "footprint_4326": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Footprint 4326",
+            "description": "GeoJSON outline (longitude, latitude). Null unless the raster is validly georeferenced."
+          }
+        },
+        "type": "object",
+        "required": [
+          "driver",
+          "width",
+          "height",
+          "band_count",
+          "dtypes",
+          "nodata",
+          "crs_status",
+          "crs_identifier",
+          "crs_name",
+          "crs_wkt",
+          "georeferenced",
+          "geotransform",
+          "pixel_size_x",
+          "pixel_size_y",
+          "pixel_units",
+          "bounds_native",
+          "footprint_4326"
+        ],
+        "title": "RasterOut"
+      },
+      "VideoOut": {
+        "properties": {
+          "container": {
+            "type": "string",
+            "title": "Container"
+          },
+          "video_codec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Codec"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "avg_frame_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Frame Rate"
+          },
+          "frame_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frame Rate"
+          },
+          "time_base": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Base"
+          },
+          "frame_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frame Count"
+          },
+          "creation_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creation Time"
+          },
+          "has_audio": {
+            "type": "boolean",
+            "title": "Has Audio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "container",
+          "video_codec",
+          "width",
+          "height",
+          "duration_ms",
+          "avg_frame_rate",
+          "frame_rate",
+          "time_base",
+          "frame_count",
+          "creation_time",
+          "has_audio"
+        ],
+        "title": "VideoOut"
       }
     }
   }

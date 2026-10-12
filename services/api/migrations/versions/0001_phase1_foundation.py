@@ -34,15 +34,11 @@ def upgrade() -> None:
         sa.Column("aoi_geom", Geometry(geometry_type="GEOMETRY", srid=4326, spatial_index=False)),
         sa.Column("aoi_source", postgresql.JSONB),
         sa.Column("source_preference", sa.Text, nullable=False, server_default="local_only"),
-        sa.Column(
-            "created_by", postgresql.UUID(as_uuid=True), sa.ForeignKey("workspace_user.id"), nullable=False
-        ),
+        sa.Column("created_by", postgresql.UUID(as_uuid=True), sa.ForeignKey("workspace_user.id"), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("archived_at", sa.DateTime(timezone=True)),
-        sa.CheckConstraint(
-            "source_preference IN ('local_only', 'allow_online')", name="ck_project_source_preference"
-        ),
+        sa.CheckConstraint("source_preference IN ('local_only', 'allow_online')", name="ck_project_source_preference"),
     )
     op.create_index("ix_project_created", "project", ["created_at", "id"])
     op.create_index("ix_project_aoi_geom", "project", ["aoi_geom"], postgresql_using="gist")

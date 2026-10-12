@@ -1,5 +1,8 @@
 """Development helpers. `python -m geopoc.devtools reset-db` recreates a scratch database and migrates it."""
 
+import os
+import shutil
+import stat
 import sys
 from pathlib import Path
 
@@ -24,6 +27,14 @@ def reset_db() -> None:
         conn.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
         conn.execute(text(f'CREATE DATABASE "{name}"'))
     admin.dispose()
+
+    if settings.data_subdir and settings.data_root.exists():
+        # Scratch data folder only: originals are read-only, so clear that bit before deleting.
+        def make_writable(function, target, _exc):
+            os.chmod(target, stat.S_IWRITE)
+            function(target)
+
+        shutil.rmtree(settings.data_root, onerror=make_writable)
 
     cfg = Config(str(API_DIR / "alembic.ini"))
     cfg.set_main_option("script_location", str(API_DIR / "migrations"))

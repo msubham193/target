@@ -16,6 +16,10 @@ dependencies = [
     "pyproj==3.7.1",
     "shapely>=2.0",
     "pyyaml>=6.0",
+    # Phase 2 ingestion. rasterio 1.4.4 is blocked by Smart App Control here; 1.4.3 was verified to load
+    # and to read/write GeoTIFF. It bundles its own GDAL and PROJ.
+    "rasterio==1.4.3",
+    "pillow==10.4.0",
 ]
 
 [dependency-groups]
@@ -34,7 +38,7 @@ pythonpath = ["."]
 testpaths = ["tests"]
 
 [tool.ruff]
-line-length = 110
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]

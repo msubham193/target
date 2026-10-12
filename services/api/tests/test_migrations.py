@@ -7,7 +7,16 @@ from geopoc.config import get_settings
 from tests.conftest import alembic_config, drop_database, recreate_database
 
 SCRATCH = "geopoc_migration_test"
-TABLES = {"workspace_user", "project", "audit_event", "crs_definition"}
+TABLES = {
+    "workspace_user",
+    "project",
+    "audit_event",
+    "crs_definition",
+    "blob",
+    "asset",
+    "raster_metadata",
+    "video_metadata",
+}
 
 
 def test_upgrade_downgrade_upgrade():

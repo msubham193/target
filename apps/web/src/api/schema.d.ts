@@ -92,6 +92,84 @@ export interface paths {
         patch: operations["update_project_api_v1_projects__project_id__patch"];
         trace?: never;
     };
+    "/api/v1/ingestion/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ingestion Rules
+         * @description Accepted formats and size limits, so the UI states exactly what the server enforces.
+         */
+        get: operations["ingestion_rules_api_v1_ingestion_rules_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Assets */
+        get: operations["list_assets_api_v1_projects__project_id__assets_get"];
+        put?: never;
+        /**
+         * Upload Asset
+         * @description Upload one original file into a project. The body is validated, checksummed and stored unmodified.
+         */
+        post: operations["upload_asset_api_v1_projects__project_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Asset */
+        get: operations["get_asset_api_v1_assets__asset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Asset Content
+         * @description Download the stored original exactly as uploaded. Supports HTTP Range.
+         */
+        get: operations["get_asset_content_api_v1_assets__asset_id__content_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/crs": {
         parameters: {
             query?: never;
@@ -143,6 +221,89 @@ export interface components {
             };
             /** Warnings */
             warnings: string[];
+        };
+        /** AssetOut */
+        AssetOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /** Original Filename */
+            original_filename: string;
+            /**
+             * Modality
+             * @enum {string}
+             */
+            modality: "ground_image" | "overhead_raster" | "video";
+            /** Detected Format */
+            detected_format: string;
+            /** Media Type */
+            media_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Sha256 */
+            sha256: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "validated" | "validated_with_warnings";
+            /** Duplicate Of Asset Id */
+            duplicate_of_asset_id: string | null;
+            /** Quality Flags */
+            quality_flags: string[];
+            /**
+             * Unknowns
+             * @description Field name -> why its value is unknown. Never guessed.
+             */
+            unknowns: {
+                [key: string]: unknown;
+            };
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Acquisition Time */
+            acquisition_time: string | null;
+            uploaded_by: components["schemas"]["ProfileOut"];
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            raster: components["schemas"]["RasterOut"] | null;
+            video: components["schemas"]["VideoOut"] | null;
+        };
+        /** AssetPage */
+        AssetPage: {
+            /** Items */
+            items: components["schemas"]["AssetOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** AssetUploadOut */
+        AssetUploadOut: {
+            asset: components["schemas"]["AssetOut"];
+            /**
+             * Duplicate
+             * @description True when this project already holds an asset with identical content.
+             */
+            duplicate: boolean;
+            /** Duplicate Of Asset Id */
+            duplicate_of_asset_id: string | null;
+            /**
+             * Stored Original Reused
+             * @description True when identical content was already stored and no second copy was written.
+             */
+            stored_original_reused: boolean;
+            /** Message */
+            message: string;
         };
         /** CrsAreaOfUse */
         CrsAreaOfUse: {
@@ -218,6 +379,27 @@ export interface components {
             };
             /** Bind Host */
             bind_host: string;
+        };
+        /** IngestionRule */
+        IngestionRule: {
+            /**
+             * Modality
+             * @enum {string}
+             */
+            modality: "ground_image" | "overhead_raster" | "video";
+            /** Label */
+            label: string;
+            /** Extensions */
+            extensions: string[];
+            /** Max Bytes */
+            max_bytes: number;
+        };
+        /** IngestionRules */
+        IngestionRules: {
+            /** Rules */
+            rules: components["schemas"]["IngestionRule"][];
+            /** Notes */
+            notes: string[];
         };
         /** ModelHealthOut */
         ModelHealthOut: {
@@ -334,6 +516,81 @@ export interface components {
             source_preference?: ("local_only" | "allow_online") | null;
             /** Archived */
             archived?: boolean | null;
+        };
+        /** RasterOut */
+        RasterOut: {
+            /** Driver */
+            driver: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Band Count */
+            band_count: number;
+            /** Dtypes */
+            dtypes: string[];
+            /** Nodata */
+            nodata: unknown[];
+            /**
+             * Crs Status
+             * @enum {string}
+             */
+            crs_status: "valid" | "missing" | "invalid";
+            /** Crs Identifier */
+            crs_identifier: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Crs Wkt */
+            crs_wkt: string | null;
+            /**
+             * Georeferenced
+             * @description True only with a valid CRS, a usable geotransform and coordinates that fit the CRS.
+             */
+            georeferenced: boolean;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** Pixel Size X */
+            pixel_size_x: number | null;
+            /** Pixel Size Y */
+            pixel_size_y: number | null;
+            /** Pixel Units */
+            pixel_units: string | null;
+            /** Bounds Native */
+            bounds_native: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Footprint 4326
+             * @description GeoJSON outline (longitude, latitude). Null unless the raster is validly georeferenced.
+             */
+            footprint_4326: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** VideoOut */
+        VideoOut: {
+            /** Container */
+            container: string;
+            /** Video Codec */
+            video_codec: string | null;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Duration Ms */
+            duration_ms: number | null;
+            /** Avg Frame Rate */
+            avg_frame_rate: string | null;
+            /** Frame Rate */
+            frame_rate: number | null;
+            /** Time Base */
+            time_base: string | null;
+            /** Frame Count */
+            frame_count: number | null;
+            /** Creation Time */
+            creation_time: string | null;
+            /** Has Audio */
+            has_audio: boolean;
         };
     };
     responses: never;
@@ -959,6 +1216,722 @@ export interface operations {
             };
             /** @description Error */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    ingestion_rules_api_v1_ingestion_rules_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionRules"];
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    list_assets_api_v1_projects__project_id__assets_get: {
+        parameters: {
+            query?: {
+                modality?: ("ground_image" | "overhead_raster" | "video") | null;
+                status?: ("validated" | "validated_with_warnings") | null;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetPage"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    upload_asset_api_v1_projects__project_id__assets_post: {
+        parameters: {
+            query: {
+                /** @description Which kind of input this file is */
+                modality: "ground_image" | "overhead_raster" | "video";
+                /** @description Original file name */
+                filename: string;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description The raw bytes of the file. Not multipart: the body is streamed straight to storage. */
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetUploadOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            507: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    get_asset_api_v1_assets__asset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    get_asset_content_api_v1_assets__asset_id__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The original bytes, unmodified */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Partial content */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Range not satisfiable */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

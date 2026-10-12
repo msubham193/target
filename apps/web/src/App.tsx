@@ -3,7 +3,10 @@ import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { AppLayout } from "./components/AppLayout";
 import { useProfile } from "./lib/profile";
+import { AssetDetailPage } from "./pages/AssetDetailPage";
+import { AssetsPage } from "./pages/AssetsPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { IngestionPage } from "./pages/IngestionPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NewProjectPage } from "./pages/NewProjectPage";
 import { NotYetPage } from "./pages/NotYetPage";
@@ -47,16 +50,9 @@ export function App() {
         <Route path="/projects/new" element={<NewProjectPage />} />
         <Route path="/projects/:projectId" element={<ProjectLayout />}>
           <Route index element={<ProjectOverviewPage />} />
-          <Route
-            path="assets/new"
-            element={
-              <NotYetPage
-                title="Data Upload & Ingestion"
-                phase={2}
-                detail="Uploading ground photographs, overhead rasters and video, with validation, metadata and previews."
-              />
-            }
-          />
+          <Route path="assets" element={<AssetsPage />} />
+          <Route path="assets/new" element={<IngestionPage />} />
+          <Route path="assets/:assetId" element={<AssetDetailPage />} />
           <Route
             path="map"
             element={

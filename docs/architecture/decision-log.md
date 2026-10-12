@@ -222,3 +222,21 @@ Approved by the project owner before Phase 1: D-003 (PostGIS in Docker on 5433),
 | P1-07 | TypeScript pinned to 5.x. | The OpenAPI type generator does not support TypeScript 7. |
 | P1-08 | Browser tests use the installed Microsoft Edge. | Avoids a browser download. |
 | P1-09 | `GET/PATCH /api/v1/settings` and a backend static type-checker deferred. | Not needed for the Phase 1 exit criterion. |
+
+## Part E — Phase 2 outcomes (2026-10-12)
+
+Approved by the project owner before Phase 2: D-009 (Version 3.0 observation schema is canonical), D-013 (duplicates: accept, link, flag), U-003 (formats and limits: JPEG/PNG/WebP 50 MB; GeoTIFF 1 GB; MP4/MOV/MKV 1 GB), and installing Rasterio and OpenCV subject to Smart App Control.
+
+| ID | Decision or deviation | Reason |
+|----|-----------------------|--------|
+| P2-01 | Upload is a raw `application/octet-stream` body with `modality` and `filename` as query parameters, not multipart. Amends blueprint §8 endpoint 7. | Multipart parsing spools the whole file to the system temp folder on C:, which has under 7 GB free. A raw body streams directly to the D: data folder with constant memory. |
+| P2-02 | Validation runs synchronously inside the upload request. The job queue and worker from the original Phase 2 plan are deferred. | Phase 2 was scoped to ingestion and metadata; every check is bounded and fast. Phase 3 pipelines will need the worker. |
+| P2-03 | Previews, map tiles and COG derivatives (blueprint D-015) deferred. | Not in the approved Phase 2 scope. |
+| P2-04 | Files that fail validation are not stored and do not become assets; the rejection is an audit record. | "Reject unsupported or malformed inputs"; avoids keeping unreadable bytes. |
+| P2-05 | `rasterio==1.4.3`, `pillow==10.4.0` pinned. OpenCV not installed. | Smart App Control blocks Rasterio 1.4.4. OpenCV was not needed: Pillow and the installed FFmpeg cover the phase. |
+| P2-06 | Raster georeferencing is reported as two facts: `crs_status` (`valid`/`missing`/`invalid`) and `georeferenced` (true only with a valid CRS, a usable geotransform and coordinates inside the CRS domain). Refines blueprint §13 item 5. | A valid CRS with no geotransform, or with impossible coordinates, is not usable georeferencing. |
+| P2-07 | EXIF GPS values are not stored; only their presence is recorded. EXIF capture time becomes a timestamp only when the file states its UTC offset. | Ground photographs must not acquire a location or an ambiguous time from unverified metadata. |
+| P2-08 | Duplicates link to the first asset with that content in the same project. The same content in another project reuses storage but is not flagged. | Deterministic policy required by ING-001. |
+| P2-09 | Backend line length raised from 110 to 120. | Readability of the new modules. |
+
+**Newly unresolved — U-017:** the Phase 2 approval lists the review vocabulary as `proposed`, `verified`, `inconclusive`, `disputed`, while the adopted V3 schema also has `needs_review` and `rejected`, which R-012, R-013, REV-001 and the review screens rely on. Not implemented either way. See `observation-schema-notes.md` §2. This supersedes the open part of D-008.
