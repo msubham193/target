@@ -348,3 +348,33 @@ Before Phase 5: U-002 (aggregation model), U-008 (report template), D-014 (PDF r
 Before Phase 6: U-012 (3D formats).
 
 Open at any time: U-007 (DSM definition), U-016 (source presentation for citation audit).
+
+---
+
+## Amendment A1 (2026-10-21): Phase 3b inserted before Phase 5
+
+Approved by the owner (decision log Part K, K-01). The sections above are kept as originally written; this amendment changes the order of work only.
+
+| Order | Phase | Status on 2026-10-21 |
+|---|---|---|
+| 1 | Phase 1: foundation, shell, projects | Complete |
+| 2 | Phase 2: ingestion, validation, metadata, contracts | Complete |
+| 3 | Phase 3: ground-image pipeline, jobs, previews | Complete for ground images only (U-001) |
+| 4 | Phase 4: map, observations, review, audit; georeferencing follow-up | Complete |
+| **5** | **Phase 3b: raster and video analysis readiness** | **Non-AI raster tools complete; at the review gate** |
+| 6 | Phase 5: summary generation, versioned reports, offline verification (scope unchanged) | Not started |
+| 7 | Phase 6: 3D, accessibility and performance | Not started |
+
+**Phase 3b scope, in order:**
+
+1. **Non-AI raster tools** (approved and implemented; see [phase-3b-report.md](phase-3b-report.md)):
+   - band selection and contrast;
+   - pixel values and band statistics;
+   - distance and area measurement (only with valid georeferencing, units and method);
+   - verified display copies for large rasters;
+   - pixel comparison of aligned rasters.
+2. **Sidecar metadata** (`.tfw`, `.prj`, `.aux.xml`): planned with a review-and-confirm workflow ([sidecar-metadata-plan.md](sidecar-metadata-plan.md)); not implemented.
+3. **AI candidates**, after separate approval only. The first candidate to evaluate is person-guided outlining with SAM 2.1; its download sizes, dependencies, compatibility and licences go to the owner before any download.
+4. **Video frame sampling**, as recorded in decision K-06. No video model or inference until it is approved.
+
+**Gate:** Phase 3b stops for review before any AI inference or the original Phase 5 begins.

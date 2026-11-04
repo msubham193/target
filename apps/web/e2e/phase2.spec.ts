@@ -62,9 +62,9 @@ test("upload, duplicate, rejection and retrieval against the real backend", asyn
   await page.getByRole("button", { name: "Create project" }).click();
   await expect(page.getByRole("heading", { name: "Ingestion demo", level: 1 })).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Project" }).getByRole("link", { name: "Upload", exact: true }).click();
-  await expect(page.getByText(".jpg, .jpeg, .png, .webp")).toBeVisible();
-  await expect(page.getByText("50 MB")).toBeVisible();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Upload & Ingestion" }).click();
+  await expect(page.getByText(".jpg, .jpeg, .png, .webp").first()).toBeVisible();
+  await expect(page.getByText("50 MB").first()).toBeVisible();
   await expect(page.getByText("No files added yet.")).toBeVisible();
   const input = page.locator("#asset-files");
 

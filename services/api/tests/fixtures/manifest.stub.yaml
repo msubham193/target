@@ -1,0 +1,75 @@
+# Test-only model manifest. Stub models return the fixed boxes written here; they are refused by the loader
+# unless GEOPOC_ALLOW_STUB_MODELS is set, which only the automated tests do.
+models:
+  - name: stub-detector
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    locality: local
+    licence: none (test stub)
+    score: { semantics: "fixed test value; carries no meaning", calibrated: false, range: [0, 1] }
+    settings:
+      taxonomy: test
+      min_score: 0.3
+      detections:
+        - { label: "thing a", score: 0.9, box_fraction: [0.1, 0.2, 0.5, 0.8] }
+        - { label: "thing b", score: 0.6, box_fraction: [0.5, 0.5, 1.0, 1.0] }
+        - { label: "thing c", score: 0.1, box_fraction: [0.0, 0.0, 0.2, 0.2] }
+
+  # Same boxes as stub-detector, but "thing a" is called "thing z": a second opinion that disagrees about one
+  # finding and agrees about another (Phase 4 conflict and possible-duplicate tests).
+  - name: stub-detector-alt
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    licence: none (test stub)
+    score: { semantics: "fixed test value; carries no meaning", calibrated: false, range: [0, 1] }
+    settings:
+      taxonomy: test
+      min_score: 0.3
+      detections:
+        - { label: "thing z", score: 0.8, box_fraction: [0.12, 0.2, 0.5, 0.8] }
+        - { label: "thing b", score: 0.7, box_fraction: [0.5, 0.5, 1.0, 1.0] }
+
+  - name: stub-empty
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    licence: none (test stub)
+    score: { semantics: "fixed test value; carries no meaning", calibrated: false, range: [0, 1] }
+    settings: { taxonomy: test, detections: [] }
+
+  - name: stub-invalid-output
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    licence: none (test stub)
+    score: { semantics: "fixed test value; carries no meaning", calibrated: false, range: [0, 1] }
+    settings:
+      taxonomy: test
+      detections:
+        - { label: "good", score: 0.8, box_fraction: [0.1, 0.1, 0.4, 0.4] }
+        - { label: "zero-area box", score: 0.7, box_fraction: [0.5, 0.5, 0.5, 0.5] }
+        - { label: "score out of range", score: 1.4, box_fraction: [0.2, 0.2, 0.6, 0.6] }
+
+  - name: stub-failing
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    licence: none (test stub)
+    score: { semantics: "fixed test value; carries no meaning", calibrated: false, range: [0, 1] }
+    settings: { taxonomy: test, fail: true }
+
+  - name: cloud-detector
+    version: test
+    pipeline: ground_image
+    task: object_detection
+    runtime: stub
+    locality: remote
+    licence: none
+    score: { semantics: "n/a" }

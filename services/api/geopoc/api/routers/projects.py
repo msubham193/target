@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import mapping
-from sqlalchemy import or_, select, tuple_
+from sqlalchemy import func, or_, select, tuple_
 
 from geopoc.api.deps import ProfileDep, RequestIdDep, SessionDep, record_audit
 from geopoc.api.errors import ProblemError, problem_responses
@@ -17,10 +17,12 @@ from geopoc.api.schemas import (
     ProjectCreate,
     ProjectOut,
     ProjectPage,
+    ProjectSummary,
     ProjectUpdate,
     clean_text,
 )
-from geopoc.db.models import Project, utcnow
+from geopoc.api.transformation import problem_for
+from geopoc.db.models import Asset, Job, ObservationRecord, Project, utcnow
 from geopoc.geo.aoi import AoiError, build_aoi
 from geopoc.geo.crs import CrsResolutionError
 
@@ -49,13 +51,23 @@ def project_out(project: Project) -> ProjectOut:
     )
 
 
-def _apply_aoi(project: Project, aoi: AoiInput | None) -> None:
+def _apply_aoi(project: Project, aoi: AoiInput | None, profile) -> None:
     if aoi is None:
         project.aoi_geom = None
         project.aoi_source = None
         return
     try:
-        built = build_aoi(aoi.geometry, aoi.crs_id)
+        built = build_aoi(
+            aoi.geometry,
+            aoi.crs_id,
+            aoi.transformation_operation,
+            aoi.acknowledge_accuracy,
+            {
+                "acknowledged_by": profile.display_name,
+                "acknowledged_by_id": str(profile.id),
+                "acknowledged_at": utcnow().isoformat(),
+            },
+        )
     except CrsResolutionError as exc:
         raise ProblemError(
             422,
@@ -65,6 +77,8 @@ def _apply_aoi(project: Project, aoi: AoiInput | None) -> None:
             [{"field": "body.aoi.crs_id", "message": str(exc)}],
         ) from exc
     except AoiError as exc:
+        if exc.transformation is not None:
+            raise problem_for(exc.transformation) from exc
         raise ProblemError(
             422,
             exc.code,
@@ -96,7 +110,7 @@ def _decode_cursor(cursor: str) -> tuple[datetime, uuid.UUID]:
         raise ProblemError(422, "INVALID_CURSOR", "The pagination cursor is not valid") from exc
 
 
-@router.post("", response_model=ProjectOut, status_code=201, responses=problem_responses(400, 401))
+@router.post("", response_model=ProjectOut, status_code=201, responses=problem_responses(400, 401, 409))
 def create_project(body: ProjectCreate, session: SessionDep, profile: ProfileDep, request_id: RequestIdDep):
     project = Project(
         name=body.name,
@@ -105,7 +119,7 @@ def create_project(body: ProjectCreate, session: SessionDep, profile: ProfileDep
         source_preference=body.source_preference,
         created_by=profile.id,
     )
-    _apply_aoi(project, body.aoi)
+    _apply_aoi(project, body.aoi, profile)
     session.add(project)
     session.flush()
     record_audit(
@@ -164,7 +178,7 @@ def get_project(project_id: uuid.UUID, session: SessionDep):
     return project_out(_get_project(session, project_id))
 
 
-@router.patch("/{project_id}", response_model=ProjectOut, responses=problem_responses(400, 401, 404))
+@router.patch("/{project_id}", response_model=ProjectOut, responses=problem_responses(400, 401, 404, 409))
 def update_project(
     project_id: uuid.UUID,
     body: ProjectUpdate,
@@ -192,7 +206,7 @@ def update_project(
         project.description = body.description
         changed.append("description")
     if "aoi" in sent:
-        _apply_aoi(project, body.aoi)
+        _apply_aoi(project, body.aoi, profile)
         changed.append("aoi")
     if "archived" in sent and body.archived is not None:
         project.archived_at = (project.archived_at or utcnow()) if body.archived else None
@@ -212,3 +226,42 @@ def update_project(
         session.commit()
         session.refresh(project)
     return project_out(project)
+
+
+@router.get("/{project_id}/summary", response_model=ProjectSummary, responses=problem_responses(404))
+def project_summary(project_id: uuid.UUID, session: SessionDep):
+    """Counts computed from stored rows, for overviews. Nothing here is estimated."""
+    project = _get_project(session, project_id)
+    asset_counts = dict(
+        session.execute(
+            select(Asset.modality, func.count()).where(Asset.project_id == project.id).group_by(Asset.modality)
+        ).all()
+    )
+    job_counts = dict(
+        session.execute(
+            select(Job.status, func.count())
+            .where(Job.project_id == project.id, Job.kind.in_(("preview", "analyze")))
+            .group_by(Job.status)
+        ).all()
+    )
+    observation_counts = dict(
+        session.execute(
+            select(ObservationRecord.review_status, func.count())
+            .where(ObservationRecord.project_id == project.id)
+            .group_by(ObservationRecord.review_status)
+        ).all()
+    )
+    latest = [
+        project.updated_at,
+        session.scalar(select(func.max(Asset.ingested_at)).where(Asset.project_id == project.id)),
+        session.scalar(select(func.max(Job.created_at)).where(Job.project_id == project.id)),
+    ]
+    return ProjectSummary(
+        project_id=project.id,
+        assets_by_modality={m: int(asset_counts.get(m, 0)) for m in ("ground_image", "overhead_raster", "video")},
+        assets_total=int(sum(asset_counts.values())),
+        jobs_by_status={k: int(v) for k, v in job_counts.items()},
+        observations_by_review_status={k: int(v) for k, v in observation_counts.items()},
+        observations_total=int(sum(observation_counts.values())),
+        last_activity_at=max(t for t in latest if t is not None),
+    )

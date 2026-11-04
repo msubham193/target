@@ -1,7 +1,9 @@
 """Turns a fully received, signature-checked upload into a stored asset with metadata and an audit record."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from geoalchemy2.shape import from_shape
 from sqlalchemy import select
@@ -10,10 +12,13 @@ from sqlalchemy.orm import Session
 from geopoc.api.deps import record_audit
 from geopoc.config import get_settings
 from geopoc.db.models import Asset, Blob, Project, RasterMetadata, VideoMetadata, WorkspaceUser
+from geopoc.geo import displaycopy, photolocation
+from geopoc.ingestion import mapsheet
 from geopoc.ingestion.image import inspect_image
 from geopoc.ingestion.raster import inspect_raster
 from geopoc.ingestion.rules import Inspection
 from geopoc.ingestion.video import inspect_video
+from geopoc.jobs import queue
 from geopoc.storage import store
 
 INSPECTORS = {
@@ -23,7 +28,7 @@ INSPECTORS = {
 }
 
 # Flags that are normal facts about an asset, not validation warnings.
-INFORMATIONAL_FLAGS = {"NOT_GEOREFERENCED", "TIMESTAMP_UNKNOWN", "DUPLICATE_ASSET"}
+INFORMATIONAL_FLAGS = {"NOT_GEOREFERENCED", "TIMESTAMP_UNKNOWN", "DUPLICATE_ASSET", *mapsheet.INFORMATIONAL_FLAGS}
 
 
 @dataclass
@@ -45,12 +50,15 @@ def ingest(
     sha256: str,
     size_bytes: int,
     request_id: str,
+    inspector: Callable[..., Inspection] | None = None,
+    intake: dict[str, Any] | None = None,
 ) -> IngestResult:
     """Validate readability, extract metadata, store the original once, and persist the asset.
 
+    `inspector` replaces the modality's usual inspector (map-sheet intake), and `intake` is added to the audit record.
     Raises UnreadableAsset or ToolingUnavailable before anything is stored. The caller owns `temp_path`.
     """
-    inspection: Inspection = INSPECTORS[modality](temp_path, family, get_settings())
+    inspection: Inspection = (inspector or INSPECTORS[modality])(temp_path, family, get_settings())
 
     blob = session.get(Blob, sha256)
     reused = blob is not None
@@ -109,6 +117,9 @@ def ingest(
         )
     if inspection.video is not None:
         session.add(VideoMetadata(asset_id=asset.id, **inspection.video))
+    if inspection.photo_gps is not None:
+        # An EXIF position is stored as an unverified candidate, attributed to the uploader. It is not a location.
+        photolocation.record_candidate(session, asset, inspection.photo_gps, actor=profile, request_id=request_id)
 
     record_audit(
         session,
@@ -127,8 +138,23 @@ def ingest(
             "duplicate_of_asset_id": str(duplicate_of) if duplicate_of else None,
             "stored_original_reused": reused,
             "stored_original_restored": restore_missing,
+            **({"exif_gps": inspection.photo_gps.state} if inspection.photo_gps is not None else {}),
+            **({"map_sheet": intake} if intake is not None else {}),
         },
     )
+    # The preview is made in the background; the upload does not wait for it.
+    if not inspection.no_preview:
+        queue.enqueue(session, kind="preview", project_id=project.id, asset_id=asset.id, created_by=profile.id)
+    if inspection.raster is not None:
+        # Band statistics (Phase 3b), and a verified display copy for large rasters without overviews.
+        queue.enqueue(session, kind="statistics", project_id=project.id, asset_id=asset.id, created_by=profile.id)
+        if displaycopy.needs_copy(
+            inspection.raster["width"],
+            inspection.raster["height"],
+            inspection.metadata.get("overview_levels"),
+            get_settings().display_copy_min_side,
+        ):
+            queue.enqueue(session, kind="display_copy", project_id=project.id, asset_id=asset.id, created_by=profile.id)
     session.flush()
 
     if not reused or restore_missing:

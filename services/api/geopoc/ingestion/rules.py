@@ -23,6 +23,7 @@ EXTENSION_FAMILY: dict[str, str] = {
     ".mp4": "isobmff",
     ".mov": "isobmff",
     ".mkv": "matroska",
+    ".pdf": "pdf",
 }
 
 MODALITY_EXTENSIONS: dict[str, tuple[str, ...]] = {
@@ -44,6 +45,7 @@ FAMILY_LABELS: dict[str, str] = {
     "tiff": "TIFF / GeoTIFF",
     "isobmff": "MP4 / MOV video",
     "matroska": "Matroska (MKV) video",
+    "pdf": "PDF document",
 }
 
 _ISO_BMFF_FIRST_ATOMS = {b"ftyp", b"moov", b"mdat", b"wide", b"free", b"skip", b"pnot"}
@@ -63,6 +65,8 @@ def sniff(header: bytes) -> str | None:
         return "isobmff"
     if header.startswith(b"\x1a\x45\xdf\xa3"):
         return "matroska"
+    if header.startswith(b"%PDF-"):
+        return "pdf"
     return None
 
 
@@ -108,6 +112,10 @@ class Inspection:
     acquisition_time: datetime | None = None
     raster: dict[str, Any] | None = None
     video: dict[str, Any] | None = None
+    # A ground photograph's EXIF GPS reading (an unverified candidate, or why there is none). See ingestion/gps.py.
+    photo_gps: Any = None
+    # True when no picture can be made from the original here (a PDF: no renderer is installed), so none is queued.
+    no_preview: bool = False
 
     def flag(self, code: str) -> None:
         if code not in self.quality_flags:

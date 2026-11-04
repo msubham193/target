@@ -1,6 +1,8 @@
 # Observation Schema — Version 3.0 adoption notes
 
-Date: 2026-10-12. Status: **documentation only.** No observation table, model or endpoint exists yet. This note records the approved direction and the Version 2.0 fields that need a decision before the schema is finalised, so that nothing is dropped silently.
+> **Superseded by [observation-schema.md](observation-schema.md).** The questions below were answered on 2026-10-12: all six review states are used, and every V2 field is retained or mapped. This note is kept as the record of what was asked.
+
+Date: 2026-10-12. Status at the time of writing: **documentation only.** No observation table, model or endpoint exists yet. This note records the approved direction and the Version 2.0 fields that need a decision before the schema is finalised, so that nothing is dropped silently.
 
 Sources: the approved specification, V2 §6 (field table and example) and V3 §4 (nested contract) and §5 (states).
 

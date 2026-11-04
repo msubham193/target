@@ -1,4 +1,9 @@
 # secrets and local configuration
+# Earth Engine / Google Cloud credentials must live outside the repository; these patterns are a safety net
+*service-account*.json
+*-credentials.json
+earthengine-credentials*
+client_secret*.json
 .env
 .env.*
 !.env.example
@@ -31,3 +36,9 @@ data/
 .vscode/
 .idea/
 Thumbs.db
+
+# generated walkthrough output: screenshots, browser logs and exports (the written review report stays tracked)
+docs/ui-review/screenshots*/
+docs/ui-review/*.json
+docs/ui-review/*.csv
+docs/ui-review/*.geojson

@@ -37,6 +37,38 @@ def exif_block(*, original: str | None = None, offset: str | None = None, gps: b
     return exif
 
 
+def _gps_tags(block: dict | None, tags: dict) -> dict:
+    gps = {1: "N", 2: (28.0, 36.0, 0.0), 3: "E", 4: (77.0, 12.0, 0.0)} if block is None else dict(block)
+    for key, value in tags.items():
+        number = int(key.removeprefix("t"))
+        if value is None:
+            gps.pop(number, None)
+        else:
+            gps[number] = value
+    return gps
+
+
+def gps_exif(block: dict | None = None, **tags) -> Image.Exif:
+    """An EXIF block to save into a picture: GPS section `block` (default 28.6 N, 77.2 E), tags overridden or removed (None).
+
+    Only usable for writing a file. A hand-built Exif cannot be read back until it has been saved and reopened.
+    """
+    exif = Image.Exif()
+    exif[271] = "TestCam"
+    exif[0x8825] = _gps_tags(block, tags)
+    return exif
+
+
+class GpsBlock:
+    """Stands in for a parsed Exif when testing the GPS reader directly: only `get_ifd` is used."""
+
+    def __init__(self, block: dict | None = None, **tags) -> None:
+        self.block = _gps_tags(block, tags)
+
+    def get_ifd(self, _tag):
+        return self.block
+
+
 NORTH_UP = from_origin(500000, 3000000, 10, 10)  # EPSG:32643, on the 75 E central meridian
 
 

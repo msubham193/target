@@ -27,9 +27,9 @@ test("workspace entry shows service health and the first-use empty dashboard", a
   await expect(page.getByText("It is not a login and gives no access control")).toBeVisible();
 
   await enterWorkspace(page);
-  await expect(page.getByText("No projects yet")).toBeVisible();
-  await expect(page.getByText(`Profile: ${PROFILE}`)).toBeVisible();
-  await expect(page.getByText("Local only · online sources off")).toBeVisible();
+  await expect(page.getByRole("main").getByText("No projects yet")).toBeVisible();
+  await expect(page.getByTitle("Local profile (not a login)")).toHaveText(PROFILE);
+  await expect(page.getByRole("link", { name: "Local only" })).toBeVisible();
 });
 
 test("create a project without a location, then reopen it (Phase 1 exit criterion)", async ({ page }) => {
@@ -44,7 +44,7 @@ test("create a project without a location, then reopen it (Phase 1 exit criterio
   await expect(page.getByText("No location entered. A project does not need one.")).toBeVisible();
   const projectUrl = page.url();
 
-  await page.getByRole("link", { name: "Dashboard" }).click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Project Dashboard" }).click();
   const list = page.getByRole("list", { name: "Project list" });
   await expect(list.getByRole("link", { name: "Harbour survey" })).toBeVisible();
   await expect(list).toContainText("Location: none entered");
@@ -79,7 +79,9 @@ test("a location needs a complete CRS; 'WGS84 + LCC' is not one", async ({ page 
 
   await page.getByRole("button", { name: "Create project" }).click();
   await expect(page.getByRole("heading", { name: "With location", level: 1 })).toBeVisible();
-  await expect(page.getByText("Entered in EPSG:4326")).toBeVisible();
+  // The location is shown in words, as entered and in the CRS it was entered in.
+  await expect(page.getByText("X 77.2, Y 28.6")).toBeVisible();
+  await expect(page.getByText("in EPSG:4326", { exact: true })).toBeVisible();
   await expect(page.getByText("It does not show where any uploaded file was captured")).toBeVisible();
 });
 
@@ -98,7 +100,7 @@ test("search, edit and archive a project", async ({ page }) => {
 
   await page.getByRole("button", { name: "Archive project" }).click();
   await expect(page.getByRole("button", { name: "Restore project" })).toBeVisible();
-  await page.getByRole("link", { name: "Dashboard" }).click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Project Dashboard" }).click();
   await expect(page.getByRole("list", { name: "Project list" })).not.toContainText("Harbour survey 2");
   await page.getByLabel("Show archived").check();
   await expect(page.getByRole("list", { name: "Project list" })).toContainText("Harbour survey 2");
@@ -113,25 +115,37 @@ test("later-phase screens say so, settings state the DSM position, and nothing l
 
   await enterWorkspace(page);
   await page.getByRole("list", { name: "Project list" }).getByRole("link", { name: "With location" }).click();
-  for (const [link, title, phase] of [
-    ["Map", "Map & Analysis", 4],
-    ["Observations", "Observations", 4],
-    ["Reports", "Reports", 5],
-    ["3D", "3D View", 6],
+  const nav = page.getByRole("navigation", { name: "Main" });
+  // The 3D terrain view exists; a project with no rasters says so plainly and draws nothing.
+  const threeD = nav.getByRole("link", { name: "3D View" });
+  await expect(threeD).toBeVisible();
+  await threeD.click();
+  await expect(page.getByRole("heading", { name: "3D View", level: 1 })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "This project has no rasters" })).toBeVisible();
+  // The map exists (Phase 4). A project with only a location shows that location and places no files.
+  await nav.getByRole("link", { name: "Map & Analysis", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Map & Analysis View", level: 1 })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Project area of interest" })).toBeChecked();
+  await expect(page.getByText("No georeferenced rasters in this project.")).toBeVisible();
+  for (const [link, title] of [
+    ["Observations", "Observations"],
+    ["Reports", "Reports"],
   ] as const) {
-    await page.getByRole("navigation", { name: "Project" }).getByRole("link", { name: link, exact: true }).click();
+    await nav.getByRole("link", { name: link, exact: true }).click();
     await expect(page.getByRole("heading", { name: title, level: 1 })).toBeVisible();
-    await expect(page.getByText(`Not available yet — planned for Phase ${phase}`)).toBeVisible();
   }
+  await expect(page.getByText("PDF report")).toBeVisible();
 
   await page.goto("/settings/diagnostics");
   await expect(page.getByText("API bound to")).toBeVisible();
   await expect(page.getByText("127.0.0.1", { exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "Models" }).click();
-  await expect(page.getByText("No analysis models are installed")).toBeVisible();
-  await page.getByRole("link", { name: "CRS", exact: true }).click();
+  const sections = page.getByRole("navigation", { name: "Settings sections" });
+  await sections.getByRole("link", { name: "Models" }).click();
+  // The end-to-end stack runs with the test-only stub models; a working installation never lists them.
+  await expect(page.getByRole("list", { name: "Models" })).toContainText("Not calibrated and not evaluated");
+  await sections.getByRole("link", { name: "Coordinate systems" }).click();
   await expect(page.getByText("DSM (Defence Series Map) compatibility is not claimed")).toBeVisible();
-  await page.getByRole("link", { name: "Sources" }).click();
+  await sections.getByRole("link", { name: "Data sources & storage" }).click();
   await expect(page.getByText("No online sources are configured")).toBeVisible();
 
   await page.goto("/projects/00000000-0000-4000-8000-000000000000");

@@ -25,7 +25,10 @@ def data_root() -> Path:
 
 
 def uploads_dir() -> Path:
-    return data_root() / "tmp" / "uploads"
+    """The folder for uploads in progress. Created on demand, so it survives being removed while running."""
+    folder = data_root() / "tmp" / "uploads"
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
 
 
 def init_storage() -> None:

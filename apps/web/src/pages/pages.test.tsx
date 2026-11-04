@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -6,13 +6,14 @@ import * as client from "../api/client";
 import { renderPage } from "../test/render";
 import { DashboardPage } from "./DashboardPage";
 import { NewProjectPage } from "./NewProjectPage";
-import { NotYetPage } from "./NotYetPage";
 
 vi.mock("../api/client", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../api/client")>();
   return {
     ...actual,
     listProjects: vi.fn(),
+    listRecentJobs: vi.fn(),
+    getProjectSummary: vi.fn(),
     createProject: vi.fn(),
     searchCrs: vi.fn(),
   };
@@ -23,7 +24,30 @@ const createProject = vi.mocked(client.createProject);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(client.listRecentJobs).mockResolvedValue({ items: [] });
+  vi.mocked(client.getProjectSummary).mockResolvedValue({
+    project_id: "p1",
+    assets_by_modality: { ground_image: 3, overhead_raster: 1, video: 0 },
+    assets_total: 4,
+    jobs_by_status: { completed: 4 },
+    observations_by_review_status: { needs_review: 2 },
+    observations_total: 2,
+    last_activity_at: "2026-10-12T00:00:00Z",
+  });
 });
+
+const HARBOUR = {
+  id: "p1",
+  name: "Harbour",
+  description: null,
+  tags: ["coast"],
+  aoi: null,
+  source_preference: "local_only",
+  created_by: { id: "u1", display_name: "Asha", created_at: "2026-10-12T00:00:00Z" },
+  created_at: "2026-10-12T00:00:00Z",
+  updated_at: "2026-10-12T00:00:00Z",
+  archived_at: null,
+} as client.Project;
 
 describe("DashboardPage", () => {
   it("shows the first-use empty state and no invented counts", async () => {
@@ -31,7 +55,10 @@ describe("DashboardPage", () => {
     renderPage(<DashboardPage />);
     expect(await screen.findByText("No projects yet")).toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Project list" })).not.toBeInTheDocument();
-    expect(screen.getByText(/Processing jobs are not part of this phase/)).toBeInTheDocument();
+    // Recent activity comes from the API; with none, the panel says so rather than showing invented activity.
+    expect(await screen.findByText(/Nothing yet/)).toBeInTheDocument();
+    expect(screen.queryByText(/not part of this phase/)).not.toBeInTheDocument();
+    expect(client.getProjectSummary).not.toHaveBeenCalled();
   });
 
   it("shows an actionable error with its diagnostic code when the API is unreachable", async () => {
@@ -61,7 +88,15 @@ describe("DashboardPage", () => {
     });
     renderPage(<DashboardPage />);
     expect(await screen.findByRole("link", { name: "Harbour" })).toHaveAttribute("href", "/projects/p1");
-    expect(screen.getByText("Location: none entered")).toBeInTheDocument();
+    expect(screen.getByText(/Location: none entered/)).toBeInTheDocument();
+  });
+
+  it("shows counts only as the summary endpoint reports them", async () => {
+    listProjects.mockResolvedValue({ items: [HARBOUR], next_cursor: null });
+    renderPage(<DashboardPage />);
+    await waitFor(() => expect(client.getProjectSummary).toHaveBeenCalledWith("p1"));
+    const row = within(await screen.findByRole("list", { name: "Project list" })).getAllByRole("listitem")[0]!;
+    await waitFor(() => expect(row).toHaveTextContent(/2\s*findings?/));
   });
 });
 
@@ -86,11 +121,20 @@ describe("NewProjectPage", () => {
     renderPage(<NewProjectPage />);
     await user.type(screen.getByLabelText("Name"), "Survey B");
     await user.click(screen.getByLabelText("Add an area of interest"));
-    await user.type(screen.getByLabelText("X (easting / longitude)"), "77.2");
-    await user.type(screen.getByLabelText("Y (northing / latitude)"), "28.6");
+    await user.type(screen.getByLabelText("X (first coordinate)"), "77.2");
+    await user.type(screen.getByLabelText("Y (second coordinate)"), "28.6");
     await user.click(screen.getByRole("button", { name: "Create project" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("A location without a CRS is not accepted");
     expect(createProject).not.toHaveBeenCalled();
+  });
+
+  it("removes a form error as soon as the form is changed", async () => {
+    const user = userEvent.setup();
+    renderPage(<NewProjectPage />);
+    await user.click(screen.getByRole("button", { name: "Create project" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Enter a project name.");
+    await user.type(screen.getByLabelText("Name"), "S");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("requires a name", async () => {
@@ -101,16 +145,12 @@ describe("NewProjectPage", () => {
     expect(createProject).not.toHaveBeenCalled();
   });
 
-  it("keeps place search and online sources disabled", () => {
+  it("keeps place search and online imagery sources disabled when no Mapbox token is configured", () => {
+    vi.stubEnv("VITE_MAPBOX_ACCESS_TOKEN", "");
     renderPage(<NewProjectPage />);
     expect(screen.getByLabelText("Place search")).toBeDisabled();
     expect(screen.getByLabelText(/Allow configured online imagery sources/)).toBeDisabled();
+    vi.unstubAllEnvs();
   });
 });
 
-describe("NotYetPage", () => {
-  it("states plainly that the screen belongs to a later phase", () => {
-    renderPage(<NotYetPage title="3D View" phase={6} detail="No 3D data can be loaded yet." />);
-    expect(screen.getByRole("status")).toHaveTextContent("Not available yet — planned for Phase 6");
-  });
-});

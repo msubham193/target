@@ -28,7 +28,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health Models */
+        /**
+         * Health Models
+         * @description The models in the manifest and whether each can be run here. Never loads a model.
+         */
         get: operations["health_models_health_models_get"];
         put?: never;
         post?: never;
@@ -92,6 +95,26 @@ export interface paths {
         patch: operations["update_project_api_v1_projects__project_id__patch"];
         trace?: never;
     };
+    "/api/v1/projects/{project_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Project Summary
+         * @description Counts computed from stored rows, for overviews. Nothing here is estimated.
+         */
+        get: operations["project_summary_api_v1_projects__project_id__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ingestion/rules": {
         parameters: {
             query?: never;
@@ -150,6 +173,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Asset Preview
+         * @description A small derived picture of the asset for display. Never the original; carries no georeferencing.
+         */
+        get: operations["get_asset_preview_api_v1_assets__asset_id__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assets/{asset_id}/content": {
         parameters: {
             query?: never;
@@ -162,6 +205,963 @@ export interface paths {
          * @description Download the stored original exactly as uploaded. Supports HTTP Range.
          */
         get: operations["get_asset_content_api_v1_assets__asset_id__content_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_api_v1_projects__project_id__jobs_get"];
+        put?: never;
+        /**
+         * Create Job
+         * @description Queue background work on an asset. Returns at once; follow the job to see it run.
+         */
+        post: operations["create_job_api_v1_projects__project_id__jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recent Jobs
+         * @description The most recent jobs across all projects, newest first, with the project and file they belong to.
+         */
+        get: operations["recent_jobs_api_v1_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Job */
+        get: operations["get_job_api_v1_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Job
+         * @description Ask for a job to stop. A job that has not started is cancelled at once; a running one stops shortly.
+         */
+        post: operations["cancel_job_api_v1_jobs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Job
+         * @description Submit a draft job.
+         */
+        post: operations["start_job_api_v1_jobs__job_id__start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retry Job
+         * @description Run a failed or cancelled job again as a new job. The old job and its log are kept.
+         */
+        post: operations["retry_job_api_v1_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Run
+         * @description How an analysis was produced: model, version, weights checksum, settings, device, timings.
+         */
+        get: operations["get_run_api_v1_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/observations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Observations
+         * @description Observations with the model's original output and their current review state.
+         */
+        get: operations["list_observations_api_v1_projects__project_id__observations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/observations/{observation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Observation
+         * @description One observation with its full revision history, conflicts and possible-duplicate links.
+         */
+        get: operations["get_observation_api_v1_observations__observation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/observations/{observation_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Review Observation
+         * @description Record one review action. The model's output is kept unchanged; the action becomes a new revision.
+         */
+        patch: operations["review_observation_api_v1_observations__observation_id__review_patch"];
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/conflicts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Conflicts
+         * @description Conflicts between supported observations, with every member kept.
+         */
+        get: operations["list_conflicts_api_v1_projects__project_id__conflicts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/exports/observations.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Csv
+         * @description A table of observations. Image regions are in labelled pixel columns; nothing is presented as a map position.
+         *
+         *     One row per observation and nothing else: map annotations and photograph locations are not rows of this table (they
+         *     are in the JSON and GeoJSON exports and the findings report).
+         */
+        get: operations["export_csv_api_v1_projects__project_id__exports_observations_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/exports/observations.geojson": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Geojson
+         * @description Geographic features only. Observations without an established location are counted, never placed.
+         *
+         *     Located photographs (`feature_type: photo_location`) and the project's active map annotations
+         *     (`feature_type: user_annotation`) are separate features. Deleted annotations are not written as features; the
+         *     `annotations` member counts them. The `status` filter applies to observations only.
+         */
+        get: operations["export_geojson_api_v1_projects__project_id__exports_observations_geojson_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/exports/observations.json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Json
+         * @description Everything stored: original model output, current state, revision history, conflicts and run provenance.
+         *
+         *     The `annotations` member lists the project's map annotations, active and deleted (each marked by `status`), with
+         *     every version. They are never mixed into `observations`. The `status` filter applies to observations only.
+         */
+        get: operations["export_json_api_v1_projects__project_id__exports_observations_json_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/layers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Layers
+         * @description Layers that are safe to place, and every asset that is not, with the reason.
+         */
+        get: operations["get_layers_api_v1_projects__project_id__layers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/tiles/{z}/{x}/{y}.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tile
+         * @description A display tile of a georeferenced raster, reprojected from its own CRS. Never served for other rasters.
+         *
+         *     The tile is drawn through an exact conversion, the single registered datum shift that applies, or the one you
+         *     chose. A ballpark transformation, a missing grid, or an open choice between several operations is refused (409).
+         */
+        get: operations["get_tile_api_v1_assets__asset_id__tiles__z___x___y__png_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/crs/transform": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Transform Point
+         * @description Convert one point between registered CRSs with the local PROJ database. Offline; nothing is guessed.
+         *
+         *     The operation used is reported with its class (exact, approximate with a documented accuracy, or ballpark). A
+         *     ballpark transformation is refused unless accepted, a missing datum-shift grid is reported, and several applicable
+         *     operations must be chosen between (409 with the candidates).
+         */
+        get: operations["transform_point_api_v1_crs_transform_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/georeferencing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Georeferencing
+         * @description What the file declares, what is used now, why it is or is not placed, what can be done, and the history.
+         */
+        get: operations["get_georeferencing_api_v1_assets__asset_id__georeferencing_get"];
+        put?: never;
+        /**
+         * Record Georeferencing
+         * @description Record a reviewed change as a new version. It is validated again here; nothing is stored unless it passes.
+         */
+        post: operations["record_georeferencing_api_v1_assets__asset_id__georeferencing_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/georeferencing/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Georeferencing
+         * @description Check a proposed change and show its result. Nothing is stored.
+         */
+        post: operations["validate_georeferencing_api_v1_assets__asset_id__georeferencing_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/raster-tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Raster Tools
+         * @description Band information as the file declares it, band statistics, and the display copy, with their job states.
+         */
+        get: operations["get_raster_tools_api_v1_assets__asset_id__raster_tools_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Statistics
+         * @description Compute (or recompute) band statistics in the background.
+         */
+        post: operations["request_statistics_api_v1_assets__asset_id__statistics_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/display-copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Display Copy
+         * @description Build a verified display copy with overviews in the background. The original is not changed.
+         */
+        post: operations["request_display_copy_api_v1_assets__asset_id__display_copy_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/display": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Display
+         * @description Check display settings and say exactly how values will be mapped to brightness.
+         */
+        get: operations["get_display_api_v1_assets__asset_id__display_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/render.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Render
+         * @description The whole raster in image space with the chosen bands and stretch. For looking only.
+         */
+        get: operations["render_api_v1_assets__asset_id__render_png_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/pixel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pixel
+         * @description The stored values of every band at one pixel, read from the original. By pixel, or by map position.
+         *
+         *     Longitude/latitude to and from the raster's CRS follows the datum transformation policy: an exact conversion or
+         *     the single registered shift is used, several shifts need `operation`, and a ballpark or missing-grid conversion
+         *     is refused (by position) or leaves the longitude/latitude out (by pixel).
+         */
+        get: operations["get_pixel_api_v1_assets__asset_id__pixel_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Measure Points
+         * @description Measure a distance or an area between given points. Nothing is stored.
+         */
+        post: operations["measure_points_api_v1_measurements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/alignment/{other_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Alignment
+         * @description Whether two rasters are on the same grid, and if not, why. Nothing is resampled to make them fit.
+         */
+        get: operations["get_alignment_api_v1_assets__asset_id__alignment__other_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Comparisons
+         * @description Pixel comparisons requested in this project, newest first, with their job state and result.
+         */
+        get: operations["list_comparisons_api_v1_projects__project_id__comparisons_get"];
+        put?: never;
+        /**
+         * Request Comparison
+         * @description Compute B − A for two aligned rasters in the background; the result is stored as a new derived raster.
+         */
+        post: operations["request_comparison_api_v1_projects__project_id__comparisons_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/sidecars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Sidecar
+         * @description Add a world file, .prj or .aux.xml for a raster. Stored unmodified for review; nothing is applied.
+         */
+        post: operations["upload_sidecar_api_v1_projects__project_id__sidecars_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/sidecars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sidecars
+         * @description The raster's sidecar files, what each says, how it compares with the raster, and what could be recorded.
+         */
+        get: operations["get_sidecars_api_v1_assets__asset_id__sidecars_get"];
+        put?: never;
+        /**
+         * Attach Sidecar
+         * @description Add a sidecar file for this raster, whatever its name. Stored unmodified for review; nothing is applied.
+         */
+        post: operations["attach_sidecar_api_v1_assets__asset_id__sidecars_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/sidecars/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Sidecars
+         * @description Check the change the sidecar files propose, with the same checks as georeferencing entered by hand. Stores
+         *     nothing.
+         */
+        post: operations["validate_sidecars_api_v1_assets__asset_id__sidecars_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/sidecars/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply Sidecars
+         * @description Record the reviewed change as a new georeferencing version. Validated again; nothing is stored unless it
+         *     passes, the sidecars are the ones reviewed and unchanged, and the change is confirmed.
+         */
+        post: operations["apply_sidecars_api_v1_assets__asset_id__sidecars_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Location
+         * @description The photograph's current location state, any EXIF candidate, and the full history.
+         */
+        get: operations["get_location_api_v1_assets__asset_id__location_get"];
+        put?: never;
+        /**
+         * Change Location
+         * @description Record a reviewed decision as a new version: confirm the EXIF position, enter or choose one, or clear it.
+         */
+        post: operations["change_location_api_v1_assets__asset_id__location_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/location/read-exif": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Read Exif Position
+         * @description Read the GPS position from the stored original again (for photographs ingested before GPS was read).
+         */
+        post: operations["read_exif_position_api_v1_assets__asset_id__location_read_exif_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/photo-locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Photo Locations
+         * @description Every ground photograph in the project with its location state. Coordinates are given only when confirmed.
+         */
+        get: operations["list_photo_locations_api_v1_projects__project_id__photo_locations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/annotations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Annotations
+         * @description The project's annotations as they are now. Deleted ones are left out unless `include_deleted` is set.
+         */
+        get: operations["list_annotations_api_v1_projects__project_id__annotations_get"];
+        put?: never;
+        /**
+         * Create Annotation
+         * @description Save a new point, line or polygon with a note.
+         */
+        post: operations["create_annotation_api_v1_projects__project_id__annotations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/annotations/{annotation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Annotation
+         * @description One annotation of this project, including a deleted one (its status says so).
+         */
+        get: operations["get_annotation_api_v1_projects__project_id__annotations__annotation_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Annotation
+         * @description Delete an annotation: a new `deleted` version hides it from the normal views. Its history is kept.
+         */
+        delete: operations["delete_annotation_api_v1_projects__project_id__annotations__annotation_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Annotation
+         * @description Save a new version with a new shape and/or note. The kind cannot change.
+         */
+        patch: operations["update_annotation_api_v1_projects__project_id__annotations__annotation_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/annotations/{annotation_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Annotation History
+         * @description Every version, oldest first, including the deletion.
+         */
+        get: operations["annotation_history_api_v1_projects__project_id__annotations__annotation_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Findings Report
+         * @description Findings report for one project, built only from stored records.
+         *
+         *     A value that is not stored is null and named in `unavailable_fields`; it is never defaulted or estimated. Photograph
+         *     positions appear only where a person confirmed them. User-drawn map annotations are in their own `annotations`
+         *     section, apart from the findings; deleted ones are marked `deleted`. Each request is recorded in the audit log.
+         */
+        get: operations["get_findings_report_api_v1_projects__project_id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets/{asset_id}/video-analysis/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sampling Plan
+         * @description How many frames a sampling choice would take, before anything is run. The job re-derives the exact frames.
+         */
+        get: operations["sampling_plan_api_v1_projects__project_id__assets__asset_id__video_analysis_plan_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets/{asset_id}/video-analysis/runs/{run_id}/frames": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Run Frames
+         * @description The sampled frames of one analysis run with their frame numbers, times, checksums and how many findings each "
+         *     "has.
+         */
+        get: operations["run_frames_api_v1_projects__project_id__assets__asset_id__video_analysis_runs__run_id__frames_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets/{asset_id}/video-analysis/runs/{run_id}/frames/{frame_index}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Frame Image
+         * @description The exact frame image the model saw, as stored. Its SHA-256 is the ETag and is recorded on every finding.
+         */
+        get: operations["frame_image_api_v1_projects__project_id__assets__asset_id__video_analysis_runs__run_id__frames__frame_index__image_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/terrain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Terrain
+         * @description Every raster of the project, whether it can be drawn as terrain, and why or why not. Reads no pixels.
+         */
+        get: operations["list_terrain_api_v1_projects__project_id__terrain_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets/{asset_id}/terrain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Terrain
+         * @description What the 3D view needs to place and describe the surface: extent, cell size, units, statistics, disclosures.
+         *
+         *     Its longitude/latitude position follows the datum transformation policy; when no transformation may be used the
+         *     position is absent (`positioning` says why). Elevation values and the vertical datum are never touched.
+         */
+        get: operations["get_terrain_api_v1_projects__project_id__assets__asset_id__terrain_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/assets/{asset_id}/terrain/grid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Terrain Grid
+         * @description The height grid itself, as raw float32 values (NaN = no data).
+         */
+        get: operations["get_terrain_grid_api_v1_projects__project_id__assets__asset_id__terrain_grid_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -190,10 +1190,731 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/crs/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Operations
+         * @description Every coordinate operation the local PROJ database offers between two registered CRSs, each classified as exact,
+         *     approximate (with its documented accuracy), ballpark or unavailable (a datum-shift grid is missing). Read-only.
+         *     Without an area, every registered operation for the pair is listed, so the list can be long.
+         */
+        get: operations["list_operations_api_v1_crs_operations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/crs-assessment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Crs Assessment
+         * @description CRS details (datum, ellipsoid, projection and parameters, units), the eight statuses, and every transformation
+         *     candidate with its class, documented accuracy and missing grids. Read-only.
+         */
+        get: operations["get_crs_assessment_api_v1_assets__asset_id__crs_assessment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/map-sheets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Map Sheets
+         * @description Every map sheet in the project, newest first, with how each is positioned and what it still needs.
+         */
+        get: operations["list_map_sheets_api_v1_projects__project_id__map_sheets_get"];
+        put?: never;
+        /**
+         * Upload Map Sheet
+         * @description Take in one map sheet: a GeoTIFF, a scanned TIFF / PNG / JPEG, or a PDF. The body is the raw file.
+         *
+         *     The original is stored unmodified. A sheet whose file carries no valid georeferencing is stored unplaced; it can be
+         *     georeferenced afterwards from a world file / .prj or from control points, each reviewed and recorded by a person.
+         */
+        post: operations["upload_map_sheet_api_v1_projects__project_id__map_sheets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/map-sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Map Sheet Assessment
+         * @description What the sheet's file states about its datum, ellipsoid, projection, parameters, units, grid and extent, what it
+         *     does not, what is therefore unresolved, and what is needed. Read-only: nothing is assigned or inferred.
+         */
+        get: operations["get_map_sheet_assessment_api_v1_assets__asset_id__map_sheet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/map-sheet/metadata-notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Metadata Note
+         * @description Record what a person has learned about a sheet's unresolved metadata (for example a datum named in the sheet's
+         *     margin), with where it comes from. It is kept in the append-only audit history and is never applied: it does not
+         *     define a CRS, change a transformation or place the sheet.
+         */
+        post: operations["record_metadata_note_api_v1_assets__asset_id__map_sheet_metadata_notes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/alignment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Alignment
+         * @description How two placed rasters (for example a map sheet and a satellite image) relate: overlap, how each is positioned
+         *     and what each position is documented to be good to. Read-only.
+         */
+        get: operations["get_alignment_api_v1_projects__project_id__alignment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/control-points/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Control Points
+         * @description Fit the points and run every georeferencing check on the result. Nothing is stored.
+         */
+        post: operations["validate_control_points_api_v1_assets__asset_id__control_points_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/control-points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Control Points
+         * @description Record a reviewed control-point georeferencing as a new version. Fitted and validated again here.
+         */
+        post: operations["record_control_points_api_v1_assets__asset_id__control_points_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/earth-engine/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Status
+         * @description Local state only: nothing is sent to Google and no usage is charged. Shows no credential.
+         */
+        get: operations["get_status_api_v1_earth_engine_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/earth-engine/datasets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Datasets
+         * @description The catalogue and each dataset's latest probe result. Read-only; never contacts Google.
+         */
+        get: operations["list_datasets_api_v1_earth_engine_datasets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/earth-engine/connection-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Connection Test
+         * @description Manual: initialise Earth Engine as the organisation-owned identity for the designated project and run one trivial
+         *     computation. Sends no area of interest. A failed check is a normal 200 result with `ok: false` and the reason.
+         */
+        post: operations["connection_test_api_v1_earth_engine_connection_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/earth-engine/datasets/{slug}/probe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Probe Dataset
+         * @description Manual: ask the service for one catalogue dataset's time extent. Sends no area of interest or geometry.
+         */
+        post: operations["probe_dataset_api_v1_earth_engine_datasets__slug__probe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imagery/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Providers
+         * @description The catalogues this installation knows, their collections, and which gates are still closed. Local state only:
+         *     nothing is sent anywhere and no credential is shown.
+         */
+        get: operations["list_providers_api_v1_imagery_providers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/scene-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scene Search
+         * @description Find scenes over an area and dates. With `dry_run` it only checks the request and shows what would be sent.
+         *     Without it, the request is refused unless every gate is open, the project allows online sources, and
+         *     `confirm_external_transmission` is true. Nothing is downloaded or stored; page with `next_page_token`.
+         */
+        post: operations["scene_search_api_v1_projects__project_id__scene_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imagery/s3/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * S3 Status
+         * @description The state of the CDSE S3 configuration. Reads configuration only: it makes no request and checks no credential,
+         *     so `authenticated` is always false here. Use the verification to check them.
+         */
+        get: operations["s3_status_api_v1_imagery_s3_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imagery/s3/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * S3 Verify
+         * @description Check the credentials with one signed, read-only listing request (at most one key) to the S3 endpoint.
+         *
+         *     Refused with 409 unless `confirm_external_request` is true. When the integration is off, the online gate is
+         *     closed or the credentials are missing, the answer says so and nothing is sent, whatever the confirmation.
+         */
+        post: operations["s3_verify_api_v1_imagery_s3_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/indices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Indices
+         * @description The spectral indices this server can compute. Local information only.
+         */
+        get: operations["list_indices_api_v1_indices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/indices/{index_key}/inputs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Index Inputs
+         * @description The locally stored scenes that have the bands this index needs, and whether each pair can be combined.
+         *
+         *     Reads the product metadata and the headers of the band files in the server's band folder. Reflectance scaling is
+         *     taken from each product's own metadata. Nothing is processed, copied or sent anywhere.
+         */
+        get: operations["index_inputs_api_v1_projects__project_id__indices__index_key__inputs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/indices/{index_key}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Runs
+         * @description Runs of this index in this project, newest first, with live status and, once finished, the result.
+         */
+        get: operations["list_runs_api_v1_projects__project_id__indices__index_key__runs_get"];
+        put?: never;
+        /**
+         * Start Run
+         * @description Calculate the index for a scene in the background. The inputs are re-checked here, and a second run of the same
+         *     scene is refused while one is queued or running. The result is stored as a derived raster asset.
+         */
+        post: operations["start_run_api_v1_projects__project_id__indices__index_key__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/indices/{index_key}/runs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Run
+         * @description One run: its state, real progress, error if any, and the result once it has finished.
+         */
+        get: operations["get_run_api_v1_projects__project_id__indices__index_key__runs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/indices/{index_key}/runs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Run
+         * @description Ask a run to stop. One that has not started is cancelled at once; a running one stops at its next checkpoint
+         *     and keeps nothing.
+         */
+        post: operations["cancel_run_api_v1_projects__project_id__indices__index_key__runs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlignmentLayerOut */
+        AlignmentLayerOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "map_sheet" | "raster";
+            /** Series */
+            series: ("osm" | "esm" | "unspecified") | null;
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Placement */
+            placement: string;
+            /**
+             * Georeferencing Basis
+             * @enum {string}
+             */
+            georeferencing_basis: "file_metadata" | "sidecar" | "world_file" | "control_points" | "recorded" | "none";
+            /** Transformation Class */
+            transformation_class: string | null;
+            /** Datum Shift Accuracy M */
+            datum_shift_accuracy_m: number | null;
+            /** Selection Required */
+            selection_required: boolean;
+            /**
+             * Needs Acknowledgement
+             * @description True when the layer's only datum shift is worse than 10 m (or has no stated accuracy) and has not been acknowledged, so the layer is not carried to the map.
+             * @default false
+             */
+            needs_acknowledgement: boolean;
+            /** Control Point Rms M */
+            control_point_rms_m: number | null;
+            /** Ground Pixel M */
+            ground_pixel_m: number | null;
+            /** Bounds 4326 */
+            bounds_4326: number[] | null;
+        };
+        /** AlignmentOut */
+        AlignmentOut: {
+            /** Aligned */
+            aligned: boolean;
+            /** Reasons */
+            reasons: string[];
+        };
+        /** AllowedActionOut */
+        AllowedActionOut: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "confirm" | "reject" | "mark_inconclusive" | "reopen" | "relabel" | "note";
+            /** Target Status */
+            target_status: ("proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected") | null;
+            /** Note Required */
+            note_required: boolean;
+        };
+        /** AnnotationCreate */
+        AnnotationCreate: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "point" | "line" | "polygon";
+            /**
+             * Geometry
+             * @description GeoJSON Point, LineString or Polygon (one outline, no holes). Positions are [longitude, latitude] in degrees; a polygon outline must end where it starts.
+             */
+            geometry: {
+                [key: string]: unknown;
+            };
+            /**
+             * Crs Id
+             * @description Only EPSG:4326 is accepted; anything else is refused.
+             * @default EPSG:4326
+             */
+            crs_id: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+        };
+        /** AnnotationHistoryOut */
+        AnnotationHistoryOut: {
+            /**
+             * Annotation Id
+             * Format: uuid
+             */
+            annotation_id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "point" | "line" | "polygon";
+            /** Versions */
+            versions: components["schemas"]["AnnotationVersionOut"][];
+            /** Note */
+            note: string;
+        };
+        /** AnnotationMeasurement */
+        AnnotationMeasurement: {
+            /**
+             * Length M
+             * @description Line length in metres (lines only).
+             */
+            length_m: number | null;
+            /**
+             * Area M2
+             * @description Enclosed area in square metres (polygons only).
+             */
+            area_m2: number | null;
+            /**
+             * Perimeter M
+             * @description Outline length in metres (polygons only).
+             */
+            perimeter_m: number | null;
+            /** Method */
+            method: string;
+            /** Limitations */
+            limitations: string[];
+        };
+        /** AnnotationOut */
+        AnnotationOut: {
+            /**
+             * Feature Type
+             * @default user_annotation
+             * @constant
+             */
+            feature_type: "user_annotation";
+            /**
+             * Annotation Id
+             * Format: uuid
+             */
+            annotation_id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "point" | "line" | "polygon";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "deleted";
+            /** Version No */
+            version_no: number;
+            /** Geometry */
+            geometry: {
+                [key: string]: unknown;
+            };
+            /** Crs Id */
+            crs_id: string;
+            /** Note */
+            note: string;
+            /** @description Null for a point. */
+            measurement: components["schemas"]["AnnotationMeasurement"] | null;
+            /**
+             * Created By
+             * @description The local profile that drew it. Attribution only; not authentication.
+             */
+            created_by: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated By */
+            updated_by: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Deleted By */
+            deleted_by?: string | null;
+            /** Deleted At */
+            deleted_at?: string | null;
+        };
+        /** AnnotationUpdate */
+        AnnotationUpdate: {
+            /**
+             * Expected Version
+             * @description The version you were editing. A mismatch is refused (409).
+             */
+            expected_version: number;
+            /**
+             * Geometry
+             * @description A new shape of the same kind. Omit to keep the current one.
+             */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Crs Id
+             * @default EPSG:4326
+             */
+            crs_id: string;
+            /**
+             * Note
+             * @description A new note. Omit to keep the current one; an empty string clears it.
+             */
+            note?: string | null;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** AnnotationVersionOut */
+        AnnotationVersionOut: {
+            /** Version No */
+            version_no: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "create" | "update" | "delete";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "deleted";
+            /** Geometry */
+            geometry: {
+                [key: string]: unknown;
+            };
+            /** Note */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            /** Actor Label */
+            actor_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AnnotationsOut */
+        AnnotationsOut: {
+            /** Items */
+            items: components["schemas"]["AnnotationOut"][];
+            /** Active */
+            active: number;
+            /**
+             * Deleted
+             * @description Deleted annotations in the project, whether or not they are listed.
+             */
+            deleted: number;
+            /** Include Deleted */
+            include_deleted: boolean;
+            /** Note */
+            note: string;
+        };
         /** AoiInput */
         AoiInput: {
             /**
@@ -208,6 +1929,28 @@ export interface components {
              * @description Complete CRS identifier as an authority code, e.g. EPSG:4326.
              */
             crs_id: string;
+            /**
+             * Transformation Operation
+             * @description The datum transformation to WGS 84, where several registered operations apply to this area. Never needed for WGS 84 or a projection of it.
+             */
+            transformation_operation?: string | null;
+            /**
+             * Acknowledge Accuracy
+             * @description Acknowledge the accuracy of `transformation_operation` (or of the only applicable shift) when it is worse than 10 m or not stated. It is recorded with the AOI, with who acknowledged it and when. It applies to this AOI only and only to the operation and accuracy that are refused without it.
+             * @default false
+             */
+            acknowledge_accuracy: boolean;
+        };
+        /** AoiLayerOut */
+        AoiLayerOut: {
+            /** Geometry 4326 */
+            geometry_4326: {
+                [key: string]: unknown;
+            };
+            /** Entered Crs Id */
+            entered_crs_id: string | null;
+            /** Note */
+            note: string;
         };
         /** AoiOut */
         AoiOut: {
@@ -222,8 +1965,79 @@ export interface components {
             /** Warnings */
             warnings: string[];
         };
+        /** AssessedTransformationOut */
+        AssessedTransformationOut: {
+            /** Source Crs */
+            source_crs: string;
+            /** Target Crs */
+            target_crs: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "exact" | "approximate" | "selection_required" | "unavailable";
+            /** Status Message */
+            status_message: string;
+            /** Recommended Id */
+            recommended_id: string | null;
+            /** Selected Id */
+            selected_id: string | null;
+            /** Operations */
+            operations: components["schemas"]["TransformationOperationOut"][];
+            /** Missing Grids */
+            missing_grids: string[];
+            /** Messages */
+            messages: string[];
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "coordinates" | "tiles";
+            /** Purpose Label */
+            purpose_label: string;
+            /** @description The operation that would be used now, if any. */
+            resolution: components["schemas"]["TransformationResolutionOut"] | null;
+            /** @description Why no operation can be used yet, if so. */
+            blocked: components["schemas"]["TransformationBlockOut"] | null;
+        };
+        /** AssessmentRasterOut */
+        AssessmentRasterOut: {
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Band Count */
+            band_count: number;
+            /** Pixel Size */
+            pixel_size: number[] | null;
+            /** Pixel Units */
+            pixel_units: string | null;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** Bounds Native */
+            bounds_native: {
+                [key: string]: unknown;
+            } | null;
+            /** Nodata */
+            nodata: unknown[];
+        };
+        /** AssessmentStatusOut */
+        AssessmentStatusOut: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "georeferenced" | "crs_identified" | "crs_missing" | "crs_ambiguous" | "transformation_available" | "transformation_unavailable" | "georeferencing_required" | "validation_failed";
+            /** Label */
+            label: string;
+            /** Active */
+            active: boolean;
+            /** Message */
+            message: string;
+        };
         /** AssetOut */
         AssetOut: {
+            preview: components["schemas"]["PreviewInfo"];
             /**
              * Id
              * Format: uuid
@@ -277,8 +2091,12 @@ export interface components {
              * Format: date-time
              */
             ingested_at: string;
+            /** @description What the file declares, exactly as ingested. Never changed. */
             raster: components["schemas"]["RasterOut"] | null;
+            georeferencing?: components["schemas"]["GeoreferencingSummary"] | null;
             video: components["schemas"]["VideoOut"] | null;
+            /** @description Present when the asset was taken in as a map sheet. */
+            map_sheet?: components["schemas"]["MapSheetInfo"] | null;
         };
         /** AssetPage */
         AssetPage: {
@@ -305,6 +2123,515 @@ export interface components {
             /** Message */
             message: string;
         };
+        /** BasemapOut */
+        BasemapOut: {
+            /** Configured */
+            configured: boolean;
+            /** Detail */
+            detail: string;
+        };
+        /**
+         * CdseS3StatusOut
+         * @description Sanitised state of the CDSE S3 integration. Never holds a key, a token or text written by the store.
+         */
+        CdseS3StatusOut: {
+            /**
+             * Enabled
+             * @description CDSE_S3_ENABLED.
+             */
+            enabled: boolean;
+            /**
+             * Configured
+             * @description Credentials in a valid format and a valid endpoint are set. Not whether they work.
+             */
+            configured: boolean;
+            /**
+             * Authenticated
+             * @description True only when a verification in this response succeeded.
+             */
+            authenticated: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DISABLED" | "MISSING_CREDENTIALS" | "NOT_VERIFIED" | "AUTHENTICATED" | "AUTHENTICATION_FAILED" | "CONNECTION_FAILED";
+            /** Endpoint */
+            endpoint: string;
+            /** Region */
+            region: string;
+            /**
+             * Reason
+             * @description A short stable code for the status, for example `invalid_access_key`.
+             */
+            reason: string;
+            /** Message */
+            message: string;
+            /**
+             * Online Gate Open
+             * @description GEOPOC_ONLINE_ENABLED. Verification is refused while it is off.
+             */
+            online_gate_open: boolean;
+            /**
+             * Checked At
+             * @description When the verification ran; null if none was made.
+             */
+            checked_at?: string | null;
+        };
+        /** CdseS3VerifyOut */
+        CdseS3VerifyOut: {
+            /**
+             * Enabled
+             * @description CDSE_S3_ENABLED.
+             */
+            enabled: boolean;
+            /**
+             * Configured
+             * @description Credentials in a valid format and a valid endpoint are set. Not whether they work.
+             */
+            configured: boolean;
+            /**
+             * Authenticated
+             * @description True only when a verification in this response succeeded.
+             */
+            authenticated: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DISABLED" | "MISSING_CREDENTIALS" | "NOT_VERIFIED" | "AUTHENTICATED" | "AUTHENTICATION_FAILED" | "CONNECTION_FAILED";
+            /** Endpoint */
+            endpoint: string;
+            /** Region */
+            region: string;
+            /**
+             * Reason
+             * @description A short stable code for the status, for example `invalid_access_key`.
+             */
+            reason: string;
+            /** Message */
+            message: string;
+            /**
+             * Online Gate Open
+             * @description GEOPOC_ONLINE_ENABLED. Verification is refused while it is off.
+             */
+            online_gate_open: boolean;
+            /**
+             * Checked At
+             * @description When the verification ran; null if none was made.
+             */
+            checked_at?: string | null;
+            /**
+             * Request
+             * @description Exactly what was (or, if refused, would be) sent. No credential.
+             */
+            request: {
+                [key: string]: unknown;
+            };
+        };
+        /** CdseS3VerifyRequest */
+        CdseS3VerifyRequest: {
+            /**
+             * Confirm External Request
+             * @description Must be true. Verification sends one signed, read-only listing request to the S3 endpoint.
+             * @default false
+             */
+            confirm_external_request: boolean;
+        };
+        /** Claim */
+        Claim: {
+            /** Category */
+            category: string;
+            /**
+             * Description
+             * @description Evidence-based text. Replaces the V2 `summary` field.
+             */
+            description: string;
+            /**
+             * Claim Type
+             * @enum {string}
+             */
+            claim_type: "observed" | "inferred" | "metadata_derived" | "human_entered";
+        };
+        /** ComparisonOut */
+        ComparisonOut: {
+            job: components["schemas"]["JobBrief"];
+            /**
+             * Asset A
+             * Format: uuid
+             */
+            asset_a: string;
+            /**
+             * Asset B
+             * Format: uuid
+             */
+            asset_b: string;
+            /** Band A */
+            band_a: number;
+            /** Band B */
+            band_b: number;
+            /** Derived Asset Id */
+            derived_asset_id: string | null;
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** ComparisonRequest */
+        ComparisonRequest: {
+            /**
+             * Asset A
+             * Format: uuid
+             */
+            asset_a: string;
+            /**
+             * Asset B
+             * Format: uuid
+             */
+            asset_b: string;
+            /**
+             * Band A
+             * @default 1
+             */
+            band_a: number;
+            /**
+             * Band B
+             * @default 1
+             */
+            band_b: number;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** ConflictMemberOut */
+        ConflictMemberOut: {
+            /**
+             * Observation Id
+             * Format: uuid
+             */
+            observation_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Asset Filename */
+            asset_filename: string;
+            /** Value */
+            value: {
+                [key: string]: unknown;
+            };
+            /**
+             * Current Status
+             * @enum {string}
+             */
+            current_status: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /** Current Category */
+            current_category: string;
+        };
+        /** ConflictOut */
+        ConflictOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Attribute */
+            attribute: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved_documented";
+            /** Rule */
+            rule: string;
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+            /** Created By Run Id */
+            created_by_run_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Resolved At */
+            resolved_at: string | null;
+            /** Resolution Note */
+            resolution_note: string | null;
+            /** Members */
+            members: components["schemas"]["ConflictMemberOut"][];
+        };
+        /** ConnectionFailure */
+        ConnectionFailure: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+        };
+        /** ConnectionTest */
+        ConnectionTest: {
+            /** Ok */
+            ok: boolean;
+            /** Checked At */
+            checked_at: string;
+            /** Auth Mode */
+            auth_mode: string;
+            /** Credential Kind */
+            credential_kind: string | null;
+            /** Service Account Email */
+            service_account_email: string | null;
+            /** Project Configured */
+            project_configured: boolean;
+            /** Initialised */
+            initialised: boolean;
+            /** Computation Ok */
+            computation_ok: boolean;
+            /** Library Version */
+            library_version: string | null;
+            failure: components["schemas"]["ConnectionFailure"] | null;
+        };
+        /** ControlPointFitOut */
+        ControlPointFitOut: {
+            /** Method */
+            method: string;
+            /** Point Count */
+            point_count: number;
+            /** Geotransform */
+            geotransform: number[];
+            /** Rms Pixels */
+            rms_pixels: number;
+            /** Max Pixels */
+            max_pixels: number;
+            /** Rms Map Units */
+            rms_map_units: number;
+            /** Map Units */
+            map_units: string | null;
+            /** Pixel Size */
+            pixel_size: number[];
+            /** Rotation Degrees */
+            rotation_degrees: number;
+            /**
+             * Scale Ratio
+             * @description Ratio of the larger to the smaller pixel size (1 = square pixels).
+             */
+            scale_ratio: number;
+            /**
+             * Redundant
+             * @description True when there are more points than the six numbers need, so residuals mean something.
+             */
+            redundant: boolean;
+            /** Residuals */
+            residuals: components["schemas"]["ControlPointResidualOut"][];
+            /** Note */
+            note: string;
+            /** Rms M */
+            rms_m?: number | null;
+            /** Max M */
+            max_m?: number | null;
+            /**
+             * Rms M Allowing For Fit
+             * @description Null with exactly three points: the fit is exact and has nothing to compare.
+             */
+            rms_m_allowing_for_fit?: number | null;
+            /**
+             * Exact Fit
+             * @default false
+             */
+            exact_fit: boolean;
+            /**
+             * Ground Pixel M
+             * @default []
+             */
+            ground_pixel_m: number[];
+            /** Ground Resolution M */
+            ground_resolution_m?: number | null;
+            /** Shear Degrees */
+            shear_degrees?: number | null;
+            /** Shear Effect M */
+            shear_effect_m?: number | null;
+            /** Handedness */
+            handedness?: ("normal" | "mirrored") | null;
+            /** Rotation Reference */
+            rotation_reference?: string | null;
+            /**
+             * Tolerance
+             * @description The tolerance used, how it was derived from the ground resolution, and which uncertainties were stated by the person.
+             */
+            tolerance?: {
+                [key: string]: unknown;
+            } | null;
+            /** Leave One Out */
+            leave_one_out?: {
+                [key: string]: unknown;
+            } | null;
+            /** Corner Uncertainty M */
+            corner_uncertainty_m?: number | null;
+            /**
+             * Corners
+             * @default []
+             */
+            corners: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** ControlPointIn */
+        ControlPointIn: {
+            /**
+             * Label
+             * @default
+             */
+            label: string;
+            /**
+             * Column
+             * @description Pixel column, 0 at the left edge of the picture (GDAL convention).
+             */
+            column: number;
+            /**
+             * Row
+             * @description Pixel row, 0 at the top edge of the picture.
+             */
+            row: number;
+            /**
+             * X
+             * @description Easting / longitude in the chosen CRS.
+             */
+            x: number;
+            /**
+             * Y
+             * @description Northing / latitude in the chosen CRS.
+             */
+            y: number;
+        };
+        /** ControlPointResidualOut */
+        ControlPointResidualOut: {
+            /** Label */
+            label: string;
+            /** Column */
+            column: number;
+            /** Row */
+            row: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Fitted X */
+            fitted_x: number;
+            /** Fitted Y */
+            fitted_y: number;
+            /** Residual Map Units */
+            residual_map_units: number;
+            /** Residual Pixels */
+            residual_pixels: number;
+            /**
+             * Residual M
+             * @description Distance from the fitted position, on the ground.
+             */
+            residual_m?: number | null;
+            /**
+             * Leverage
+             * @description How much this point steers the fit (0 to 1).
+             */
+            leverage?: number | null;
+            /**
+             * Leave One Out M
+             * @description How far the other points put this one from where it was placed. Null with three points, or when the others cannot fix the sheet without it.
+             */
+            leave_one_out_m?: number | null;
+            /**
+             * Leave One Out Ratio
+             * @description Leave-one-out error over what the tolerance expects for a left-out point.
+             */
+            leave_one_out_ratio?: number | null;
+        };
+        /** ControlPointsApply */
+        ControlPointsApply: {
+            /**
+             * Crs Id
+             * @description The registered CRS the control point coordinates are given in. It becomes the sheet's CRS.
+             */
+            crs_id: string;
+            /** Points */
+            points: components["schemas"]["ControlPointIn"][];
+            /**
+             * Source
+             * @description Where the coordinates come from (printed grid ticks, survey, another georeferenced layer...).
+             */
+            source: string;
+            /** Reason */
+            reason: string;
+            /** Transformation Operation */
+            transformation_operation?: string | null;
+            /**
+             * Acknowledge Transformation
+             * @default false
+             */
+            acknowledge_transformation: boolean;
+            /**
+             * Reference Uncertainty M
+             * @description How uncertain the coordinates of the reference points are, in metres, if you know. Not assumed when omitted: the result says it was not stated.
+             */
+            reference_uncertainty_m?: number | null;
+            /**
+             * Source Uncertainty M
+             * @description How uncertain the printed source is on the ground, in metres (for example the graphical accuracy of the map's scale), if you know. Not assumed when omitted.
+             */
+            source_uncertainty_m?: number | null;
+            /**
+             * Expected Version
+             * @description The georeferencing version that was reviewed.
+             */
+            expected_version: number;
+            /**
+             * Confirm
+             * @default false
+             */
+            confirm: boolean;
+        };
+        /** ControlPointsRequest */
+        ControlPointsRequest: {
+            /**
+             * Crs Id
+             * @description The registered CRS the control point coordinates are given in. It becomes the sheet's CRS.
+             */
+            crs_id: string;
+            /** Points */
+            points: components["schemas"]["ControlPointIn"][];
+            /**
+             * Source
+             * @description Where the coordinates come from (printed grid ticks, survey, another georeferenced layer...).
+             */
+            source: string;
+            /** Reason */
+            reason: string;
+            /** Transformation Operation */
+            transformation_operation?: string | null;
+            /**
+             * Acknowledge Transformation
+             * @default false
+             */
+            acknowledge_transformation: boolean;
+            /**
+             * Reference Uncertainty M
+             * @description How uncertain the coordinates of the reference points are, in metres, if you know. Not assumed when omitted: the result says it was not stated.
+             */
+            reference_uncertainty_m?: number | null;
+            /**
+             * Source Uncertainty M
+             * @description How uncertain the printed source is on the ground, in metres (for example the graphical accuracy of the map's scale), if you know. Not assumed when omitted.
+             */
+            source_uncertainty_m?: number | null;
+        };
+        /** ControlPointsValidation */
+        ControlPointsValidation: {
+            /** Valid */
+            valid: boolean;
+            fit: components["schemas"]["ControlPointFitOut"] | null;
+            /** Checks */
+            checks: components["schemas"]["GeoreferenceCheck"][];
+            validation: components["schemas"]["GeoreferenceValidation"] | null;
+            /** Explanation */
+            explanation: string;
+        };
         /** CrsAreaOfUse */
         CrsAreaOfUse: {
             /** Name */
@@ -318,6 +2645,45 @@ export interface components {
             /** North */
             north: number;
         };
+        /** CrsAssessmentOut */
+        CrsAssessmentOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Georeferencing Source
+             * @enum {string}
+             */
+            georeferencing_source: "file" | "recorded";
+            /** Georeferencing Version */
+            georeferencing_version: number;
+            crs: components["schemas"]["CrsDetailsOut"] | null;
+            raster: components["schemas"]["AssessmentRasterOut"];
+            /** Statuses */
+            statuses: components["schemas"]["AssessmentStatusOut"][];
+            /** Transformations */
+            transformations: components["schemas"]["AssessedTransformationOut"][];
+            /** @description Roughly where the raster is. Only used to list the operations that apply there. */
+            planning_area: components["schemas"]["PlanningAreaOut"] | null;
+            /** Selected Operation Id */
+            selected_operation_id: string | null;
+            /** Summary */
+            summary: string;
+            /** Accuracy Notes */
+            accuracy_notes: string[];
+            /** Class Explanations */
+            class_explanations: {
+                [key: string]: string;
+            };
+            /** Limitations */
+            limitations: string[];
+            /** Versions */
+            versions: {
+                [key: string]: string;
+            };
+        };
         /** CrsAxis */
         CrsAxis: {
             /** Abbreviation */
@@ -326,6 +2692,81 @@ export interface components {
             direction: string;
             /** Unit */
             unit: string;
+        };
+        /** CrsAxisDetailOut */
+        CrsAxisDetailOut: {
+            /** Name */
+            name: string;
+            /** Abbreviation */
+            abbreviation: string;
+            /** Direction */
+            direction: string;
+            /** Unit */
+            unit: string;
+            /** Unit To Si */
+            unit_to_si: number | null;
+        };
+        /** CrsDatumOut */
+        CrsDatumOut: {
+            /** Name */
+            name: string | null;
+            /** Is Ensemble */
+            is_ensemble: boolean;
+            /** Ensemble Members */
+            ensemble_members: string[];
+        };
+        /** CrsDetailsOut */
+        CrsDetailsOut: {
+            /**
+             * Identifier
+             * @description Registry code, only when the definition matches exactly one entry.
+             */
+            identifier: string | null;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Registry Matches */
+            registry_matches: string[];
+            datum: components["schemas"]["CrsDatumOut"];
+            ellipsoid: components["schemas"]["CrsEllipsoidOut"] | null;
+            prime_meridian: components["schemas"]["CrsPrimeMeridianOut"] | null;
+            projection: components["schemas"]["CrsProjectionOut"] | null;
+            /** Axes */
+            axes: components["schemas"]["CrsAxisDetailOut"][];
+            /** Coordinate Units */
+            coordinate_units: string[];
+            area_of_use: components["schemas"]["CrsAreaOfUse"] | null;
+            /** Deprecated */
+            deprecated: boolean;
+            /** Towgs84 */
+            towgs84: number[];
+        };
+        /** CrsEllipsoidOut */
+        CrsEllipsoidOut: {
+            /** Name */
+            name: string;
+            /** Semi Major M */
+            semi_major_m: number;
+            /** Inverse Flattening */
+            inverse_flattening: number | null;
+            /** Semi Minor M */
+            semi_minor_m: number;
+        };
+        /** CrsOperationsOut */
+        CrsOperationsOut: {
+            plan: components["schemas"]["TransformationPlanOut"];
+            area_used: components["schemas"]["PlanningAreaOut"] | null;
+            /** Accuracy Notes */
+            accuracy_notes: string[];
+            /** Class Explanations */
+            class_explanations: {
+                [key: string]: string;
+            };
+            /** Versions */
+            versions: {
+                [key: string]: string;
+            };
         };
         /** CrsOut */
         CrsOut: {
@@ -343,12 +2784,593 @@ export interface components {
             /** Deprecated */
             deprecated: boolean;
         };
+        /** CrsPrimeMeridianOut */
+        CrsPrimeMeridianOut: {
+            /** Name */
+            name: string;
+            /** Longitude Degrees */
+            longitude_degrees: number;
+        };
+        /** CrsProjectionOut */
+        CrsProjectionOut: {
+            /** Method */
+            method: string;
+            /** Name */
+            name: string;
+            /** Parameters */
+            parameters: components["schemas"]["CrsProjectionParameterOut"][];
+        };
+        /** CrsProjectionParameterOut */
+        CrsProjectionParameterOut: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number;
+            /** Unit */
+            unit: string;
+        };
         /** CrsSearchResult */
         CrsSearchResult: {
             /** Items */
             items: components["schemas"]["CrsOut"][];
             /** Registry */
             registry: string;
+        };
+        /** CrsTransformOut */
+        CrsTransformOut: {
+            /** Source Crs Id */
+            source_crs_id: string;
+            /** Target Crs Id */
+            target_crs_id: string;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /**
+             * Target Axes
+             * @description The CRS's axes in the authority's own order.
+             */
+            target_axes: components["schemas"]["CrsAxis"][];
+            /**
+             * Xy Axes
+             * @description The same axes in the order x, y are given here: x is not always east.
+             * @default []
+             */
+            xy_axes: components["schemas"]["CrsAxis"][];
+            /** Order Note */
+            order_note: string;
+            /** Transformation */
+            transformation: {
+                [key: string]: unknown;
+            };
+            /** Warnings */
+            warnings: string[];
+            /** @description The coordinate operation used, with its class and documented accuracy. */
+            operation?: components["schemas"]["TransformationOperationOut"] | null;
+        };
+        /** DatasetBand */
+        DatasetBand: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Pixel Size M */
+            pixel_size_m: number | null;
+            /** Scale */
+            scale: number | null;
+            /** Offset */
+            offset: number | null;
+            /** Units */
+            units: string | null;
+        };
+        /** DatasetEntry */
+        DatasetEntry: {
+            /** Slug */
+            slug: string;
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Provider */
+            provider: string;
+            /** Revisit Days */
+            revisit_days: number | null;
+            /** Documented Start */
+            documented_start: string;
+            /** Bands */
+            bands: components["schemas"]["DatasetBand"][];
+            /** Licence */
+            licence: string;
+            /** Attribution */
+            attribution: string;
+            /** Cloud Handling */
+            cloud_handling: string;
+            /** Notes */
+            notes: string[];
+            /**
+             * Verified On
+             * @description When the facts were read on the provider's page. Not a live check.
+             */
+            verified_on: string;
+            /** Source Url */
+            source_url: string;
+            probe: components["schemas"]["DatasetProbe"];
+        };
+        /** DatasetList */
+        DatasetList: {
+            /** Items */
+            items: components["schemas"]["DatasetEntry"][];
+            /** Note */
+            note: string;
+        };
+        /** DatasetProbe */
+        DatasetProbe: {
+            /** Slug */
+            slug: string;
+            /** Dataset Id */
+            dataset_id: string;
+            /**
+             * Status
+             * @description not_probed until a developer runs the probe; then what the service answered.
+             */
+            status: string;
+            /** Checked At */
+            checked_at: string | null;
+            /** Extent Start */
+            extent_start: string | null;
+            /** Extent End */
+            extent_end: string | null;
+            /** Detail */
+            detail: string;
+            /** Live */
+            live: boolean;
+        };
+        /** DisplayOut */
+        DisplayOut: {
+            /** Bands */
+            bands: number[];
+            /** Mode */
+            mode: string;
+            /** Ranges */
+            ranges: (number[] | null)[];
+            /** Description */
+            description: string;
+            /** Note */
+            note: string;
+        };
+        /** EarthEngineStatus */
+        EarthEngineStatus: {
+            /**
+             * Operating Model
+             * @description A: a controlled evaluation by named developers on one host.
+             */
+            operating_model: string;
+            /** Online Enabled */
+            online_enabled: boolean;
+            /** Earth Engine Enabled */
+            earth_engine_enabled: boolean;
+            /** Project Configured */
+            project_configured: boolean;
+            /** Auth Mode */
+            auth_mode: string;
+            /** Client Installed */
+            client_installed: boolean;
+            /** Control Folder Ready */
+            control_folder_ready: boolean;
+            /** Control Folder Problem */
+            control_folder_problem: string | null;
+            /** Kill Switch Engaged */
+            kill_switch_engaged: boolean;
+            /** Kill Switch Reason */
+            kill_switch_reason: string | null;
+            /**
+             * Held By This Process
+             * @description Whether this process holds the single-instance lock.
+             */
+            held_by_this_process: boolean;
+            /**
+             * Usage
+             * @description Ceilings and today's use from the local log; no call to Google.
+             */
+            usage: {
+                [key: string]: unknown;
+            } | null;
+            /** Developers Listed */
+            developers_listed: number;
+            /** You Are Listed */
+            you_are_listed: boolean;
+            /** Last Verification */
+            last_verification: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Live Verified
+             * @description True only if a connection check succeeded in this process.
+             */
+            live_verified: boolean;
+            /** Note */
+            note: string;
+        };
+        /** Evidence */
+        Evidence: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            region_px?: components["schemas"]["PixelRegion"] | null;
+            /** Frame Index */
+            frame_index?: number | null;
+            /** Timestamp Ms */
+            timestamp_ms?: number | null;
+            /** Source Excerpt Or Metadata Key */
+            source_excerpt_or_metadata_key?: string | null;
+        };
+        /** ExcludedAssetOut */
+        ExcludedAssetOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Title */
+            title: string;
+            /** Modality */
+            modality: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "NOT_GEOREFERENCED" | "CRS_MISSING" | "CRS_INVALID" | "NO_GEOTRANSFORM" | "INVALID_GEOREFERENCING" | "TRANSFORMATION_BLOCKED" | "ANTIMERIDIAN_CROSSING_UNSUPPORTED";
+            /** Detail */
+            detail: string;
+            /**
+             * Georeferencing Can Be Recorded
+             * @default false
+             */
+            georeferencing_can_be_recorded: boolean;
+            map_sheet?: components["schemas"]["MapSheetLayerOut"] | null;
+        };
+        /**
+         * FamilyHintOut
+         * @description A name in the file's CRS that belongs to a family needing an authoritative definition. A name is not a CRS.
+         */
+        FamilyHintOut: {
+            /** Family */
+            family: string;
+            /** Matched */
+            matched: string;
+            /** Meaning */
+            meaning: string;
+        };
+        /**
+         * FindingsReport
+         * @description The whole report. Every list is the stored data of this project only; an empty list means nothing is stored.
+         */
+        FindingsReport: {
+            /** Schema Version */
+            schema_version: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Generated By */
+            generated_by: string;
+            /** Read Only */
+            read_only: boolean;
+            project: components["schemas"]["ReportProject"];
+            summary: components["schemas"]["ReportSummary"];
+            /** Counting Rules */
+            counting_rules: string[];
+            /** Assets */
+            assets: components["schemas"]["ReportAsset"][];
+            /** Runs */
+            runs: components["schemas"]["ReportRun"][];
+            /** Observations */
+            observations: components["schemas"]["ReportObservation"][];
+            /** Photo Locations */
+            photo_locations: components["schemas"]["ReportPhoto"][];
+            /** Conflicts */
+            conflicts: components["schemas"]["ConflictOut"][];
+            annotations: components["schemas"]["ReportAnnotations"];
+            /** Limitations */
+            limitations: string[];
+        };
+        /** GeoreferenceCheck */
+        GeoreferenceCheck: {
+            /** Code */
+            code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "warning" | "failed";
+            /** Message */
+            message: string;
+        };
+        /** GeoreferenceFileMetadata */
+        GeoreferenceFileMetadata: {
+            /**
+             * Crs Status
+             * @enum {string}
+             */
+            crs_status: "valid" | "missing" | "invalid";
+            /** Crs Identifier */
+            crs_identifier: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** Geotransform Problem */
+            geotransform_problem: string | null;
+            /** Georeferenced */
+            georeferenced: boolean;
+            /** Ground Control Points */
+            ground_control_points: number;
+            /** Unknowns */
+            unknowns: {
+                [key: string]: unknown;
+            };
+        };
+        /** GeoreferenceOptions */
+        GeoreferenceOptions: {
+            /** Assign Crs */
+            assign_crs: boolean;
+            /** Assign Crs Reason */
+            assign_crs_reason: string;
+            /** Set Geotransform */
+            set_geotransform: boolean;
+            /** Set Geotransform Reason */
+            set_geotransform_reason: string;
+            /** Crs Required With Geotransform */
+            crs_required_with_geotransform: boolean;
+            /** Revert To File */
+            revert_to_file: boolean;
+        };
+        /** GeoreferenceState */
+        GeoreferenceState: {
+            /** Version */
+            version: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "file" | "recorded";
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Crs Usable */
+            crs_usable: boolean;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** Geotransform Usable */
+            geotransform_usable: boolean;
+            /** Georeferenced */
+            georeferenced: boolean;
+            /** Footprint 4326 */
+            footprint_4326: {
+                [key: string]: unknown;
+            } | null;
+            /** Bounds Native */
+            bounds_native: {
+                [key: string]: unknown;
+            } | null;
+            /** Pixel Size */
+            pixel_size: number[] | null;
+            /** Pixel Units */
+            pixel_units: string | null;
+        };
+        /** GeoreferenceValidation */
+        GeoreferenceValidation: {
+            /** Valid */
+            valid: boolean;
+            /** Checks */
+            checks: components["schemas"]["GeoreferenceCheck"][];
+            proposed: components["schemas"]["GeoreferenceState"] | null;
+            /**
+             * Corners
+             * @description Pixel -> native coordinates -> longitude, latitude.
+             */
+            corners: {
+                [key: string]: unknown;
+            }[];
+            /** Method */
+            method: string;
+            /** Explanation */
+            explanation: string;
+            /** @description Set when the proposal was refused because no datum transformation could be used yet: the operations to choose between (send one as `transformation_operation`), or why none can be used. */
+            transformation_plan?: components["schemas"]["TransformationPlanOut"] | null;
+        };
+        /** GeoreferenceVersionOut */
+        GeoreferenceVersionOut: {
+            /** Version No */
+            version_no: number;
+            /**
+             * Operation
+             * @enum {string}
+             */
+            operation: "assign_crs" | "set_geotransform" | "revert_to_file";
+            /** Method */
+            method: string;
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** Geotransform Source */
+            geotransform_source: string | null;
+            /** World File */
+            world_file: string | null;
+            /** Reason */
+            reason: string;
+            /** Previous */
+            previous: {
+                [key: string]: unknown;
+            };
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            };
+            /** Validation */
+            validation: {
+                [key: string]: unknown;
+            };
+            /** Georeferenced */
+            georeferenced: boolean;
+            /** Source Checksum */
+            source_checksum: string;
+            /** Actor Label */
+            actor_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** GeoreferencingApply */
+        GeoreferencingApply: {
+            /**
+             * Operation
+             * @description assign_crs: state the CRS of the existing coordinates. set_geotransform: enter the geotransform (and the CRS if none is usable). revert_to_file: use the file's own metadata again.
+             * @enum {string}
+             */
+            operation: "assign_crs" | "set_geotransform" | "revert_to_file";
+            /** Crs Id */
+            crs_id?: string | null;
+            /**
+             * Geotransform
+             * @description GDAL order: x origin, pixel width, row rotation, y origin, column rotation, pixel height. The origin is the top-left corner of the top-left pixel.
+             */
+            geotransform?: number[] | null;
+            /** World File */
+            world_file?: string | null;
+            /** Geotransform Source */
+            geotransform_source?: string | null;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /**
+             * Transformation Operation
+             * @description Which registered datum transformation to use when several apply (an id from the CRS assessment). Not needed when only one applies.
+             */
+            transformation_operation?: string | null;
+            /**
+             * Acknowledge Transformation
+             * @description Acknowledge the accuracy of the datum shift that was refused with TRANSFORMATION_ACKNOWLEDGEMENT_REQUIRED (worse than 10 m, or not stated). Recorded with this version, with who acknowledged it and when. It covers that operation and accuracy only.
+             * @default false
+             */
+            acknowledge_transformation: boolean;
+            /**
+             * Expected Version
+             * @description The version you reviewed. A mismatch is refused (409).
+             */
+            expected_version: number;
+            /**
+             * Confirm
+             * @description Must be true: the change was reviewed before it is recorded.
+             */
+            confirm: boolean;
+        };
+        /** GeoreferencingOut */
+        GeoreferencingOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Source Checksum */
+            source_checksum: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            file: components["schemas"]["GeoreferenceFileMetadata"];
+            current: components["schemas"]["GeoreferenceState"];
+            /** Unplaced Reason */
+            unplaced_reason: string | null;
+            options: components["schemas"]["GeoreferenceOptions"];
+            /** History */
+            history: components["schemas"]["GeoreferenceVersionOut"][];
+            /** Note */
+            note: string;
+        };
+        /** GeoreferencingRequest */
+        GeoreferencingRequest: {
+            /**
+             * Operation
+             * @description assign_crs: state the CRS of the existing coordinates. set_geotransform: enter the geotransform (and the CRS if none is usable). revert_to_file: use the file's own metadata again.
+             * @enum {string}
+             */
+            operation: "assign_crs" | "set_geotransform" | "revert_to_file";
+            /** Crs Id */
+            crs_id?: string | null;
+            /**
+             * Geotransform
+             * @description GDAL order: x origin, pixel width, row rotation, y origin, column rotation, pixel height. The origin is the top-left corner of the top-left pixel.
+             */
+            geotransform?: number[] | null;
+            /** World File */
+            world_file?: string | null;
+            /** Geotransform Source */
+            geotransform_source?: string | null;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /**
+             * Transformation Operation
+             * @description Which registered datum transformation to use when several apply (an id from the CRS assessment). Not needed when only one applies.
+             */
+            transformation_operation?: string | null;
+            /**
+             * Acknowledge Transformation
+             * @description Acknowledge the accuracy of the datum shift that was refused with TRANSFORMATION_ACKNOWLEDGEMENT_REQUIRED (worse than 10 m, or not stated). Recorded with this version, with who acknowledged it and when. It covers that operation and accuracy only.
+             * @default false
+             */
+            acknowledge_transformation: boolean;
+        };
+        /**
+         * GeoreferencingSummary
+         * @description The georeferencing used for a raster now. `raster` above is what the file itself declares.
+         */
+        GeoreferencingSummary: {
+            /** Version */
+            version: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "file" | "recorded";
+            /** Placed */
+            placed: boolean;
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Unplaced Reason */
+            unplaced_reason: string | null;
+        };
+        /** Geospatial */
+        Geospatial: {
+            /** Geometry */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            /** Crs Id */
+            crs_id?: string | null;
+            /** Coordinate Units */
+            coordinate_units?: string | null;
+            /** Derivation Method */
+            derivation_method?: string | null;
+            uncertainty?: components["schemas"]["Uncertainty"] | null;
         };
         /** HealthOut */
         HealthOut: {
@@ -379,6 +3401,406 @@ export interface components {
             };
             /** Bind Host */
             bind_host: string;
+            /** Proj */
+            proj?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** ImageryAssetOut */
+        ImageryAssetOut: {
+            /** Key */
+            key: string;
+            /** Title */
+            title: string | null;
+            /** Media Type */
+            media_type: string | null;
+            /** Roles */
+            roles: string[];
+        };
+        /** ImageryCollectionOut */
+        ImageryCollectionOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Mission */
+            mission: string;
+            /** Level */
+            level: string;
+        };
+        /** ImageryFiltering */
+        ImageryFiltering: {
+            /** Server Returned */
+            server_returned: number;
+            /** Outside Aoi */
+            outside_aoi: number;
+            /** Above Cloud Limit */
+            above_cloud_limit: number;
+            /** Unknown Cloud */
+            unknown_cloud: number;
+            /** Malformed */
+            malformed: number;
+            /** Kept */
+            kept: number;
+        };
+        /** ImageryGates */
+        ImageryGates: {
+            /** Online Enabled */
+            online_enabled: boolean;
+            /** Imagery Enabled */
+            imagery_enabled: boolean;
+            /** Terms Confirmed */
+            terms_confirmed: boolean;
+            /**
+             * Missing
+             * @description Environment settings that are still off. A search needs all of them.
+             */
+            missing: string[];
+        };
+        /** ImageryProviderOut */
+        ImageryProviderOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "stac";
+            /** Host */
+            host: string;
+            /** Collections */
+            collections: components["schemas"]["ImageryCollectionOut"][];
+            /** Credential Configured */
+            credential_configured: boolean;
+            /**
+             * Search Needs Credentials
+             * @description None: believed not, but not verified.
+             */
+            search_needs_credentials: boolean | null;
+            /** Configuration Problem */
+            configuration_problem: string | null;
+            /**
+             * Ready
+             * @description Every application-wide gate is open and the provider is configured.
+             */
+            ready: boolean;
+            /** Licence */
+            licence: {
+                [key: string]: string;
+            };
+            /** Notes */
+            notes: string[];
+        };
+        /** ImageryProvidersOut */
+        ImageryProvidersOut: {
+            /** Providers */
+            providers: components["schemas"]["ImageryProviderOut"][];
+            gates: components["schemas"]["ImageryGates"];
+            /** Note */
+            note: string;
+        };
+        /** ImageryTransmission */
+        ImageryTransmission: {
+            /** Sent */
+            sent: boolean;
+            /** Provider */
+            provider: string;
+            /** Host */
+            host: string;
+            /** Method */
+            method: string;
+            /** Path */
+            path: string;
+            /** Aoi Sent */
+            aoi_sent: {
+                [key: string]: unknown;
+            };
+            /** Request Body */
+            request_body: {
+                [key: string]: unknown;
+            };
+            /** Credential Header */
+            credential_header: boolean;
+            /** Not Sent */
+            not_sent: string[];
+        };
+        /** IndexInputBandOut */
+        IndexInputBandOut: {
+            /** Role */
+            role: string;
+            /** Band */
+            band: string;
+            /**
+             * File Name
+             * @description The local file's name. Its location is never given.
+             */
+            file_name: string | null;
+            /** Found */
+            found: boolean;
+            /** Readable */
+            readable: boolean;
+            /** Width */
+            width?: number | null;
+            /** Height */
+            height?: number | null;
+            /** Bands */
+            bands?: number | null;
+            /** Dtype */
+            dtype?: string | null;
+            /** Crs */
+            crs?: string | null;
+            /** Pixel Size M */
+            pixel_size_m?: number[] | null;
+            /**
+             * Scaling
+             * @description Read from the product metadata, per band.
+             */
+            scaling?: {
+                [key: string]: unknown;
+            } | null;
+            /** Problems */
+            problems: string[];
+        };
+        /** IndexInputsOut */
+        IndexInputsOut: {
+            /** Index */
+            index: string;
+            /**
+             * Configured
+             * @description A local band folder is set on the server.
+             */
+            configured: boolean;
+            /** Scenes */
+            scenes: components["schemas"]["IndexSceneOut"][];
+            /** Note */
+            note: string;
+        };
+        /** IndexOut */
+        IndexOut: {
+            /** Key */
+            key: string;
+            /** Title */
+            title: string;
+            /** Formula */
+            formula: string;
+            /**
+             * Inputs
+             * @description The input bands: each has a `role` and the Sentinel-2 `band`.
+             */
+            inputs: {
+                [key: string]: string;
+            }[];
+            /**
+             * Output
+             * @description What a run produces.
+             */
+            output: string;
+            /**
+             * Analytical Range
+             * @description Calculated values outside this inclusive range are masked as nodata, never clamped.
+             */
+            analytical_range?: number[] | null;
+            /**
+             * Display
+             * @description Colour ramp, display range and legend stops.
+             */
+            display?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** IndexRunCreate */
+        IndexRunCreate: {
+            /**
+             * Scene Id
+             * @description The opaque id of a scene from the inputs listing. Paths are never accepted.
+             */
+            scene_id: string;
+        };
+        /** IndexRunInput */
+        IndexRunInput: {
+            /** Role */
+            role: string;
+            /** Band */
+            band: string;
+            /** File Name */
+            file_name: string;
+            /**
+             * Sha256
+             * @description Known once the job has read the file.
+             */
+            sha256?: string | null;
+            /** Scaling */
+            scaling?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** IndexRunOut */
+        IndexRunOut: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Index */
+            index: string;
+            /** Scene Id */
+            scene_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled";
+            /** Stage */
+            stage: string | null;
+            /**
+             * Progress
+             * @description 0-1 from work actually done, or null when not measurable.
+             */
+            progress: number | null;
+            /** Cancel Requested */
+            cancel_requested: boolean;
+            /** Attempt */
+            attempt: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            error: components["schemas"]["JobError"] | null;
+            /** Inputs */
+            inputs: components["schemas"]["IndexRunInput"][];
+            /** Range Mask */
+            range_mask: number[] | null;
+            /** Asset Id */
+            asset_id: string | null;
+            result: components["schemas"]["IndexRunResult"] | null;
+            /**
+             * Display
+             * @description The colour ramp and legend stops for drawing the result.
+             */
+            display: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** IndexRunResult */
+        IndexRunResult: {
+            /**
+             * Derived Asset Id
+             * Format: uuid
+             * @description The stored GeoTIFF, an ordinary raster asset (origin derived).
+             */
+            derived_asset_id: string;
+            /** Duplicate Of Asset Id */
+            duplicate_of_asset_id: string | null;
+            /** Index */
+            index: string;
+            /** Scene Id */
+            scene_id: string;
+            /** File Name */
+            file_name: string;
+            /** Output Sha256 */
+            output_sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Crs */
+            crs: string | null;
+            /** Resolution M */
+            resolution_m: number;
+            /** Nodata */
+            nodata: number;
+            /** Formula */
+            formula: string;
+            /**
+             * Range Mask
+             * @description Values outside this inclusive range were masked, not clamped.
+             */
+            range_mask: number[] | null;
+            statistics: components["schemas"]["IndexRunStatistics"];
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Inputs */
+            inputs: components["schemas"]["IndexRunInput"][];
+            /** Product */
+            product: {
+                [key: string]: unknown;
+            };
+            /** Validation */
+            validation: {
+                [key: string]: unknown;
+            };
+        };
+        /** IndexRunStatistics */
+        IndexRunStatistics: {
+            /** Min */
+            min: number | null;
+            /** Max */
+            max: number | null;
+            /** Mean */
+            mean: number | null;
+            /** Std */
+            std: number | null;
+            /** Percentiles */
+            percentiles: {
+                [key: string]: number;
+            };
+            /**
+             * Percentile Resolution
+             * @description Percentiles come from a histogram of this bin width.
+             */
+            percentile_resolution: number | null;
+        };
+        /** IndexRunsOut */
+        IndexRunsOut: {
+            /** Runs */
+            runs: components["schemas"]["IndexRunOut"][];
+        };
+        /** IndexSceneOut */
+        IndexSceneOut: {
+            /**
+             * Scene Id
+             * @description Opaque identifier of this scene on this server.
+             */
+            scene_id: string;
+            /** Product Uri */
+            product_uri: string | null;
+            /** Tile Id */
+            tile_id: string | null;
+            /** Acquisition Start */
+            acquisition_start: string | null;
+            /** Processing Baseline */
+            processing_baseline: string | null;
+            /** Spacecraft */
+            spacecraft: string | null;
+            /** Resolution M */
+            resolution_m: number;
+            /** Bands */
+            bands: components["schemas"]["IndexInputBandOut"][];
+            /**
+             * Compatible
+             * @description Both bands were found, are readable and share one grid.
+             */
+            compatible: boolean;
+            /** Problems */
+            problems: string[];
+        };
+        /** IndexesOut */
+        IndexesOut: {
+            /** Indices */
+            indices: components["schemas"]["IndexOut"][];
         };
         /** IngestionRule */
         IngestionRule: {
@@ -393,6 +3815,13 @@ export interface components {
             extensions: string[];
             /** Max Bytes */
             max_bytes: number;
+            /**
+             * Sidecar Extensions
+             * @description Sidecar metadata files accepted with this kind of input (rasters only). Reviewed, never applied on their own.
+             */
+            sidecar_extensions?: string[];
+            /** Sidecar Max Bytes */
+            sidecar_max_bytes?: number | null;
         };
         /** IngestionRules */
         IngestionRules: {
@@ -401,20 +3830,1117 @@ export interface components {
             /** Notes */
             notes: string[];
         };
+        /** JobBrief */
+        JobBrief: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Error Code */
+            error_code: string | null;
+            /** Error Message */
+            error_message: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** JobCreate */
+        JobCreate: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "preview" | "analyze";
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Pipeline
+             * @description Required for an analysis job.
+             */
+            pipeline?: ("ground_image" | "overhead_raster" | "video") | null;
+            /** @description Required for an analysis job. */
+            model?: components["schemas"]["ModelChoice"] | null;
+            /** @description Required for a video analysis, refused otherwise. */
+            sampling?: components["schemas"]["VideoSampling"] | null;
+            /**
+             * Submit
+             * @description False saves a draft that is started later.
+             * @default true
+             */
+            submit: boolean;
+        };
+        /** JobDetail */
+        JobDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Asset Id */
+            asset_id: string | null;
+            /** Kind */
+            kind: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled";
+            /** Stage */
+            stage: string | null;
+            /**
+             * Progress
+             * @description 0-1, or null when progress cannot be measured.
+             */
+            progress: number | null;
+            /** Cancel Requested */
+            cancel_requested: boolean;
+            /** Attempt */
+            attempt: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            error: components["schemas"]["JobError"] | null;
+            /** Has Partial Outputs */
+            has_partial_outputs: boolean;
+            /** Retry Of Job Id */
+            retry_of_job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Events */
+            events: components["schemas"]["JobEventOut"][];
+        };
+        /** JobError */
+        JobError: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string | null;
+        };
+        /** JobEventOut */
+        JobEventOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Level */
+            level: string;
+            /** Stage */
+            stage: string | null;
+            /** Message */
+            message: string;
+        };
+        /** JobOut */
+        JobOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Asset Id */
+            asset_id: string | null;
+            /** Kind */
+            kind: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled";
+            /** Stage */
+            stage: string | null;
+            /**
+             * Progress
+             * @description 0-1, or null when progress cannot be measured.
+             */
+            progress: number | null;
+            /** Cancel Requested */
+            cancel_requested: boolean;
+            /** Attempt */
+            attempt: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            error: components["schemas"]["JobError"] | null;
+            /** Has Partial Outputs */
+            has_partial_outputs: boolean;
+            /** Retry Of Job Id */
+            retry_of_job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** JobPage */
+        JobPage: {
+            /** Items */
+            items: components["schemas"]["JobOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /**
+         * LayerTransformationOut
+         * @description How a map layer is carried to longitude/latitude, in one place for the layer list.
+         */
+        LayerTransformationOut: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "exact" | "approximate" | "selection_required" | "unavailable";
+            /** Classification */
+            classification: ("exact" | "approximate" | "ballpark" | "unavailable") | null;
+            /** Operation Id */
+            operation_id: string | null;
+            /** Accuracy M */
+            accuracy_m: number | null;
+            /** Chosen By */
+            chosen_by: ("selection" | "only_option" | "recorded") | null;
+            /** Selection Required */
+            selection_required: boolean;
+            /** Message */
+            message: string;
+            /** Candidates */
+            candidates: components["schemas"]["TransformationOperationOut"][];
+            /** Missing Grids */
+            missing_grids: string[];
+            /**
+             * Requires Acknowledgement
+             * @default false
+             */
+            requires_acknowledgement: boolean;
+            /**
+             * Acknowledged
+             * @default false
+             */
+            acknowledged: boolean;
+        };
+        /** LayersOut */
+        LayersOut: {
+            /** Rasters */
+            rasters: components["schemas"]["RasterLayerOut"][];
+            /** Excluded */
+            excluded: components["schemas"]["ExcludedAssetOut"][];
+            aoi: components["schemas"]["AoiLayerOut"] | null;
+            observations: components["schemas"]["ObservationLayerSummary"];
+            basemap: components["schemas"]["BasemapOut"];
+        };
+        /** LinkGroupOut */
+        LinkGroupOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Method */
+            method: string;
+            /** Status */
+            status: string;
+            /** Rationale */
+            rationale: string;
+            /** Observation Ids */
+            observation_ids: string[];
+        };
+        /**
+         * MapSheetAssessmentOut
+         * @description The metadata assessment of a map sheet. Reports what the file states, what it does not, and what is needed.
+         */
+        MapSheetAssessmentOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            info: components["schemas"]["MapSheetInfo"];
+            /** Facts */
+            facts: components["schemas"]["MapSheetFactOut"][];
+            /** Unresolved */
+            unresolved: components["schemas"]["UnresolvedItemOut"][];
+            /** Required Information */
+            required_information: string[];
+            /** Family Hints */
+            family_hints: components["schemas"]["FamilyHintOut"][];
+            /** Sidecars */
+            sidecars: components["schemas"]["MapSheetSidecarOut"][];
+            /** Notes */
+            notes: components["schemas"]["MapSheetNoteOut"][];
+            /** Pdf */
+            pdf: {
+                [key: string]: unknown;
+            } | null;
+            crs_assessment: components["schemas"]["CrsAssessmentOut"] | null;
+            /** Series Note */
+            series_note: string;
+            /** Limitations */
+            limitations: string[];
+        };
+        /** MapSheetDeclarationOut */
+        MapSheetDeclarationOut: {
+            /**
+             * Series
+             * @enum {string}
+             */
+            series: "osm" | "esm" | "unspecified";
+            /** Series Label */
+            series_label: string;
+            /**
+             * Basis
+             * @description Always declared_by_uploader: the series is attribution, never evidence of a CRS.
+             */
+            basis: string;
+            /** Sheet Label */
+            sheet_label: string | null;
+            /** Scale Denominator */
+            scale_denominator: number | null;
+            /** Edition */
+            edition: string | null;
+            /** Declared By */
+            declared_by: string | null;
+            /** Note */
+            note: string;
+        };
+        /**
+         * MapSheetFactOut
+         * @description One property a person needs to know to interpret the sheet, and whether the file actually states it.
+         */
+        MapSheetFactOut: {
+            /** Field */
+            field: string;
+            /** Label */
+            label: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "stated_by_file" | "recorded_by_person" | "from_registry" | "unknown";
+            /** Value */
+            value: unknown | null;
+            /** Detail */
+            detail: string;
+        };
+        /**
+         * MapSheetInfo
+         * @description What is known about a map sheet: the uploader's declaration, how it arrived, and how it is positioned.
+         */
+        MapSheetInfo: {
+            declaration: components["schemas"]["MapSheetDeclarationOut"];
+            /**
+             * Intake
+             * @enum {string}
+             */
+            intake: "georeferenced_raster" | "scanned_raster" | "scanned_image" | "pdf_document";
+            /** Format Family */
+            format_family: string;
+            /**
+             * Georeferencing Basis
+             * @enum {string}
+             */
+            georeferencing_basis: "file_metadata" | "sidecar" | "world_file" | "control_points" | "recorded" | "none";
+            /** Georeferencing Basis Label */
+            georeferencing_basis_label: string;
+            /** Placed */
+            placed: boolean;
+            /**
+             * Processing
+             * @description What was done with the upload, in order. Read-only record.
+             */
+            processing: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
+         * MapSheetLayerOut
+         * @description The map-sheet facts shown on a map layer.
+         */
+        MapSheetLayerOut: {
+            /**
+             * Series
+             * @enum {string}
+             */
+            series: "osm" | "esm" | "unspecified";
+            /** Series Label */
+            series_label: string;
+            /** Sheet Label */
+            sheet_label: string | null;
+            /** Scale Denominator */
+            scale_denominator: number | null;
+            /** Edition */
+            edition: string | null;
+            /**
+             * Intake
+             * @enum {string}
+             */
+            intake: "georeferenced_raster" | "scanned_raster" | "scanned_image" | "pdf_document";
+            /**
+             * Georeferencing Basis
+             * @enum {string}
+             */
+            georeferencing_basis: "file_metadata" | "sidecar" | "world_file" | "control_points" | "recorded" | "none";
+            /** Georeferencing Basis Label */
+            georeferencing_basis_label: string;
+        };
+        /** MapSheetListOut */
+        MapSheetListOut: {
+            /** Items */
+            items: components["schemas"]["MapSheetSummaryOut"][];
+            /** Note */
+            note: string;
+        };
+        /** MapSheetNoteIn */
+        MapSheetNoteIn: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "datum" | "ellipsoid" | "prime_meridian" | "projection" | "projection_parameters" | "units" | "coordinate_grid" | "extent" | "transformation_to_wgs84" | "other";
+            /** Value */
+            value: string;
+            /**
+             * Source
+             * @description Where the value comes from (document, sheet marginalia, supplier). Required.
+             */
+            source: string;
+            /**
+             * Status
+             * @default unverified
+             * @enum {string}
+             */
+            status: "unverified" | "needs_authority";
+        };
+        /** MapSheetNoteOut */
+        MapSheetNoteOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "datum" | "ellipsoid" | "prime_meridian" | "projection" | "projection_parameters" | "units" | "coordinate_grid" | "extent" | "transformation_to_wgs84" | "other";
+            /** Value */
+            value: string;
+            /** Source */
+            source: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unverified" | "needs_authority";
+            /** Recorded By */
+            recorded_by: string | null;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /**
+             * Applied
+             * @description Always false: a note is a record, never a CRS definition or a georeferencing.
+             */
+            applied: boolean;
+        };
+        /** MapSheetSidecarOut */
+        MapSheetSidecarOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Filename */
+            filename: string;
+            /** Upload Status */
+            upload_status: string;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+        };
+        /** MapSheetSummaryOut */
+        MapSheetSummaryOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            info: components["schemas"]["MapSheetInfo"];
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Crs Status */
+            crs_status: ("valid" | "missing" | "invalid") | null;
+            /** Width */
+            width: number | null;
+            /** Height */
+            height: number | null;
+            /** Quality Flags */
+            quality_flags: string[];
+            /**
+             * Next Step
+             * @description What has to happen before this sheet can be placed (or why it already is).
+             */
+            next_step: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+        };
+        /** MapSheetUploadOut */
+        MapSheetUploadOut: {
+            asset: components["schemas"]["AssetOut"];
+            map_sheet: components["schemas"]["MapSheetInfo"];
+            /** Duplicate */
+            duplicate: boolean;
+            /** Duplicate Of Asset Id */
+            duplicate_of_asset_id: string | null;
+            /** Stored Original Reused */
+            stored_original_reused: boolean;
+            /** Message */
+            message: string;
+        };
+        /** MeasureOut */
+        MeasureOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "distance" | "area";
+            /**
+             * Validity
+             * @enum {string}
+             */
+            validity: "valid" | "unavailable";
+            /** Value */
+            value: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Method */
+            method: string;
+            /** Perimeter M */
+            perimeter_m: number | null;
+            /** Planar */
+            planar: {
+                [key: string]: unknown;
+            } | null;
+            /** Pixel Value */
+            pixel_value: number | null;
+            /** Pixel Unit */
+            pixel_unit: string | null;
+            /** Flags */
+            flags: string[];
+            /** Note */
+            note: string;
+            /** Points Lonlat */
+            points_lonlat: number[][] | null;
+            /**
+             * Points Lonlat Note
+             * @description Why the points have no longitude/latitude (a transformation that may not be used).
+             */
+            points_lonlat_note?: string | null;
+            /**
+             * Transformation
+             * @description The coordinate operation that produced points_lonlat.
+             */
+            transformation?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** MeasureRequest */
+        MeasureRequest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "distance" | "area";
+            /**
+             * Space
+             * @enum {string}
+             */
+            space: "lonlat" | "pixel";
+            /**
+             * Asset Id
+             * @description Required for pixel space.
+             */
+            asset_id?: string | null;
+            /** Points */
+            points: number[][];
+            /**
+             * Transformation Operation
+             * @description The datum transformation chosen for the longitude/latitude of pixel points, where several apply. The measurement itself is on the raster's own ellipsoid and does not need one.
+             */
+            transformation_operation?: string | null;
+        };
+        /** Measurement */
+        Measurement: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Method */
+            method: string | null;
+            /**
+             * Validity
+             * @enum {string}
+             */
+            validity: "valid" | "estimated" | "unavailable";
+        };
+        /** ModelChoice */
+        ModelChoice: {
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+        };
         /** ModelHealthOut */
         ModelHealthOut: {
             /** Manifest Found */
             manifest_found: boolean;
             /** Models */
-            models: {
-                [key: string]: unknown;
-            }[];
+            models: components["schemas"]["ModelOut"][];
             /** Errors */
             errors: string[];
+            /** Worker */
+            worker: {
+                [key: string]: unknown;
+            };
             /** Llm Runtime */
             llm_runtime: {
                 [key: string]: unknown;
             };
+        };
+        /** ModelOut */
+        ModelOut: {
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+            /** Pipeline */
+            pipeline: string;
+            /** Task */
+            task: string;
+            /** Runtime */
+            runtime: string;
+            /** Licence */
+            licence: string;
+            /** Score Semantics */
+            score_semantics: string;
+            /** Score Calibrated */
+            score_calibrated: boolean;
+            /** Settings */
+            settings: {
+                [key: string]: unknown;
+            };
+            /** Weights Sha256 */
+            weights_sha256: string | null;
+            /** Weights Size Bytes */
+            weights_size_bytes: number | null;
+            /** Available */
+            available: boolean;
+            /** Reason Unavailable */
+            reason_unavailable: string | null;
+        };
+        /** ModelRef */
+        ModelRef: {
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+        };
+        /** Observation */
+        Observation: {
+            /**
+             * Schema Version
+             * @default 3.0
+             * @constant
+             */
+            schema_version: "3.0";
+            /**
+             * Observation Id
+             * Format: uuid
+             */
+            observation_id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Pipeline
+             * @enum {string}
+             */
+            pipeline: "ground_image" | "overhead_raster" | "video";
+            model: components["schemas"]["ModelRef"] | null;
+            claim: components["schemas"]["Claim"];
+            score: components["schemas"]["Score"];
+            /** Evidence */
+            evidence: components["schemas"]["Evidence"][];
+            geospatial: components["schemas"]["Geospatial"];
+            /**
+             * Measurements
+             * @default []
+             */
+            measurements: components["schemas"]["Measurement"][];
+            /**
+             * Quality Flags
+             * @default []
+             */
+            quality_flags: string[];
+            review: components["schemas"]["Review"];
+            provenance: components["schemas"]["Provenance"];
+        };
+        /**
+         * ObservationCurrent
+         * @description The observation's state now. The model's own output is in `observation` and never changes.
+         */
+        ObservationCurrent: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /** Category */
+            category: string;
+            /** Relabelled */
+            relabelled: boolean;
+            /** Revision */
+            revision: number;
+            /** Last Changed At */
+            last_changed_at: string | null;
+            /** Last Changed By */
+            last_changed_by: string | null;
+            /** Last Note */
+            last_note: string | null;
+        };
+        /** ObservationDetail */
+        ObservationDetail: {
+            observation: components["schemas"]["Observation"];
+            current: components["schemas"]["ObservationCurrent"];
+            /** Asset Filename */
+            asset_filename: string;
+            /** Open Conflict Ids */
+            open_conflict_ids: string[];
+            /** Possible Duplicate Group Ids */
+            possible_duplicate_group_ids: string[];
+            /** Allowed Actions */
+            allowed_actions: components["schemas"]["AllowedActionOut"][];
+            /** Revisions */
+            revisions: components["schemas"]["RevisionOut"][];
+            /** Conflicts */
+            conflicts: components["schemas"]["ConflictOut"][];
+            /** Links */
+            links: components["schemas"]["LinkGroupOut"][];
+        };
+        /** ObservationLayerSummary */
+        ObservationLayerSummary: {
+            /** With Location */
+            with_location: number;
+            /** Without Location */
+            without_location: number;
+            /** Note */
+            note: string;
+        };
+        /** ObservationOut */
+        ObservationOut: {
+            observation: components["schemas"]["Observation"];
+            current: components["schemas"]["ObservationCurrent"];
+            /** Asset Filename */
+            asset_filename: string;
+            /** Open Conflict Ids */
+            open_conflict_ids: string[];
+            /** Possible Duplicate Group Ids */
+            possible_duplicate_group_ids: string[];
+            /** Allowed Actions */
+            allowed_actions: components["schemas"]["AllowedActionOut"][];
+        };
+        /** OverlayAlignmentOut */
+        OverlayAlignmentOut: {
+            first: components["schemas"]["AlignmentLayerOut"];
+            second: components["schemas"]["AlignmentLayerOut"];
+            /** Overlap */
+            overlap: boolean;
+            /** Overlap Bounds 4326 */
+            overlap_bounds_4326: number[] | null;
+            /** Overlap Area Km2 */
+            overlap_area_km2: number | null;
+            /** Overlap Fraction Of First */
+            overlap_fraction_of_first: number | null;
+            /** Overlap Fraction Of Second */
+            overlap_fraction_of_second: number | null;
+            /**
+             * Resolution Ratio
+             * @description Coarser ground pixel divided by finer. Null when either is unknown.
+             */
+            resolution_ratio: number | null;
+            /** Findings */
+            findings: string[];
+            /** Cautions */
+            cautions: string[];
+        };
+        /** PhotoLocationApply */
+        PhotoLocationApply: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "confirm_exif" | "set_position" | "clear";
+            /**
+             * Latitude
+             * @description Decimal degrees, WGS 84.
+             */
+            latitude?: number | null;
+            /**
+             * Longitude
+             * @description Decimal degrees, WGS 84.
+             */
+            longitude?: number | null;
+            /**
+             * Method
+             * @description Required for `set_position`: typed, or chosen on the map.
+             */
+            method?: ("manual_entry" | "map_selection") | null;
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Expected Version
+             * @description The version you reviewed. A mismatch is refused (409).
+             */
+            expected_version: number;
+            /**
+             * Confirm
+             * @description Must be true: the position was reviewed before it is recorded.
+             */
+            confirm: boolean;
+        };
+        /** PhotoLocationCurrent */
+        PhotoLocationCurrent: {
+            /**
+             * State
+             * @description none: no confirmed location (an unverified EXIF position, if any, is under `exif`). confirmed: a person stands behind the position.
+             * @enum {string}
+             */
+            state: "none" | "confirmed";
+            /**
+             * Version No
+             * @description 0 when nothing has been recorded. Send it back as `expected_version`.
+             */
+            version_no: number;
+            /** Source */
+            source: ("exif" | "manual_entry" | "map_selection") | null;
+            /** Latitude */
+            latitude: number | null;
+            /** Longitude */
+            longitude: number | null;
+            /** Crs Id */
+            crs_id: "EPSG:4326" | null;
+            /** Reason */
+            reason: string | null;
+            /** Actor Label */
+            actor_label: string | null;
+            /** Changed At */
+            changed_at: string | null;
+        };
+        /** PhotoLocationExif */
+        PhotoLocationExif: {
+            /**
+             * State
+             * @description none: no GPS tags. candidate: a usable position was read. unusable: GPS tags exist but cannot be used (see `problems`). not_read: GPS tags exist but this photograph was ingested before they were read.
+             * @enum {string}
+             */
+            state: "none" | "candidate" | "unusable" | "not_read";
+            /** Candidate Version No */
+            candidate_version_no: number | null;
+            /** Latitude */
+            latitude: number | null;
+            /** Longitude */
+            longitude: number | null;
+            /** Datum */
+            datum: string | null;
+            /** Problems */
+            problems: components["schemas"]["PhotoLocationProblem"][];
+        };
+        /** PhotoLocationItem */
+        PhotoLocationItem: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "none" | "candidate" | "confirmed";
+            /** Source */
+            source: ("exif" | "manual_entry" | "map_selection") | null;
+            /**
+             * Latitude
+             * @description Present only for a confirmed location.
+             */
+            latitude: number | null;
+            /** Longitude */
+            longitude: number | null;
+            /** Version No */
+            version_no: number;
+            /** Confirmed By */
+            confirmed_by: string | null;
+            /** Confirmed At */
+            confirmed_at: string | null;
+            /**
+             * Observations
+             * @description Observations stored for this photograph (all runs).
+             */
+            observations: number;
+        };
+        /** PhotoLocationOut */
+        PhotoLocationOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Source Checksum */
+            source_checksum: string;
+            current: components["schemas"]["PhotoLocationCurrent"];
+            exif: components["schemas"]["PhotoLocationExif"];
+            /** History */
+            history: components["schemas"]["PhotoLocationRow"][];
+            /** Note */
+            note: string;
+        };
+        /** PhotoLocationProblem */
+        PhotoLocationProblem: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * PhotoLocationRow
+         * @description One step of a photograph's location history, exactly as recorded.
+         */
+        PhotoLocationRow: {
+            /** Version No */
+            version_no: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "candidate" | "confirmed" | "cleared";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "exif" | "manual_entry" | "map_selection" | "none";
+            /** Latitude */
+            latitude: number | null;
+            /** Longitude */
+            longitude: number | null;
+            /**
+             * Crs Id
+             * @constant
+             */
+            crs_id: "EPSG:4326";
+            /** Candidate Version No */
+            candidate_version_no: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Actor Label */
+            actor_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PhotoLocationsOut */
+        PhotoLocationsOut: {
+            /** Items */
+            items: components["schemas"]["PhotoLocationItem"][];
+            /** Confirmed */
+            confirmed: number;
+            /** Candidates */
+            candidates: number;
+            /** Without Location */
+            without_location: number;
+            /** Note */
+            note: string;
+        };
+        /** PixelBandValue */
+        PixelBandValue: {
+            /** Band */
+            band: number;
+            /** Raw */
+            raw: number | null;
+            /** Nodata */
+            nodata: boolean;
+            /** Scaled */
+            scaled: number | null;
+            /** Units */
+            units: string | null;
+            /** Description */
+            description: string | null;
+        };
+        /** PixelOut */
+        PixelOut: {
+            /** Col */
+            col: number;
+            /** Row */
+            row: number;
+            /** Values */
+            values: components["schemas"]["PixelBandValue"][];
+            /** Dtypes */
+            dtypes: string[];
+            /** Native */
+            native: {
+                [key: string]: unknown;
+            } | null;
+            /** Lon Lat */
+            lon_lat: number[] | null;
+            /**
+             * Lon Lat Note
+             * @description Why there is no longitude/latitude (a datum transformation that may not be used).
+             */
+            lon_lat_note?: string | null;
+            /**
+             * Transformation
+             * @description The coordinate operation that produced lon_lat, with its class and accuracy.
+             */
+            transformation?: {
+                [key: string]: unknown;
+            } | null;
+            /** Georeferencing Source */
+            georeferencing_source: ("file" | "recorded") | null;
+            /** Note */
+            note: string;
+        };
+        /**
+         * PixelRegion
+         * @description A region of an image, with the convention that makes the numbers unambiguous (V2 rule retained).
+         *
+         *     Coordinates are in the pixel grid of the stored original exactly as decoded, without applying any EXIF
+         *     orientation. The origin is the top-left corner of the top-left pixel; x grows right, y grows down; values
+         *     are continuous, so pixel (0, 0) covers [0, 1) x [0, 1).
+         */
+        PixelRegion: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "bbox_xyxy" | "polygon";
+            /** Coordinates */
+            coordinates: unknown[];
+            /**
+             * Coordinate Space
+             * @constant
+             */
+            coordinate_space: "source_image_pixels";
+            /**
+             * Origin
+             * @constant
+             */
+            origin: "top_left";
+            /**
+             * Pixel Reference
+             * @constant
+             */
+            pixel_reference: "corner";
+            /** Image Width */
+            image_width: number;
+            /** Image Height */
+            image_height: number;
+        };
+        /** PlanningAreaOut */
+        PlanningAreaOut: {
+            /** West */
+            west: number;
+            /** South */
+            south: number;
+            /** East */
+            east: number;
+            /** North */
+            north: number;
+        };
+        /** PreviewInfo */
+        PreviewInfo: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "none" | "pending" | "ready" | "failed";
+            /**
+             * Variants
+             * @default []
+             */
+            variants: string[];
+            /** Job Id */
+            job_id?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
         };
         /** ProfileCreate */
         ProfileCreate: {
@@ -502,6 +5028,36 @@ export interface components {
             /** Next Cursor */
             next_cursor: string | null;
         };
+        /** ProjectSummary */
+        ProjectSummary: {
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /** Assets By Modality */
+            assets_by_modality: {
+                [key: string]: number;
+            };
+            /** Assets Total */
+            assets_total: number;
+            /** Jobs By Status */
+            jobs_by_status: {
+                [key: string]: number;
+            };
+            /** Observations By Review Status */
+            observations_by_review_status: {
+                [key: string]: number;
+            };
+            /** Observations Total */
+            observations_total: number;
+            /**
+             * Last Activity At
+             * Format: date-time
+             * @description Latest of: project change, upload, job creation.
+             */
+            last_activity_at: string;
+        };
         /** ProjectUpdate */
         ProjectUpdate: {
             /** Name */
@@ -516,6 +5072,93 @@ export interface components {
             source_preference?: ("local_only" | "allow_online") | null;
             /** Archived */
             archived?: boolean | null;
+        };
+        /** Provenance */
+        Provenance: {
+            /** Source Checksum */
+            source_checksum: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            /**
+             * Transformations
+             * @default []
+             */
+            transformations: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * RasterLayerOut
+         * @description A raster that can be placed on the map because its own CRS and geotransform are valid.
+         */
+        RasterLayerOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Title */
+            title: string;
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /**
+             * Placement
+             * @description trusted: from the file's own metadata. user_asserted: from georeferencing recorded by a person.
+             * @enum {string}
+             */
+            placement: "trusted" | "user_asserted";
+            /**
+             * Georef Version
+             * @description 0 for the file's own metadata; otherwise the recorded version used.
+             */
+            georef_version: number;
+            /** Band Count */
+            band_count: number;
+            /** Dtypes */
+            dtypes: string[];
+            /**
+             * Bounds 4326
+             * @description [west, south, east, north] of the footprint, degrees
+             */
+            bounds_4326: number[];
+            /** Footprint 4326 */
+            footprint_4326: {
+                [key: string]: unknown;
+            };
+            /** Tile Url */
+            tile_url: string | null;
+            /** Display Unavailable Reason */
+            display_unavailable_reason: string | null;
+            /** Min Zoom */
+            min_zoom: number;
+            /** Max Zoom */
+            max_zoom: number;
+            /** Native Zoom */
+            native_zoom: number;
+            /** Bands Shown */
+            bands_shown: number[];
+            /** Display Stretch */
+            display_stretch: unknown;
+            /** Pixel Size */
+            pixel_size: number[];
+            /** Pixel Units */
+            pixel_units: string | null;
+            /** Footprint Transformation */
+            footprint_transformation: {
+                [key: string]: unknown;
+            } | null;
+            transformation?: components["schemas"]["LayerTransformationOut"] | null;
+            map_sheet?: components["schemas"]["MapSheetLayerOut"] | null;
         };
         /** RasterOut */
         RasterOut: {
@@ -567,6 +5210,1561 @@ export interface components {
                 [key: string]: unknown;
             } | null;
         };
+        /** RasterToolsOut */
+        RasterToolsOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Band Count */
+            band_count: number;
+            /** Dtypes */
+            dtypes: string[];
+            /**
+             * Bands
+             * @description What the file declares about each band. Never inferred.
+             */
+            bands: {
+                [key: string]: unknown;
+            }[];
+            /** Statistics */
+            statistics: {
+                [key: string]: unknown;
+            } | null;
+            statistics_job: components["schemas"]["JobBrief"] | null;
+            /** Display Copy */
+            display_copy: {
+                [key: string]: unknown;
+            } | null;
+            /** Display Copy Needed */
+            display_copy_needed: boolean;
+            display_copy_job: components["schemas"]["JobBrief"] | null;
+            /**
+             * Display Source
+             * @enum {string}
+             */
+            display_source: "original" | "display_copy";
+            /**
+             * Derived From
+             * @description Lineage, for a derived raster; empty for originals.
+             */
+            derived_from: {
+                [key: string]: unknown;
+            }[];
+            /** Note */
+            note: string;
+        };
+        /** ReadExifOut */
+        ReadExifOut: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "candidate_recorded" | "no_gps" | "unusable";
+            /** Problems */
+            problems: components["schemas"]["PhotoLocationProblem"][];
+            location: components["schemas"]["PhotoLocationOut"];
+        };
+        /** RecentJob */
+        RecentJob: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Asset Id */
+            asset_id: string | null;
+            /** Kind */
+            kind: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled";
+            /** Stage */
+            stage: string | null;
+            /**
+             * Progress
+             * @description 0-1, or null when progress cannot be measured.
+             */
+            progress: number | null;
+            /** Cancel Requested */
+            cancel_requested: boolean;
+            /** Attempt */
+            attempt: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            error: components["schemas"]["JobError"] | null;
+            /** Has Partial Outputs */
+            has_partial_outputs: boolean;
+            /** Retry Of Job Id */
+            retry_of_job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Project Name */
+            project_name: string | null;
+            /** Asset Filename */
+            asset_filename: string | null;
+        };
+        /** RecentJobPage */
+        RecentJobPage: {
+            /** Items */
+            items: components["schemas"]["RecentJob"][];
+        };
+        /**
+         * ReportAnnotation
+         * @description The annotation as it is now (`status` says active or deleted) and every version it has had, oldest first.
+         */
+        ReportAnnotation: {
+            /**
+             * Feature Type
+             * @default user_annotation
+             * @constant
+             */
+            feature_type: "user_annotation";
+            /**
+             * Annotation Id
+             * Format: uuid
+             */
+            annotation_id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "point" | "line" | "polygon";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "deleted";
+            /** Version No */
+            version_no: number;
+            /** Geometry */
+            geometry: {
+                [key: string]: unknown;
+            };
+            /** Crs Id */
+            crs_id: string;
+            /** Note */
+            note: string;
+            /** @description Null for a point. */
+            measurement: components["schemas"]["AnnotationMeasurement"] | null;
+            /**
+             * Created By
+             * @description The local profile that drew it. Attribution only; not authentication.
+             */
+            created_by: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated By */
+            updated_by: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Deleted By */
+            deleted_by?: string | null;
+            /** Deleted At */
+            deleted_at?: string | null;
+            /** Versions */
+            versions: components["schemas"]["ReportAnnotationVersion"][];
+        };
+        /** ReportAnnotationVersion */
+        ReportAnnotationVersion: {
+            /** Version No */
+            version_no: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "create" | "update" | "delete";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "deleted";
+            /** Note */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            /** Actor Label */
+            actor_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Geometry Changed
+             * @description False when this version kept the shape of the one before it.
+             */
+            geometry_changed: boolean;
+        };
+        /**
+         * ReportAnnotations
+         * @description User-drawn map annotations. Apart from the findings: they are not observations and are not counted as such.
+         */
+        ReportAnnotations: {
+            /**
+             * Available
+             * @description False when the database has not been updated for annotations.
+             */
+            available: boolean;
+            /** Note */
+            note: string;
+            /** Active */
+            active: number | null;
+            /** Deleted */
+            deleted: number | null;
+            /**
+             * Items
+             * @description Active and deleted annotations, oldest first; see `status`.
+             */
+            items: components["schemas"]["ReportAnnotation"][];
+        };
+        /** ReportAsset */
+        ReportAsset: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /** Modality */
+            modality: string;
+            /** Media Type */
+            media_type: string;
+            /** Detected Format */
+            detected_format: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Sha256 */
+            sha256: string;
+            /** Status */
+            status: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            /** Uploaded By */
+            uploaded_by: string;
+            /** Duplicate Of Asset Id */
+            duplicate_of_asset_id: string | null;
+            /** Quality Flags */
+            quality_flags: string[];
+            /** Thumbnail Available */
+            thumbnail_available: boolean;
+            /** Observation Count */
+            observation_count: number;
+        };
+        /** ReportConfirmedLocation */
+        ReportConfirmedLocation: {
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Crs Id */
+            crs_id: string;
+            /** Source */
+            source: string;
+            /** Source Label */
+            source_label: string;
+            /** Confirmed By */
+            confirmed_by: string;
+            /**
+             * Confirmed At
+             * Format: date-time
+             */
+            confirmed_at: string;
+            /** Version No */
+            version_no: number;
+            /** Reason */
+            reason: string | null;
+        };
+        /** ReportEvidence */
+        ReportEvidence: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Asset Filename */
+            asset_filename: string | null;
+            region: components["schemas"]["PixelRegion"] | null;
+            /** Frame Index */
+            frame_index: number | null;
+            /** Timestamp Ms */
+            timestamp_ms: number | null;
+            /** Source Excerpt Or Metadata Key */
+            source_excerpt_or_metadata_key: string | null;
+        };
+        /**
+         * ReportLocationStep
+         * @description One history row. Coordinates are shown only for a row a person confirmed; a candidate row never shows them.
+         */
+        ReportLocationStep: {
+            /** Version No */
+            version_no: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "candidate" | "confirmed" | "cleared";
+            /** Source */
+            source: string;
+            /** Latitude */
+            latitude: number | null;
+            /** Longitude */
+            longitude: number | null;
+            /** Coordinates Withheld */
+            coordinates_withheld: boolean;
+            /** Crs Id */
+            crs_id: string;
+            /** Candidate Version No */
+            candidate_version_no: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Actor */
+            actor: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+        };
+        /** ReportModel */
+        ReportModel: {
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+        };
+        /** ReportObservation */
+        ReportObservation: {
+            /**
+             * Observation Id
+             * Format: uuid
+             */
+            observation_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Asset Filename */
+            asset_filename: string;
+            /** Pipeline */
+            pipeline: string;
+            /** Claim Description */
+            claim_description: string;
+            /** Claim Type */
+            claim_type: string;
+            model: components["schemas"]["ReportModel"] | null;
+            /** Model Category */
+            model_category: string;
+            /** Current Category */
+            current_category: string;
+            /** Relabelled */
+            relabelled: boolean;
+            /** Score Value */
+            score_value: number | null;
+            /** Score Semantics */
+            score_semantics: string;
+            /** Score Calibrated */
+            score_calibrated: boolean;
+            /** Score Range */
+            score_range: number[] | null;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /**
+             * Review Group
+             * @enum {string}
+             */
+            review_group: "reviewed" | "unreviewed";
+            /** Revision */
+            revision: number;
+            /** Evidence */
+            evidence: components["schemas"]["ReportEvidence"][];
+            /** Quality Flags */
+            quality_flags: string[];
+            /** Geographically Located */
+            geographically_located: boolean;
+            /** Open Conflict Ids */
+            open_conflict_ids: string[];
+            /** Reviewer Notes */
+            reviewer_notes: components["schemas"]["ReportRevision"][];
+            /** Revisions */
+            revisions: components["schemas"]["ReportRevision"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Unavailable Fields */
+            unavailable_fields: string[];
+        };
+        /** ReportPhoto */
+        ReportPhoto: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /** Sha256 */
+            sha256: string;
+            /** Thumbnail Available */
+            thumbnail_available: boolean;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "confirmed" | "unconfirmed_candidate" | "none";
+            confirmed: components["schemas"]["ReportConfirmedLocation"] | null;
+            /** History */
+            history: components["schemas"]["ReportLocationStep"][];
+            /** Observation Count */
+            observation_count: number;
+        };
+        /** ReportProject */
+        ReportProject: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            /** Archived At */
+            archived_at: string | null;
+        };
+        /** ReportRevision */
+        ReportRevision: {
+            /** Revision No */
+            revision_no: number;
+            /** Action */
+            action: string;
+            /**
+             * Status Before
+             * @enum {string}
+             */
+            status_before: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /**
+             * Status After
+             * @enum {string}
+             */
+            status_after: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /** Category Before */
+            category_before: string;
+            /** Category After */
+            category_after: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Actor Kind
+             * @enum {string}
+             */
+            actor_kind: "reviewer" | "system";
+            /** Actor Label */
+            actor_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ReportRun */
+        ReportRun: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Asset Filename */
+            asset_filename: string;
+            /** Pipeline */
+            pipeline: string;
+            /** Model Name */
+            model_name: string;
+            /** Model Version */
+            model_version: string;
+            /** Weights Sha256 */
+            weights_sha256: string | null;
+            /** Device */
+            device: string | null;
+            /** Settings */
+            settings: {
+                [key: string]: unknown;
+            };
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /**
+             * Finished At
+             * Format: date-time
+             */
+            finished_at: string;
+            /** Observation Count */
+            observation_count: number;
+            /** Unavailable Fields */
+            unavailable_fields: string[];
+        };
+        /** ReportSummary */
+        ReportSummary: {
+            /** Assets Total */
+            assets_total: number;
+            /** Runs Total */
+            runs_total: number;
+            /** Observations Total */
+            observations_total: number;
+            /** Observations By Review Status */
+            observations_by_review_status: {
+                [key: string]: number;
+            };
+            /** Observations Reviewed */
+            observations_reviewed: number;
+            /** Observations Unreviewed */
+            observations_unreviewed: number;
+            /** Observations Located */
+            observations_located: number;
+            /** Observations Unlocated */
+            observations_unlocated: number;
+            /** Observations With Reviewer Notes */
+            observations_with_reviewer_notes: number;
+            /** Scores Calibrated */
+            scores_calibrated: number;
+            /** Scores Not Calibrated */
+            scores_not_calibrated: number;
+            /** Scores Unavailable */
+            scores_unavailable: number;
+            /** Conflicts Open */
+            conflicts_open: number;
+            /** Conflicts Resolved */
+            conflicts_resolved: number;
+            /** Photos Total */
+            photos_total: number;
+            /** Photos Confirmed Location */
+            photos_confirmed_location: number;
+            /** Photos Unconfirmed Candidate */
+            photos_unconfirmed_candidate: number;
+            /** Photos Without Location */
+            photos_without_location: number;
+            /** Annotations Active */
+            annotations_active: number | null;
+            /** Annotations Deleted */
+            annotations_deleted: number | null;
+        };
+        /** Review */
+        Review: {
+            status: components["schemas"]["ReviewStatus"];
+            /** Reviewer Note */
+            reviewer_note?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+        };
+        /** ReviewRequest */
+        ReviewRequest: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "confirm" | "reject" | "mark_inconclusive" | "reopen" | "relabel" | "note";
+            /**
+             * Expected Revision
+             * @description The revision you reviewed. A mismatch is refused (409).
+             */
+            expected_revision: number;
+            /** Note */
+            note?: string | null;
+            /**
+             * Category
+             * @description New category; only for `relabel`.
+             */
+            category?: string | null;
+        };
+        /**
+         * ReviewStatus
+         * @enum {string}
+         */
+        ReviewStatus: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+        /** RevisionOut */
+        RevisionOut: {
+            /** Revision No */
+            revision_no: number;
+            /** Action */
+            action: string;
+            /**
+             * Status Before
+             * @enum {string}
+             */
+            status_before: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /**
+             * Status After
+             * @enum {string}
+             */
+            status_after: "proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected";
+            /** Category Before */
+            category_before: string;
+            /** Category After */
+            category_after: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Actor Kind
+             * @enum {string}
+             */
+            actor_kind: "reviewer" | "system";
+            /** Actor Label */
+            actor_label: string;
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** RunOut */
+        RunOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Project Id
+             * Format: uuid
+             */
+            project_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Pipeline */
+            pipeline: string;
+            /** Model Name */
+            model_name: string;
+            /** Model Version */
+            model_version: string;
+            /** Weights Sha256 */
+            weights_sha256: string | null;
+            /** Settings */
+            settings: {
+                [key: string]: unknown;
+            };
+            /** Device */
+            device: string | null;
+            /** Library Versions */
+            library_versions: {
+                [key: string]: unknown;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /**
+             * Finished At
+             * Format: date-time
+             */
+            finished_at: string;
+        };
+        /** SceneOut */
+        SceneOut: {
+            /** Provider */
+            provider: string;
+            /** Collection */
+            collection: string;
+            /** Scene Id */
+            scene_id: string;
+            /**
+             * Acquisition Time
+             * @description UTC, ISO 8601 with Z.
+             */
+            acquisition_time: string;
+            /**
+             * Cloud Percent
+             * @description Share of cloudy pixels in the whole granule, not your area.
+             */
+            cloud_percent: number | null;
+            /** Platform */
+            platform: string | null;
+            /** Constellation */
+            constellation: string | null;
+            /** Instruments */
+            instruments: string[];
+            /** Processing Level */
+            processing_level: string | null;
+            /** Processing Baseline */
+            processing_baseline: string | null;
+            /** Mgrs Tile */
+            mgrs_tile: string | null;
+            /** Epsg */
+            epsg: number | null;
+            /** Gsd M */
+            gsd_m: number | null;
+            /** Relative Orbit */
+            relative_orbit: number | null;
+            /**
+             * Geometry
+             * @description The footprint in EPSG:4326, as the catalogue gives it.
+             */
+            geometry: {
+                [key: string]: unknown;
+            } | null;
+            /** Bbox */
+            bbox: number[] | null;
+            /**
+             * Aoi Check
+             * @enum {string}
+             */
+            aoi_check: "intersects" | "not_verified";
+            /**
+             * Assets
+             * @description Names only. Nothing is downloaded and no address is kept.
+             */
+            assets: components["schemas"]["ImageryAssetOut"][];
+        };
+        /** SceneSearchOut */
+        SceneSearchOut: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "dry_run" | "searched";
+            /** Provider */
+            provider: string;
+            /** Collection */
+            collection: string;
+            transmission: components["schemas"]["ImageryTransmission"];
+            gates: components["schemas"]["ImageryGates"];
+            /** Items */
+            items: components["schemas"]["SceneOut"][];
+            /** Returned */
+            returned: number;
+            /**
+             * Matched
+             * @description The catalogue's own total, when it says one.
+             */
+            matched: number | null;
+            /** Next Page Token */
+            next_page_token: string | null;
+            filtering: components["schemas"]["ImageryFiltering"] | null;
+            /** Retrieved At */
+            retrieved_at: string | null;
+            /** Licence */
+            licence: {
+                [key: string]: string;
+            };
+            /** Notes */
+            notes: string[];
+        };
+        /** SceneSearchRequest */
+        SceneSearchRequest: {
+            /**
+             * Provider
+             * @default cdse
+             */
+            provider: string;
+            /**
+             * Collection
+             * @default sentinel-2-l2a
+             */
+            collection: string;
+            /**
+             * Aoi
+             * @description A GeoJSON Polygon in EPSG:4326, [longitude, latitude].
+             */
+            aoi: {
+                [key: string]: unknown;
+            };
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             * @description Inclusive, UTC calendar days.
+             */
+            end_date: string;
+            /** Max Cloud Percent */
+            max_cloud_percent?: number | null;
+            /**
+             * Limit
+             * @description Scenes per page.
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Page Token
+             * @description From a previous answer. Repeat every other field unchanged.
+             */
+            page_token?: string | null;
+            /**
+             * Dry Run
+             * @description Check the request and show what would be sent. Sends nothing.
+             * @default false
+             */
+            dry_run: boolean;
+            /**
+             * Confirm External Transmission
+             * @description Must be true to send. It confirms that a bounding box of the area, the dates and the cloud limit may leave this machine for the provider named in `provider`.
+             * @default false
+             */
+            confirm_external_transmission: boolean;
+        };
+        /** Score */
+        Score: {
+            /** Raw Value */
+            raw_value: number | null;
+            /**
+             * Semantics
+             * @description What the number means for this model.
+             */
+            semantics: string;
+            /** Calibrated */
+            calibrated: boolean;
+            /** Value Range */
+            value_range?: [
+                number,
+                number
+            ] | null;
+        };
+        /** SidecarApply */
+        SidecarApply: {
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /**
+             * Geotransform From
+             * @description Which sidecar, when two disagree.
+             */
+            geotransform_from?: string | null;
+            /**
+             * Crs From
+             * @description Which sidecar, when two disagree.
+             */
+            crs_from?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Sidecar Ids
+             * @description The sidecars that were reviewed.
+             */
+            sidecar_ids: string[];
+            /**
+             * Confirm
+             * @default false
+             */
+            confirm: boolean;
+        };
+        /** SidecarChoice */
+        SidecarChoice: {
+            /**
+             * Sidecar Id
+             * Format: uuid
+             */
+            sidecar_id: string;
+            /** Filename */
+            filename: string;
+            /** Value */
+            value: string | null;
+        };
+        /** SidecarComparison */
+        SidecarComparison: {
+            /** Field */
+            field: string;
+            /** Sidecar */
+            sidecar: unknown;
+            /**
+             * File
+             * @description What the raster file declares; never changed.
+             */
+            file: unknown;
+            /**
+             * In Use
+             * @description What is in use now (the file's value or a recorded version).
+             */
+            in_use: unknown;
+            /**
+             * Relation File
+             * @enum {string}
+             */
+            relation_file: "same" | "differs" | "none" | "unresolved";
+            /**
+             * Relation In Use
+             * @enum {string}
+             */
+            relation_in_use: "same" | "differs" | "none" | "unresolved";
+            /**
+             * Applied
+             * @description False for values shown for information only (band metadata).
+             */
+            applied: boolean | null;
+        };
+        /** SidecarOut */
+        SidecarOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "world_file" | "prj" | "aux_xml";
+            /** Kind Label */
+            kind_label: string;
+            /** Filename */
+            filename: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /**
+             * Pairing
+             * @enum {string}
+             */
+            pairing: "filename_match" | "explicit";
+            /** Uploaded By */
+            uploaded_by: string;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /**
+             * Current
+             * @description The latest sidecar of its kind for this raster; older ones are not used.
+             */
+            current: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "parsed" | "malformed" | "unsupported";
+            /** Summary */
+            summary: string;
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
+            /** Problems */
+            problems: string[];
+            /**
+             * Ignored
+             * @description Present in the file but not used.
+             */
+            ignored: string[];
+            /** Comparisons */
+            comparisons: components["schemas"]["SidecarComparison"][];
+            /** Role */
+            role: string;
+        };
+        /** SidecarProposalOut */
+        SidecarProposalOut: {
+            /**
+             * Operation
+             * @enum {string}
+             */
+            operation: "assign_crs" | "set_geotransform" | "revert_to_file";
+            /** Crs Id */
+            crs_id: string | null;
+            /** Geotransform */
+            geotransform: number[] | null;
+            /** World File */
+            world_file: string | null;
+            /** Geotransform Source */
+            geotransform_source: string | null;
+            /** Sources */
+            sources: {
+                [key: string]: unknown;
+            };
+        };
+        /** SidecarRequest */
+        SidecarRequest: {
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /**
+             * Geotransform From
+             * @description Which sidecar, when two disagree.
+             */
+            geotransform_from?: string | null;
+            /**
+             * Crs From
+             * @description Which sidecar, when two disagree.
+             */
+            crs_from?: string | null;
+        };
+        /** SidecarReviewOut */
+        SidecarReviewOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Expected Version
+             * @description The georeferencing version this review is based on.
+             */
+            expected_version: number;
+            /**
+             * Sidecar Ids
+             * @description The sidecars this review covers; send them back to record it.
+             */
+            sidecar_ids: string[];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "none" | "file_valid" | "proposal" | "conflict" | "insufficient" | "in_use";
+            /** Title */
+            title: string;
+            /** Explanation */
+            explanation: string[];
+            /** Conflicts */
+            conflicts: string[];
+            /** Choices */
+            choices: {
+                [key: string]: components["schemas"]["SidecarChoice"][];
+            };
+            proposal: components["schemas"]["SidecarProposalOut"] | null;
+            /** Sidecars */
+            sidecars: components["schemas"]["SidecarOut"][];
+            /** Accepted Extensions */
+            accepted_extensions: string[];
+            /** Note */
+            note: string;
+        };
+        /** SidecarUploadOut */
+        SidecarUploadOut: {
+            sidecar: components["schemas"]["SidecarOut"];
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Raster Filename */
+            raster_filename: string;
+            /** Duplicate */
+            duplicate: boolean;
+            /** Message */
+            message: string;
+        };
+        /** SidecarValidation */
+        SidecarValidation: {
+            review: components["schemas"]["SidecarReviewOut"];
+            validation: components["schemas"]["GeoreferenceValidation"] | null;
+        };
+        /** TerrainBandOut */
+        TerrainBandOut: {
+            /** Band */
+            band: number;
+            /** Dtype */
+            dtype: string;
+            /** Description */
+            description: string | null;
+            /** Colour Interpretation */
+            colour_interpretation: string | null;
+            /**
+             * Declared Unit
+             * @description The unit the file declares, normalised (metre, foot), or null.
+             */
+            declared_unit: string | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "elevation_declared" | "possible" | "not_elevation";
+            /** Reasons */
+            reasons: string[];
+        };
+        /** TerrainElevationOut */
+        TerrainElevationOut: {
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "metre" | "foot" | "us_survey_foot";
+            /** Unit Label */
+            unit_label: string;
+            /**
+             * Unit Source
+             * @enum {string}
+             */
+            unit_source: "declared" | "stated_for_this_view";
+            /** To Metre */
+            to_metre: number;
+            /**
+             * Role Source
+             * @enum {string}
+             */
+            role_source: "declared" | "confirmed_for_this_view";
+            /** Declared Scale Offset Applied */
+            declared_scale_offset_applied: boolean;
+            /** Nodata Value */
+            nodata_value: number | null;
+            /** Valid Cells */
+            valid_cells: number;
+            /** Nodata Cells */
+            nodata_cells: number;
+            /** Min */
+            min: number;
+            /** Max */
+            max: number;
+            /** Mean */
+            mean: number;
+        };
+        /** TerrainExtentOut */
+        TerrainExtentOut: {
+            /** X Min */
+            x_min: number;
+            /** Y Min */
+            y_min: number;
+            /** X Max */
+            x_max: number;
+            /** Y Max */
+            y_max: number;
+        };
+        /** TerrainGridOut */
+        TerrainGridOut: {
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /**
+             * Decimation
+             * @description Every Nth source pixel was taken.
+             */
+            decimation: number;
+            /** Method */
+            method: string;
+        };
+        /** TerrainHorizontalOut */
+        TerrainHorizontalOut: {
+            /** Method */
+            method: string;
+            /** Approximate */
+            approximate: boolean;
+        };
+        /** TerrainListOut */
+        TerrainListOut: {
+            /** Items */
+            items: components["schemas"]["TerrainRasterOut"][];
+            /** Usable */
+            usable: number;
+            /** Needs Confirmation */
+            needs_confirmation: number;
+            /** Not Available */
+            not_available: number;
+            /** Max Grid Side */
+            max_grid_side: number;
+            /** Default Grid Side */
+            default_grid_side: number;
+            /** Note */
+            note: string;
+        };
+        /** TerrainOut */
+        TerrainOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /** Source Checksum */
+            source_checksum: string;
+            /** Band */
+            band: number;
+            /** Source Size */
+            source_size: number[];
+            grid: components["schemas"]["TerrainGridOut"];
+            /** Crs Id */
+            crs_id: string | null;
+            /** Crs Name */
+            crs_name: string | null;
+            /** Georeferencing Source */
+            georeferencing_source: string;
+            /**
+             * Horizontal Unit
+             * @enum {string}
+             */
+            horizontal_unit: "degree" | "linear";
+            /** Cell Size Native */
+            cell_size_native: number[];
+            /** Cell Size M */
+            cell_size_m: number[];
+            extent_native: components["schemas"]["TerrainExtentOut"];
+            /** Extent M */
+            extent_m: number[];
+            /** Bbox 4326 */
+            bbox_4326: number[] | null;
+            /** Centre 4326 */
+            centre_4326: number[] | null;
+            /**
+             * Positioning
+             * @description How bbox_4326 and centre_4326 were obtained, with the transformation used, or why they are absent. The surface itself is drawn in the raster's own horizontal frame and does not depend on it.
+             */
+            positioning: {
+                [key: string]: unknown;
+            };
+            horizontal: components["schemas"]["TerrainHorizontalOut"];
+            elevation: components["schemas"]["TerrainElevationOut"];
+            vertical_datum: components["schemas"]["TerrainVerticalDatumOut"];
+            /** Warnings */
+            warnings: string[];
+            /** Disclosures */
+            disclosures: string[];
+            /** Grid Url */
+            grid_url: string;
+            /** Grid Format */
+            grid_format: string;
+        };
+        /** TerrainRasterOut */
+        TerrainRasterOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Crs Id */
+            crs_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "usable" | "needs_confirmation" | "not_elevation" | "unusable";
+            /** Reasons */
+            reasons: string[];
+            /** Bands */
+            bands: components["schemas"]["TerrainBandOut"][];
+        };
+        /** TerrainVerticalDatumOut */
+        TerrainVerticalDatumOut: {
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "stated" | "not_stated";
+            /** Name */
+            name: string | null;
+        };
+        /** TransformGridOut */
+        TransformGridOut: {
+            /** Name */
+            name: string;
+            /**
+             * Available
+             * @description False when the grid file is not installed. Nothing is downloaded.
+             */
+            available: boolean;
+        };
+        /** TransformationBlockOut */
+        TransformationBlockOut: {
+            /** Code */
+            code: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+        };
+        /**
+         * TransformationOperationOut
+         * @description One coordinate operation PROJ knows between two CRSs, and whether it may be used.
+         */
+        TransformationOperationOut: {
+            /**
+             * Id
+             * @description Stable identifier to send back as `operation`: a registry code such as EPSG:1247, `datum-unchanged` (no datum change), `ballpark`, or `sha:...` for an unregistered operation.
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Classification
+             * @description exact: no datum change. approximate: registered shift with a documented accuracy. ballpark: a rough fallback, blocked by default. unavailable: needs a grid that is not installed.
+             * @enum {string}
+             */
+            classification: "exact" | "approximate" | "ballpark" | "unavailable";
+            /**
+             * Accuracy M
+             * @description Documented horizontal accuracy of the datum shift in metres. Null if none.
+             */
+            accuracy_m: number | null;
+            /** Authority Code */
+            authority_code: string | null;
+            /** Area Of Use */
+            area_of_use: string | null;
+            /** Grids */
+            grids: components["schemas"]["TransformGridOut"][];
+            /** Summary */
+            summary: string;
+            /** Usable */
+            usable: boolean;
+            /**
+             * Recommended
+             * @description Only a suggestion (the smallest documented accuracy) when a choice is needed.
+             */
+            recommended: boolean;
+            /** Selected */
+            selected: boolean;
+            /**
+             * Requires Acknowledgement
+             * @description True when the operation may only be used after a person acknowledges it: its documented accuracy is worse than the threshold, or is not stated.
+             * @default false
+             */
+            requires_acknowledgement: boolean;
+            /** Acknowledgement Reason */
+            acknowledgement_reason?: ("accuracy_above_threshold" | "accuracy_not_stated") | null;
+            /**
+             * Acknowledgement Threshold M
+             * @default 10
+             */
+            acknowledgement_threshold_m: number;
+        };
+        /** TransformationPlanOut */
+        TransformationPlanOut: {
+            /** Source Crs */
+            source_crs: string;
+            /** Target Crs */
+            target_crs: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "exact" | "approximate" | "selection_required" | "unavailable";
+            /** Status Message */
+            status_message: string;
+            /** Recommended Id */
+            recommended_id: string | null;
+            /** Selected Id */
+            selected_id: string | null;
+            /** Operations */
+            operations: components["schemas"]["TransformationOperationOut"][];
+            /** Missing Grids */
+            missing_grids: string[];
+            /** Messages */
+            messages: string[];
+        };
+        /** TransformationResolutionOut */
+        TransformationResolutionOut: {
+            /** Operation Id */
+            operation_id: string;
+            /**
+             * Classification
+             * @enum {string}
+             */
+            classification: "exact" | "approximate" | "ballpark" | "unavailable";
+            /** Accuracy M */
+            accuracy_m: number | null;
+            /**
+             * Chosen By
+             * @enum {string}
+             */
+            chosen_by: "selection" | "only_option";
+            /**
+             * Requires Acknowledgement
+             * @default false
+             */
+            requires_acknowledgement: boolean;
+            /**
+             * Acknowledged
+             * @default false
+             */
+            acknowledged: boolean;
+        };
+        /** Uncertainty */
+        Uncertainty: {
+            /** Value */
+            value: number;
+            /** Unit */
+            unit: string;
+        };
+        /** UnresolvedItemOut */
+        UnresolvedItemOut: {
+            /** Field */
+            field: string;
+            /** Label */
+            label: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "missing" | "needs_authority" | "ambiguous" | "declared_unverified";
+            /** Detail */
+            detail: string;
+            /**
+             * Required
+             * @description What would resolve it.
+             */
+            required: string;
+        };
+        /** VideoFrameFailureOut */
+        VideoFrameFailureOut: {
+            /** Frame Index */
+            frame_index: number;
+            /** Timestamp Ms */
+            timestamp_ms: number;
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+        };
+        /** VideoFrameOut */
+        VideoFrameOut: {
+            /**
+             * Frame Index
+             * @description 0-based position in presentation order.
+             */
+            frame_index: number;
+            /**
+             * Timestamp Ms
+             * @description Presentation time in ms from the first frame.
+             */
+            timestamp_ms: number;
+            /**
+             * Sample Target Ms
+             * @description The first wanted time this frame stands for.
+             */
+            sample_target_ms: number;
+            /** Also Stands For Ms */
+            also_stands_for_ms: number[];
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Finding Count */
+            finding_count: number;
+            /** Image Url */
+            image_url: string;
+        };
+        /** VideoFramesOut */
+        VideoFramesOut: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Source Sha256 */
+            source_sha256: string;
+            /** Model Name */
+            model_name: string;
+            /** Model Version */
+            model_version: string;
+            sampling: components["schemas"]["VideoSampling"];
+            /** Frames */
+            frames: components["schemas"]["VideoFrameOut"][];
+            /** Failed */
+            failed: components["schemas"]["VideoFrameFailureOut"][];
+            /** Findings Total */
+            findings_total: number;
+            /** Frames In File */
+            frames_in_file: number | null;
+            /** Policy */
+            policy: string;
+            /** Frame Numbering */
+            frame_numbering: string;
+            /** Coordinates */
+            coordinates: string;
+            /** Note */
+            note: string;
+        };
         /** VideoOut */
         VideoOut: {
             /** Container */
@@ -591,6 +6789,59 @@ export interface components {
             creation_time: string | null;
             /** Has Audio */
             has_audio: boolean;
+        };
+        /**
+         * VideoSampling
+         * @description How a video is sampled. The server applies further limits (its configured minimum interval and frame ceiling).
+         */
+        VideoSampling: {
+            /**
+             * Interval S
+             * @description Seconds between sampled frames.
+             */
+            interval_s: number;
+            /**
+             * Max Frames
+             * @description The most frames this analysis may take. Never truncates silently.
+             */
+            max_frames: number;
+            /**
+             * Start S
+             * @description Media time of the first sample.
+             * @default 0
+             */
+            start_s: number;
+            /**
+             * End S
+             * @description Media time after which no sample is taken.
+             */
+            end_s?: number | null;
+        };
+        /** VideoSamplingPlan */
+        VideoSamplingPlan: {
+            sampling: components["schemas"]["VideoSampling"];
+            /**
+             * Planned Frames
+             * @description Frames the policy asks for. Null when it cannot be worked out yet.
+             */
+            planned_frames: number | null;
+            /**
+             * Wanted Ms
+             * @description The media times (ms) the policy asks for, before frames are matched.
+             */
+            wanted_ms: number[];
+            /** Duration Ms */
+            duration_ms: number | null;
+            /** Basis */
+            basis: string;
+            /** Min Interval S */
+            min_interval_s: number;
+            /** Max Frames Ceiling */
+            max_frames_ceiling: number;
+            /** Policy */
+            policy: string;
+            /** Warnings */
+            warnings: string[];
         };
     };
     responses: never;
@@ -697,6 +6948,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -753,6 +7008,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -785,6 +7044,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -817,6 +7080,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -877,6 +7144,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -936,6 +7207,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -968,6 +7243,46 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1000,6 +7315,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1054,6 +7373,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1086,6 +7409,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1147,6 +7474,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1179,6 +7510,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1211,6 +7546,46 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1243,6 +7618,104 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    project_summary_api_v1_projects__project_id__summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectSummary"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1295,6 +7768,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1354,6 +7831,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1386,6 +7867,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1453,6 +7938,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1485,6 +7974,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1517,6 +8010,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1549,6 +8046,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1581,6 +8082,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1613,6 +8118,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1645,6 +8154,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1677,6 +8190,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1709,6 +8226,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1741,6 +8262,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1795,6 +8320,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1827,6 +8356,178 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_asset_preview_api_v1_assets__asset_id__preview_get: {
+        parameters: {
+            query?: {
+                variant?: "view" | "thumb";
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A derived preview picture (WebP) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/webp": unknown;
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1888,6 +8589,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1927,6 +8632,10 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -1959,6 +8668,8172 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_jobs_api_v1_projects__project_id__jobs_get: {
+        parameters: {
+            query?: {
+                asset_id?: string | null;
+                kind?: ("preview" | "analyze") | null;
+                status?: ("draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled") | null;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobPage"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    create_job_api_v1_projects__project_id__jobs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JobCreate"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    recent_jobs_api_v1_jobs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                status?: ("draft" | "queued" | "validating" | "processing" | "needs_review" | "completed" | "completed_with_warnings" | "failed" | "cancelled") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentJobPage"];
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_job_api_v1_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    cancel_job_api_v1_jobs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    start_job_api_v1_jobs__job_id__start_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    retry_job_api_v1_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_run_api_v1_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_observations_api_v1_projects__project_id__observations_get: {
+        parameters: {
+            query?: {
+                asset_id?: string | null;
+                run_id?: string | null;
+                /** @description Only findings in this sampled video frame. */
+                frame_index?: number | null;
+                /** @description Current review state(s). */
+                status?: ("proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected")[] | null;
+                /** @description Current category (after relabelling). */
+                category?: string | null;
+                /** @description Only members (or non-members) of open conflicts. */
+                in_conflict?: boolean | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObservationOut"][];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_observation_api_v1_observations__observation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                observation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObservationDetail"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    review_observation_api_v1_observations__observation_id__review_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                observation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObservationDetail"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_conflicts_api_v1_projects__project_id__conflicts_get: {
+        parameters: {
+            query?: {
+                status?: ("open" | "resolved_documented") | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConflictOut"][];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    export_csv_api_v1_projects__project_id__exports_observations_csv_get: {
+        parameters: {
+            query?: {
+                status?: ("proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected")[] | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    export_geojson_api_v1_projects__project_id__exports_observations_geojson_get: {
+        parameters: {
+            query?: {
+                status?: ("proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected")[] | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/geo+json": unknown;
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    export_json_api_v1_projects__project_id__exports_observations_json_get: {
+        parameters: {
+            query?: {
+                status?: ("proposed" | "needs_review" | "verified" | "inconclusive" | "disputed" | "rejected")[] | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_layers_api_v1_projects__project_id__layers_get: {
+        parameters: {
+            query?: {
+                /** @description Datum transformation chosen for a raster, as `asset_id:operation_id`. Repeat for several. Only needed where the CRS assessment says a choice is required. Nothing is stored. */
+                operation?: string[] | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LayersOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_tile_api_v1_assets__asset_id__tiles__z___x___y__png_get: {
+        parameters: {
+            query?: {
+                /** @description One band or three, e.g. 4,3,2 */
+                bands?: string | null;
+                stretch?: string | null;
+                low?: string | null;
+                high?: string | null;
+                /** @description The chosen datum transformation (an id from the CRS assessment). Needed only where several registered operations apply; georeferencing recorded by a person keeps its own choice. */
+                operation?: string | null;
+                /** @description Draw a single-band float raster through this colour ramp (display only; currently `ndvi`). Nodata stays transparent. */
+                colormap?: string | null;
+                /** @description `low,high`: the values the ramp spans. Defaults to the ramp's own range. */
+                colormap_range?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+                z: number;
+                x: number;
+                y: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A 256 x 256 RGBA PNG in Web Mercator */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
+                };
+            };
+            /** @description The raster does not cover this tile */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    transform_point_api_v1_crs_transform_get: {
+        parameters: {
+            query: {
+                /** @description Authority code of the input CRS */
+                source: string;
+                /** @description Authority code of the output CRS */
+                target: string;
+                /** @description Easting or longitude (x first, whatever the authority axis order) */
+                x: number;
+                /** @description Northing or latitude */
+                y: number;
+                /** @description The chosen datum transformation (an id from /crs/operations). Needed where several registered operations apply to the point. */
+                operation?: string | null;
+                /** @description Explicitly accept a rough ballpark transformation of unknown accuracy. Off by default; the result is then marked BALLPARK_ACCEPTED. */
+                accept_ballpark?: boolean;
+                /** @description Acknowledge, for this request only, the datum shift that was refused with TRANSFORMATION_ACKNOWLEDGEMENT_REQUIRED: its operation id. Nothing is stored, and it never applies to stored rasters. */
+                acknowledge_operation?: string | null;
+                /** @description The accuracy that was shown for that shift (omit if none was stated). It must match, so an acknowledgement of one accuracy cannot be reused for another. */
+                acknowledge_accuracy_m?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrsTransformOut"];
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_georeferencing_api_v1_assets__asset_id__georeferencing_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoreferencingOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    record_georeferencing_api_v1_assets__asset_id__georeferencing_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GeoreferencingApply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoreferencingOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    validate_georeferencing_api_v1_assets__asset_id__georeferencing_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GeoreferencingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoreferenceValidation"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_raster_tools_api_v1_assets__asset_id__raster_tools_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RasterToolsOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    request_statistics_api_v1_assets__asset_id__statistics_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobBrief"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    request_display_copy_api_v1_assets__asset_id__display_copy_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobBrief"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_display_api_v1_assets__asset_id__display_get: {
+        parameters: {
+            query?: {
+                /** @description One band (grey) or three, e.g. 4,3,2 */
+                bands?: string | null;
+                stretch?: string | null;
+                low?: string | null;
+                high?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    render_api_v1_assets__asset_id__render_png_get: {
+        parameters: {
+            query?: {
+                /** @description One band (grey) or three, e.g. 4,3,2 */
+                bands?: string | null;
+                stretch?: string | null;
+                low?: string | null;
+                high?: string | null;
+                max_side?: number;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_pixel_api_v1_assets__asset_id__pixel_get: {
+        parameters: {
+            query?: {
+                col?: number | null;
+                row?: number | null;
+                lon?: number | null;
+                lat?: number | null;
+                /** @description The datum transformation chosen for this conversion (an id from the CRS assessment). Needed only where several registered operations apply; georeferencing recorded by a person keeps its own choice. Ballpark transformations are never used. */
+                operation?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PixelOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    measure_points_api_v1_measurements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasureRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasureOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_alignment_api_v1_assets__asset_id__alignment__other_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+                other_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlignmentOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_comparisons_api_v1_projects__project_id__comparisons_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComparisonOut"][];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    request_comparison_api_v1_projects__project_id__comparisons_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComparisonRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComparisonOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    upload_sidecar_api_v1_projects__project_id__sidecars_post: {
+        parameters: {
+            query: {
+                /** @description Original file name */
+                filename: string;
+                /** @description The raster it belongs to. If omitted, the raster whose file name matches is used. */
+                asset_id?: string | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description The raw bytes of the file. Not multipart: the body is streamed straight to storage. */
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SidecarUploadOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_sidecars_api_v1_assets__asset_id__sidecars_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SidecarReviewOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    attach_sidecar_api_v1_assets__asset_id__sidecars_post: {
+        parameters: {
+            query: {
+                /** @description Original file name */
+                filename: string;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description The raw bytes of the file. Not multipart: the body is streamed straight to storage. */
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SidecarUploadOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    validate_sidecars_api_v1_assets__asset_id__sidecars_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SidecarRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SidecarValidation"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    apply_sidecars_api_v1_assets__asset_id__sidecars_apply_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SidecarApply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoreferencingOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_location_api_v1_assets__asset_id__location_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoLocationOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    change_location_api_v1_assets__asset_id__location_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhotoLocationApply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoLocationOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    read_exif_position_api_v1_assets__asset_id__location_read_exif_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadExifOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_photo_locations_api_v1_projects__project_id__photo_locations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoLocationsOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_annotations_api_v1_projects__project_id__annotations_get: {
+        parameters: {
+            query?: {
+                /** @description Also list deleted annotations (hidden by default). */
+                include_deleted?: boolean;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationsOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    create_annotation_api_v1_projects__project_id__annotations_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnotationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_annotation_api_v1_projects__project_id__annotations__annotation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                annotation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    delete_annotation_api_v1_projects__project_id__annotations__annotation_id__delete: {
+        parameters: {
+            query: {
+                /** @description The version you are deleting. */
+                expected_version: number;
+                reason?: string | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                annotation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    update_annotation_api_v1_projects__project_id__annotations__annotation_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                annotation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnotationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    annotation_history_api_v1_projects__project_id__annotations__annotation_id__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                annotation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnotationHistoryOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_findings_report_api_v1_projects__project_id__report_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FindingsReport"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    sampling_plan_api_v1_projects__project_id__assets__asset_id__video_analysis_plan_get: {
+        parameters: {
+            query: {
+                interval_s: number;
+                max_frames: number;
+                start_s?: number;
+                end_s?: number | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoSamplingPlan"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    run_frames_api_v1_projects__project_id__assets__asset_id__video_analysis_runs__run_id__frames_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                asset_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoFramesOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    frame_image_api_v1_projects__project_id__assets__asset_id__video_analysis_runs__run_id__frames__frame_index__image_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                asset_id: string;
+                run_id: string;
+                frame_index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The stored frame image (JPEG) that was analysed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_terrain_api_v1_projects__project_id__terrain_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerrainListOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_terrain_api_v1_projects__project_id__assets__asset_id__terrain_get: {
+        parameters: {
+            query?: {
+                /** @description The band to draw. Defaults to the first elevation candidate. */
+                band?: number | null;
+                /** @description The elevation unit, stated for this view. Only accepted when the file declares none. */
+                unit?: ("metre" | "foot" | "us_survey_foot") | null;
+                /** @description A person's statement, for this view only, that the band is elevation. Not stored. */
+                confirm_elevation?: boolean;
+                /** @description The most cells per side of the grid. */
+                max_side?: number;
+                /** @description The datum transformation chosen for this conversion (an id from the CRS assessment). Needed only where several registered operations apply; georeferencing recorded by a person keeps its own choice. Ballpark transformations are never used. */
+                operation?: string | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerrainOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_terrain_grid_api_v1_projects__project_id__assets__asset_id__terrain_grid_get: {
+        parameters: {
+            query?: {
+                /** @description The band to draw. Defaults to the first elevation candidate. */
+                band?: number | null;
+                /** @description The elevation unit, stated for this view. Only accepted when the file declares none. */
+                unit?: ("metre" | "foot" | "us_survey_foot") | null;
+                /** @description A person's statement, for this view only, that the band is elevation. Not stored. */
+                confirm_elevation?: boolean;
+                /** @description The most cells per side of the grid. */
+                max_side?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description float32, little-endian, row-major, north row first, west column first; NaN means no data. Values are in the unit given under `elevation`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };
@@ -2015,6 +16890,3855 @@ export interface operations {
                         errors: {
                             [key: string]: string;
                         }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_operations_api_v1_crs_operations_get: {
+        parameters: {
+            query: {
+                /** @description Authority code of the input CRS */
+                source: string;
+                /** @description Authority code of the output CRS */
+                target: string;
+                /** @description Optional area (degrees); narrows the list */
+                west?: number | null;
+                south?: number | null;
+                east?: number | null;
+                north?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrsOperationsOut"];
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_crs_assessment_api_v1_assets__asset_id__crs_assessment_get: {
+        parameters: {
+            query?: {
+                /** @description Echo a chosen transformation id (from a previous assessment) to see what would then be used. Nothing is stored. */
+                operation?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrsAssessmentOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_map_sheets_api_v1_projects__project_id__map_sheets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapSheetListOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    upload_map_sheet_api_v1_projects__project_id__map_sheets_post: {
+        parameters: {
+            query: {
+                /** @description Original file name */
+                filename: string;
+                /** @description The series the uploader says this sheet belongs to. Attribution only. */
+                series?: "osm" | "esm" | "unspecified";
+                /** @description Sheet number or name as printed */
+                sheet_label?: string | null;
+                /** @description The N of a 1:N printed scale, if known */
+                scale_denominator?: number | null;
+                edition?: string | null;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description The raw bytes of the file. Not multipart: the body is streamed straight to storage. */
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapSheetUploadOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            507: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_map_sheet_assessment_api_v1_assets__asset_id__map_sheet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapSheetAssessmentOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    record_metadata_note_api_v1_assets__asset_id__map_sheet_metadata_notes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MapSheetNoteIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapSheetNoteOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_alignment_api_v1_projects__project_id__alignment_get: {
+        parameters: {
+            query: {
+                first: string;
+                second: string;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OverlayAlignmentOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    validate_control_points_api_v1_assets__asset_id__control_points_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ControlPointsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlPointsValidation"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    record_control_points_api_v1_assets__asset_id__control_points_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ControlPointsApply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoreferencingOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_status_api_v1_earth_engine_status_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EarthEngineStatus"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_datasets_api_v1_earth_engine_datasets_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetList"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    connection_test_api_v1_earth_engine_connection_test_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionTest"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    probe_dataset_api_v1_earth_engine_datasets__slug__probe_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetProbe"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_providers_api_v1_imagery_providers_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageryProvidersOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    scene_search_api_v1_projects__project_id__scene_search_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SceneSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SceneSearchOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    s3_status_api_v1_imagery_s3_status_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CdseS3StatusOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    s3_verify_api_v1_imagery_s3_verify_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CdseS3VerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CdseS3VerifyOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_indices_api_v1_indices_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexesOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    index_inputs_api_v1_projects__project_id__indices__index_key__inputs_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                index_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexInputsOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    list_runs_api_v1_projects__project_id__indices__index_key__runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                index_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexRunsOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    start_run_api_v1_projects__project_id__indices__index_key__runs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                index_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IndexRunCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexRunOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    get_run_api_v1_projects__project_id__indices__index_key__runs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                index_key: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexRunOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    cancel_run_api_v1_projects__project_id__indices__index_key__runs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+                index_key: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexRunOut"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
                     };
                 };
             };

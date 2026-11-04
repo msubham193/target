@@ -435,10 +435,13 @@ def test_exif_gps_is_noted_but_never_becomes_a_location(client, project, headers
     response = upload(client, project, headers, "gps.jpg", data)
     asset = response.json()["asset"]
     assert asset["metadata"]["exif"]["gps_tags_present"] is True
-    assert "not used as a location" in asset["unknowns"]["geolocation"]
+    # It is held as an unverified candidate: a person must confirm it before it is a location (test_photo_locations).
+    assert "unverified candidate" in asset["unknowns"]["geolocation"]
+    assert "until a person confirms" in asset["unknowns"]["geolocation"]
     assert "NOT_GEOREFERENCED" in asset["quality_flags"]
-    # No coordinate value from the GPS block appears anywhere in the stored record.
-    assert "28.0" not in response.text and "77.0" not in response.text
+    # No coordinate value from the GPS block appears anywhere in the stored asset record.
+    for value in ("28.0", "28.6", "77.0", "77.2"):
+        assert value not in response.text
 
 
 @needs_ffmpeg

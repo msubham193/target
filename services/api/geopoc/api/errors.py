@@ -10,6 +10,8 @@ from pydantic import BaseModel
 from sqlalchemy.exc import InterfaceError, OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from geopoc.geo.antimeridian import AntimeridianUnsupported
+
 logger = logging.getLogger("geopoc.api")
 
 PROBLEM_MEDIA_TYPE = "application/problem+json"
@@ -23,6 +25,8 @@ class Problem(BaseModel):
     code: str
     request_id: str | None = None
     errors: list[dict[str, str]] = []
+    # Machine-readable detail for the client, for example the operation and accuracy that need acknowledging.
+    context: dict[str, Any] | None = None
 
 
 class ProblemError(Exception):
@@ -33,6 +37,7 @@ class ProblemError(Exception):
         title: str,
         detail: str | None = None,
         errors: list[dict[str, str]] | None = None,
+        context: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(title)
         self.status = status
@@ -40,6 +45,7 @@ class ProblemError(Exception):
         self.title = title
         self.detail = detail
         self.errors = errors or []
+        self.context = context
 
 
 def problem_responses(*statuses: int) -> dict[int | str, dict[str, Any]]:
@@ -50,17 +56,31 @@ def problem_responses(*statuses: int) -> dict[int | str, dict[str, Any]]:
     }
 
 
-def _respond(request: Request, status: int, code: str, title: str, detail=None, errors=None) -> JSONResponse:
+def _respond(
+    request: Request, status: int, code: str, title: str, detail=None, errors=None, context=None
+) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
-    body = Problem(title=title, status=status, detail=detail, code=code, request_id=request_id, errors=errors or [])
+    body = Problem(
+        title=title,
+        status=status,
+        detail=detail,
+        code=code,
+        request_id=request_id,
+        errors=errors or [],
+        context=context,
+    )
     headers = {"X-Request-ID": request_id} if request_id else None
     return JSONResponse(body.model_dump(), status_code=status, media_type=PROBLEM_MEDIA_TYPE, headers=headers)
 
 
 def install_error_handlers(app: FastAPI) -> None:
+    @app.exception_handler(AntimeridianUnsupported)
+    async def _antimeridian(request: Request, exc: AntimeridianUnsupported) -> JSONResponse:
+        return _respond(request, exc.status, exc.code, exc.title, exc.detail)
+
     @app.exception_handler(ProblemError)
     async def _problem(request: Request, exc: ProblemError) -> JSONResponse:
-        return _respond(request, exc.status, exc.code, exc.title, exc.detail, exc.errors)
+        return _respond(request, exc.status, exc.code, exc.title, exc.detail, exc.errors, exc.context)
 
     @app.exception_handler(RequestValidationError)
     async def _validation(request: Request, exc: RequestValidationError) -> JSONResponse:

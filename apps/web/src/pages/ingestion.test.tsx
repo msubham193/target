@@ -50,6 +50,7 @@ function asset(overrides: Partial<client.Asset> = {}): client.Asset {
     ingested_at: "2026-10-12T00:00:00Z",
     raster: null,
     video: null,
+    preview: { status: "pending", variants: [], job_id: null, error_code: null, error_message: null },
     ...overrides,
   };
 }
@@ -244,7 +245,7 @@ describe("AssetsPage", () => {
     expect(within(row).getByText("Validated with warnings")).toBeInTheDocument();
     expect(within(row).getByText("No CRS in file, Not georeferenced")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "photo.jpg" })).toHaveAttribute("href", "/projects/p1/assets/a1");
-    expect(listAssets).toHaveBeenCalledWith("p1", { modality: undefined, limit: 25, cursor: undefined });
+    expect(listAssets).toHaveBeenCalledWith("p1", { modality: undefined, limit: 50, cursor: undefined });
   });
 
   it("shows an error when the list cannot be loaded", async () => {

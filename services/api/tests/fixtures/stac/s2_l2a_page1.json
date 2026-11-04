@@ -1,0 +1,496 @@
+{
+  "type": "FeatureCollection",
+  "numberMatched": 37,
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2B_MSIL2A_20240612T101559_N0510_R065_T32UNA_20240612T132345",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-06-12T10:15:59.024000Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 12.5
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2A_MSIL2A_20240607T101601_N0510_R065_T32UNA_20240607T150000",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-06-07T10:16:01Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 45.0
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2B_MSIL2A_20240602T101559_N0510_R065_T32UNA_20240602T131111",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-06-02T10:15:59Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 85.0
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2B_MSIL2A_20240612T101559_N0510_R065_T33UWQ_OUTSIDE",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.0,
+              50.0
+            ],
+            [
+              15.5,
+              50.0
+            ],
+            [
+              15.5,
+              50.5
+            ],
+            [
+              15.0,
+              50.5
+            ],
+            [
+              15.0,
+              50.0
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-06-12T10:15:59Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 5.0
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2B_MSIL2A_NO_TIME",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": null,
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 3.0
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2A_MSIL2A_20240527T101601_N0510_R065_T32UNA_20240527T150000",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-05-27T10:16:01Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/geo+json",
+      "href": "https://stac.example.invalid/v1/search"
+    },
+    {
+      "rel": "next",
+      "method": "POST",
+      "type": "application/geo+json",
+      "href": "https://stac.example.invalid/v1/search",
+      "body": {
+        "token": "next:ABC-123_x",
+        "limit": 20
+      }
+    }
+  ]
+}

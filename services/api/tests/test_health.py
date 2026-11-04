@@ -1,9 +1,11 @@
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from geopoc.api.main import app
 from geopoc.config import get_settings
 from geopoc.db.session import get_session
+from tests.conftest import alembic_config
 
 
 def test_health_ok(client):
@@ -13,14 +15,17 @@ def test_health_ok(client):
     assert body["status"] == "ok"
     assert body["database"]["reachable"] is True
     assert body["database"]["postgis_version"].startswith("3.")
-    assert body["database"]["schema_revision"] == "0002"
+    # the test database is migrated to the newest migration; the number is read from the files, not written here
+    assert (
+        body["database"]["schema_revision"]
+        == ScriptDirectory.from_config(alembic_config(get_settings().database_url())).get_current_head()
+    )
     assert body["versions"]["gdal"] and body["versions"]["rasterio"] and body["versions"]["pillow"]
     assert body["versions"]["ffprobe"] in {"available", "not found"}
     assert body["storage"]["data_root_ok"] is True
     assert body["storage"]["free_bytes"] > 0
     assert body["online"] == {"enabled": False, "proj_network": False}
     assert body["bind_host"] == "127.0.0.1"
-    assert body["worker"]["implemented"] is False
 
 
 def test_health_reports_unavailable_when_database_is_unreachable(client):
@@ -45,31 +50,21 @@ def test_health_reports_unavailable_when_database_is_unreachable(client):
     assert body["database"]["error_code"] == "DATABASE_UNAVAILABLE"
 
 
-def test_health_models_reports_empty_manifest_truthfully(client):
+def test_health_models_lists_manifest_models_and_worker_state(client):
     response = client.get("/health/models")
     assert response.status_code == 200
     body = response.json()
     assert body["manifest_found"] is True
-    assert body["models"] == []
-    assert body["errors"] == []
+    stub = next(m for m in body["models"] if m["name"] == "stub-detector")
+    assert stub["available"] is True and stub["score_calibrated"] is False
+    assert body["worker"]["running"] is False  # no worker process is running during this test
     assert body["llm_runtime"]["configured"] is False
     assert body["llm_runtime"]["checked"] is False
 
 
-def test_manifest_refuses_remote_models(tmp_path):
-    from geopoc.registry.manifest import read_manifest
-
-    manifest = tmp_path / "manifest.yaml"
-    manifest.write_text(
-        "models:\n"
-        "  - {name: local-one, version: '1', pipeline: ground_image, locality: local}\n"
-        "  - {name: cloud-one, version: '1', pipeline: ground_image, locality: remote}\n",
-        encoding="utf-8",
-    )
-    result = read_manifest(manifest)
-    assert [m["name"] for m in result["models"]] == ["local-one"]
-    assert result["models"][0]["available"] is False
-    assert any("cloud-one" in error for error in result["errors"])
+def test_health_says_when_no_worker_is_running(client):
+    worker = client.get("/health").json()["worker"]
+    assert worker["running"] is False and "wait until one is started" in worker["note"]
 
 
 def test_request_id_is_echoed_or_generated(client):

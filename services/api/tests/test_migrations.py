@@ -16,6 +16,19 @@ TABLES = {
     "asset",
     "raster_metadata",
     "video_metadata",
+    "job",
+    "job_event",
+    "worker_heartbeat",
+    "artifact",
+    "pipeline_run",
+    "observation",
+    "observation_revision",
+    "conflict",
+    "conflict_member",
+    "link_group",
+    "link_member",
+    "georef_assertion",
+    "asset_lineage",
 }
 
 

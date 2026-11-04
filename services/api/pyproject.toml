@@ -1,7 +1,7 @@
 [project]
 name = "geopoc"
 version = "0.1.0"
-description = "Geospatial PoC API (Phase 1: workspace, projects, CRS search, health)"
+description = "Geospatial PoC API and worker"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "fastapi>=0.115",
@@ -20,22 +20,53 @@ dependencies = [
     # and to read/write GeoTIFF. It bundles its own GDAL and PROJ.
     "rasterio==1.4.3",
     "pillow==10.4.0",
+    # Used by the Earth Engine download code (geopoc.satellite.earthengine) as well as the tests, so it is a runtime
+    # dependency, not a dev-only one.
+    "httpx>=0.27",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=8.0",
-    "httpx>=0.27",
     "ruff>=0.6",
     "schemathesis>=4.0",
+]
+# Google Earth Engine client (GEE-1, docs/earth-engine-integration-assessment.md). Optional: without it the application
+# runs normally and Earth Engine reports itself unavailable. Install with `uv sync --inexact --group earthengine` (the
+# --inexact keeps other optional groups such as `ml` installed). Pinned exactly; its Google client dependencies are
+# transitive. Re-test that every dependency loads under Windows Smart App Control before changing the version.
+earthengine = [
+    "earthengine-api==1.7.50",
+]
+# Local model inference. Optional and large (several GB): `uv sync --group ml`. Without it the application
+# runs normally and analysis models are reported as unavailable.
+# cu128 is the CUDA 12.8 build, which includes the RTX 50-series architecture (sm_120). Verified on the
+# RTX 5060 with driver 595.95, and allowed by Smart App Control. Re-test before changing either version.
+ml = [
+    "torch==2.11.0+cu128",
+    "torchvision==0.26.0+cu128",
 ]
 
 [tool.uv]
 package = false
+default-groups = ["dev"]
+# The CUDA wheels exist for Windows and Linux only; this project is developed and run on Windows.
+environments = ["sys_platform == 'win32'"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+# -rs lists every skipped test with its reason, so a skipped contract test is never silent.
+addopts = "-rs"
 
 [tool.ruff]
 line-length = 120

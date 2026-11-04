@@ -1,7 +1,154 @@
+/* Poppins is bundled with the app (npm @fontsource/poppins, OFL-1.1). Nothing is fetched from the network. */
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
 @import "tailwindcss";
 
-/* System fonts only: nothing is fetched from the network. */
+/*
+ * Design tokens. Every colour in the interface comes from here.
+ * Dark charcoal surfaces, one restrained blue accent, and status colours used only for status.
+ */
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+
+  --color-canvas: #0e1014;      /* page background */
+  --color-surface: #15181e;     /* panels, sidebar */
+  --color-raised: #1b1f27;      /* cards, inputs, table headers */
+  --color-overlay: #232833;     /* hover, menus, dialogs */
+  --color-line: #2a303b;        /* hairlines */
+  --color-line-strong: #3a4252; /* input borders, emphasised dividers */
+
+  --color-fg: #e7eaf0;          /* primary text */
+  --color-fg-muted: #a7b0be;    /* secondary text */
+  --color-fg-subtle: #828c9c;   /* metadata, placeholders */
+
+  --color-accent: #5b9bff;
+  --color-accent-strong: #3f84f5;
+  --color-accent-fg: #0b1220;
+  --color-accent-soft: rgb(91 155 255 / 0.14);
+
+  --color-ok: #4cc38a;
+  --color-ok-soft: rgb(76 195 138 / 0.14);
+  --color-warn: #e6b450;
+  --color-warn-soft: rgb(230 180 80 / 0.14);
+  --color-danger: #f07171;
+  --color-danger-soft: rgb(240 113 113 / 0.14);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.02), 0 8px 24px rgb(0 0 0 / 0.28);
+}
+
+html {
+  color-scheme: dark;
+}
+
 body {
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-canvas font-sans text-fg antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* One focus style everywhere: visible on keyboard use, quiet on mouse use. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+}
+
+progress {
+  accent-color: var(--color-accent);
+}
+
+/*
+ * The findings report is a paper-style sheet: it always uses light colours, on screen and in print, by redefining the
+ * colour tokens inside it. Everything else in the report uses the same utilities as the rest of the interface.
+ */
+.report-sheet {
+  color-scheme: light;
+  --color-surface: #ffffff;
+  --color-raised: #f3f4f6;
+  --color-overlay: #e5e7eb;
+  --color-line: #d1d5db;
+  --color-line-strong: #6b7280;
+  --color-fg: #111827;
+  --color-fg-muted: #374151;
+  --color-fg-subtle: #4b5563;
+  --color-ok: #166534;
+  --color-ok-soft: #dcfce7;
+  --color-warn: #92400e;
+  --color-warn-soft: #fef3c7;
+  --color-danger: #991b1b;
+  --color-danger-soft: #fee2e2;
+  --color-accent: #1d4ed8;
+  --color-accent-soft: #dbeafe;
+  background: #ffffff;
+  color: #111827;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .report-avoid-break {
+    break-inside: avoid;
+  }
+  .report-sheet h2 {
+    break-after: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Login screen: a gentle entrance and a slow drift of the background picture. */
+@keyframes login-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes login-drift {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.1) translate(-1.5%, -1%);
+  }
+}
+.login-rise,
+.rise-in {
+  animation: login-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.login-drift {
+  animation: login-drift 60s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-rise,
+  .rise-in,
+  .login-drift {
+    animation: none !important;
+  }
 }

@@ -1,6 +1,7 @@
 import hashlib
 import uuid
-from typing import Annotated
+from collections.abc import Callable
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query, Request
 from fastapi.concurrency import run_in_threadpool
@@ -21,15 +22,21 @@ from geopoc.api.schemas import (
     AssetPage,
     AssetStatus,
     AssetUploadOut,
+    GeoreferencingSummary,
     IngestionRule,
     IngestionRules,
+    MapSheetInfo,
     ModalityName,
+    PreviewInfo,
     RasterOut,
     VideoOut,
 )
 from geopoc.config import get_settings
-from geopoc.db.models import Asset, Blob, Project, WorkspaceUser
+from geopoc.db.models import Artifact, Asset, Blob, Job, Project, WorkspaceUser
+from geopoc.geo import georeference, mapsheet, sidecars
 from geopoc.ingestion import rules, service
+from geopoc.ingestion.rules import Inspection
+from geopoc.jobs import queue
 from geopoc.storage import store
 
 router = APIRouter(prefix="/api/v1", tags=["assets"], responses=problem_responses(422))
@@ -43,7 +50,44 @@ BINARY_BODY = {
 }
 
 
-def asset_out(asset: Asset) -> AssetOut:
+def preview_info(session: Session, asset_ids: list[uuid.UUID]) -> dict[uuid.UUID, PreviewInfo]:
+    """Preview state for several assets in two queries: what exists, and what the latest preview job says."""
+    if not asset_ids:
+        return {}
+    variants: dict[uuid.UUID, list[str]] = {}
+    for asset_id, variant in session.execute(
+        select(Artifact.asset_id, Artifact.variant).where(Artifact.asset_id.in_(asset_ids), Artifact.kind == "preview")
+    ):
+        variants.setdefault(asset_id, []).append(variant)
+    latest: dict[uuid.UUID, Job] = {}
+    for job in session.scalars(
+        select(Job).where(Job.asset_id.in_(asset_ids), Job.kind == "preview").order_by(Job.created_at, Job.id)
+    ):
+        latest[job.asset_id] = job
+
+    info: dict[uuid.UUID, PreviewInfo] = {}
+    for asset_id in asset_ids:
+        job = latest.get(asset_id)
+        if job is not None and job.status in queue.ACTIVE:
+            # A newer preview is on its way; an older one (if any) can still be shown meanwhile.
+            status = "pending"
+        elif asset_id in variants:
+            status = "ready"
+        elif job is not None and job.status in ("failed", "cancelled"):
+            status = "failed"
+        else:
+            status = "none"
+        info[asset_id] = PreviewInfo(
+            status=status,
+            variants=sorted(variants.get(asset_id, [])),
+            job_id=job.id if job else None,
+            error_code=job.error_code if job and status == "failed" else None,
+            error_message=job.error_message if job and status == "failed" else None,
+        )
+    return info
+
+
+def asset_out(asset: Asset, preview: PreviewInfo) -> AssetOut:
     raster = None
     if asset.raster is not None:
         r = asset.raster
@@ -82,7 +126,19 @@ def asset_out(asset: Asset) -> AssetOut:
             creation_time=v.creation_time,
             has_audio=v.has_audio,
         )
+    georeferencing = None
+    if asset.raster is not None:
+        state = georeference.effective(asset.raster)
+        georeferencing = GeoreferencingSummary(
+            version=state.version,
+            source=state.source,
+            placed=state.georeferenced,
+            crs_id=state.crs_id,
+            crs_name=state.crs_name,
+            unplaced_reason=georeference.unplaced_reason(asset.raster, state),
+        )
     return AssetOut(
+        georeferencing=georeferencing,
         id=asset.id,
         project_id=asset.project_id,
         original_filename=asset.original_filename,
@@ -101,6 +157,8 @@ def asset_out(asset: Asset) -> AssetOut:
         ingested_at=asset.ingested_at,
         raster=raster,
         video=video,
+        preview=preview,
+        map_sheet=MapSheetInfo(**sheet) if (sheet := mapsheet.info(asset)) is not None else None,
     )
 
 
@@ -119,6 +177,8 @@ def ingestion_rules():
                 label=rules.MODALITY_LABELS[modality],
                 extensions=list(extensions),
                 max_bytes=rules.max_bytes(modality, settings),
+                sidecar_extensions=list(sidecars.SIDECAR_EXTENSIONS) if modality == "overhead_raster" else [],
+                sidecar_max_bytes=max(sidecars.MAX_BYTES.values()) if modality == "overhead_raster" else None,
             )
             for modality, extensions in rules.MODALITY_EXTENSIONS.items()
         ],
@@ -126,6 +186,8 @@ def ingestion_rules():
             "Limits bound what is accepted; they do not guarantee that a file can be processed.",
             "A file is checked by its content and by actually reading it, not by its name.",
             "Identical content is stored once; a repeated upload is linked to the first and flagged.",
+            "World files, .prj and .aux.xml files added with a raster are kept for review. They are never applied "
+            "on their own: a person checks what they say and confirms it.",
         ],
     )
 
@@ -133,9 +195,17 @@ def ingestion_rules():
 class _Rejection:
     """Records a refused upload in the audit history, then raises the error returned to the client."""
 
-    def __init__(self, session: Session, project: Project, profile: WorkspaceUser, request_id: str, context: dict):
+    def __init__(
+        self,
+        session: Session,
+        project: Project,
+        profile: WorkspaceUser,
+        request_id: str,
+        context: dict,
+        action: str = "asset.upload_rejected",
+    ):
         self.session, self.project, self.profile = session, project, profile
-        self.request_id, self.context = request_id, context
+        self.request_id, self.context, self.action = request_id, context, action
 
     def __call__(self, status: int, code: str, title: str, detail: str, **extra) -> ProblemError:
         try:
@@ -143,7 +213,7 @@ class _Rejection:
             record_audit(
                 self.session,
                 actor=self.profile,
-                action="asset.upload_rejected",
+                action=self.action,
                 entity_type="project",
                 entity_id=self.project.id,
                 request_id=self.request_id,
@@ -172,6 +242,36 @@ async def upload_asset(
     filename: Annotated[str, Query(min_length=1, max_length=500, description="Original file name")],
 ):
     """Upload one original file into a project. The body is validated, checksummed and stored unmodified."""
+    return await receive_upload(
+        project_id,
+        request,
+        session,
+        profile,
+        request_id,
+        modality=modality,
+        filename=filename,
+        accepted=rules.MODALITY_EXTENSIONS[modality],
+        label=rules.MODALITY_LABELS[modality],
+    )
+
+
+async def receive_upload(
+    project_id: uuid.UUID,
+    request: Request,
+    session: Session,
+    profile: WorkspaceUser,
+    request_id: str,
+    *,
+    modality: str,
+    filename: str,
+    accepted: tuple[str, ...],
+    label: str,
+    inspector: Callable[..., Inspection] | None = None,
+    context: dict | None = None,
+    intake: dict | None = None,
+) -> AssetUploadOut:
+    """Stream, check and store one upload. Shared by asset upload and map-sheet intake, which differ only in the file
+    types accepted (`accepted`), how the content is inspected (`inspector`) and what is recorded about the intake."""
     settings = get_settings()
     project = session.get(Project, project_id)
     if project is None:
@@ -180,19 +280,19 @@ async def upload_asset(
         raise ProblemError(409, "PROJECT_ARCHIVED", "This project is archived", "Restore it before adding files.")
 
     name = rules.clean_filename(filename)
-    reject = _Rejection(session, project, profile, request_id, {"filename": name, "modality": modality})
+    reject = _Rejection(
+        session, project, profile, request_id, {"filename": name, "modality": modality, **(context or {})}
+    )
     if not name:
         raise reject(422, "INVALID_FILENAME", "The file name is not valid", "Provide the original file name.")
 
     extension = rules.extension_of(name)
-    accepted = rules.MODALITY_EXTENSIONS[modality]
     if extension not in accepted:
         raise reject(
             415,
             "UNSUPPORTED_FILE_TYPE",
             "This file type is not supported here",
-            f"{rules.MODALITY_LABELS[modality]} accepts {', '.join(accepted)}; "
-            f"this file ends in {extension or '(no extension)'}.",
+            f"{label} accepts {', '.join(accepted)}; this file ends in {extension or '(no extension)'}.",
         )
     family = rules.EXTENSION_FAMILY[extension]
 
@@ -201,7 +301,7 @@ async def upload_asset(
         413,
         "FILE_TOO_LARGE",
         "The file is too large",
-        f"The limit for {rules.MODALITY_LABELS[modality].lower()} is {_megabytes(limit)}.",
+        f"The limit for {label.lower()} is {_megabytes(limit)}.",
     )
     declared = request.headers.get("content-length", "")
     declared_size = int(declared) if declared.isdigit() else None
@@ -286,6 +386,8 @@ async def upload_asset(
                 sha256=sha256,
                 size_bytes=received,
                 request_id=request_id,
+                inspector=inspector,
+                intake=intake,
             )
         except rules.UnreadableAsset as exc:
             raise reject(
@@ -315,7 +417,7 @@ async def upload_asset(
     else:
         message = "Stored and validated."
     return AssetUploadOut(
-        asset=asset_out(result.asset),
+        asset=asset_out(result.asset, preview_info(session, [result.asset.id])[result.asset.id]),
         duplicate=duplicate,
         duplicate_of_asset_id=result.duplicate_of_asset_id,
         stored_original_reused=result.stored_original_reused,
@@ -344,8 +446,9 @@ def list_assets(
     stmt = stmt.order_by(Asset.ingested_at.desc(), Asset.id.desc()).limit(limit + 1)
     rows = list(session.scalars(stmt).unique().all())
     page = rows[:limit]
+    previews = preview_info(session, [a.id for a in page])
     return AssetPage(
-        items=[asset_out(a) for a in page],
+        items=[asset_out(a, previews[a.id]) for a in page],
         next_cursor=encode_cursor(page[-1].ingested_at, page[-1].id) if len(rows) > limit else None,
     )
 
@@ -359,7 +462,41 @@ def _get_asset(session: Session, asset_id: uuid.UUID) -> Asset:
 
 @router.get("/assets/{asset_id}", response_model=AssetOut, responses=problem_responses(404))
 def get_asset(asset_id: uuid.UUID, session: SessionDep):
-    return asset_out(_get_asset(session, asset_id))
+    asset = _get_asset(session, asset_id)
+    return asset_out(asset, preview_info(session, [asset.id])[asset.id])
+
+
+@router.get(
+    "/assets/{asset_id}/preview",
+    response_class=FileResponse,
+    responses={
+        200: {"description": "A derived preview picture (WebP)", "content": {"image/webp": {}}},
+        **problem_responses(404, 409, 500),
+    },
+)
+def get_asset_preview(asset_id: uuid.UUID, session: SessionDep, variant: Literal["view", "thumb"] = "view"):
+    """A small derived picture of the asset for display. Never the original; carries no georeferencing."""
+    asset = _get_asset(session, asset_id)
+    artifact = session.scalars(
+        select(Artifact).where(Artifact.asset_id == asset.id, Artifact.kind == "preview", Artifact.variant == variant)
+    ).first()
+    if artifact is None:
+        info = preview_info(session, [asset.id])[asset.id]
+        if info.status == "pending":
+            raise ProblemError(
+                409, "PREVIEW_NOT_READY", "The preview is not ready yet", "It is queued or being generated."
+            )
+        raise ProblemError(
+            404,
+            "PREVIEW_NOT_AVAILABLE",
+            "No preview is available for this asset",
+            info.error_message or "No preview has been generated.",
+        )
+    path = store.absolute_path(artifact.storage_path)
+    if not path.is_file():
+        raise ProblemError(500, "STORAGE_ERROR", "The preview file is missing", "Regenerate it with a preview job.")
+    # The checksum makes the response safely cacheable and changes whenever the preview is regenerated.
+    return FileResponse(path, media_type=artifact.media_type, headers={"ETag": f'"{artifact.sha256}"'})
 
 
 @router.get(

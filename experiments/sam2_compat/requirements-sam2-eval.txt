@@ -1,0 +1,19 @@
+# Packages added to the ISOLATED SAM 2.1 evaluation environment only (D:\geopoc-cache\venv-sam2-eval).
+# Installed with --no-deps --require-hashes: exactly these files, nothing resolved or upgraded.
+# Already present in the application environment and reused read-only (not reinstalled): torch 2.11.0+cu128,
+# torchvision 0.26.0+cu128, numpy 2.4.6, pillow 10.4.0, pyyaml 6.0.3, packaging 26.3, typing-extensions 4.16.0,
+# colorama 0.4.6, setuptools 81.0.0.
+# Hashes are PyPI's published SHA-256 values, read 2026-10-21.
+
+# MIT. Configuration loader used by sam2.build_sam; sam2's setup.py requires >=1.3.2.
+hydra-core==1.3.2 --hash=sha256:fa0238a9e31df3373b35b0bfb672c34cc92718d21f81311d8996a16de1141d8b
+# BSD-3-Clause. Required by hydra-core (<2.4).
+omegaconf==2.3.0 --hash=sha256:7b4df175cdb08ba400f45cae3bdcae7ba8365db4d165fc65fd04b050ab63b46b
+# BSD-3-Clause. Pinned ==4.9.* by hydra-core and omegaconf. Source only: pure Python, built locally, no compiler.
+antlr4-python3-runtime==4.9.3 --hash=sha256:f224469b4168294902bb1efa80a8bf7855f24c99aef99cbefc1bcd3cce77881b
+# MIT. Required by sam2's setup.py. Source only: pure Python, built locally, no compiler.
+iopath==0.1.10 --hash=sha256:3311c16a4d9137223e20f141655759933e1eda24f8bff166af834af3c645ef01
+# BSD-3-Clause. Required by iopath. 4.x has no pywin32 dependency on Windows (3.x and earlier did).
+portalocker==4.3.2 --hash=sha256:42f0362e7343af78b25eb095c0cde300e746a0ab6647a835cc30764918490c93
+# MPL-2.0 AND MIT. Required by sam2's setup.py and iopath.
+tqdm==4.67.1 --hash=sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2

@@ -1,0 +1,90 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S2A_MSIL2A_20240522T101601_N0510_R065_T32UNA_20240522T150000",
+      "collection": "sentinel-2-l2a",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.9,
+              49.9
+            ],
+            [
+              10.3,
+              49.9
+            ],
+            [
+              10.3,
+              50.3
+            ],
+            [
+              9.9,
+              50.3
+            ],
+            [
+              9.9,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        9.9,
+        49.9,
+        10.3,
+        50.3
+      ],
+      "properties": {
+        "datetime": "2024-05-22T10:16:01Z",
+        "platform": "sentinel-2b",
+        "constellation": "sentinel-2",
+        "instruments": [
+          "msi"
+        ],
+        "processing:level": "L2A",
+        "s2:processing_baseline": "05.10",
+        "grid:code": "MGRS-32UNA",
+        "proj:epsg": 32632,
+        "gsd": 10,
+        "sat:relative_orbit": 65,
+        "eo:cloud_cover": 20.0
+      },
+      "assets": {
+        "B02_10m": {
+          "title": "Band 2 (blue) - 10m",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/B02_10m.jp2"
+        },
+        "SCL_20m": {
+          "title": "Scene classification",
+          "type": "image/jp2",
+          "roles": [
+            "data"
+          ],
+          "href": "s3://eodata/Sentinel-2/example/SCL_20m.jp2"
+        },
+        "thumbnail": {
+          "type": "image/jpeg",
+          "roles": [
+            "thumbnail"
+          ],
+          "href": "https://example.invalid/t.jpg?X-Amz-Signature=SECRETSIG"
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://stac.example.invalid/v1/search"
+    }
+  ]
+}

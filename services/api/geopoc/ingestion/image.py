@@ -1,4 +1,8 @@
-"""Ground photograph validation and metadata. A ground photograph is never given a geographic location here."""
+"""Ground photograph validation and metadata.
+
+A ground photograph is never given a geographic location here. Its EXIF GPS position, if any, is read as an unverified
+candidate (ingestion/gps.py) that stays a candidate until a person confirms it.
+"""
 
 from datetime import datetime
 from pathlib import Path
@@ -8,6 +12,7 @@ import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 from geopoc.config import Settings
+from geopoc.ingestion.gps import GpsReading, read_gps
 from geopoc.ingestion.rules import Inspection, UnreadableAsset, json_safe
 
 # The pixel cap is enforced explicitly below, with a clear error, instead of Pillow's warning.
@@ -84,6 +89,10 @@ def inspect_image(path: Path, family: str, settings: Settings) -> Inspection:
                 exif_error = None
             except Exception as exc:  # EXIF blocks are frequently malformed; the image itself is still valid
                 exif, exif_error = None, type(exc).__name__
+            try:
+                gps = read_gps(image.getexif())
+            except Exception:  # noqa: BLE001 - never let a damaged GPS block fail the upload
+                gps = GpsReading("unusable", problems=("GPS_UNREADABLE",))
     except UnreadableAsset:
         raise
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError, EOFError) as exc:
@@ -123,9 +132,22 @@ def inspect_image(path: Path, family: str, settings: Settings) -> Inspection:
         result.unknowns["acquisition_time"] = reason
         result.flag("TIMESTAMP_UNKNOWN")
 
-    if exif and exif.get("gps_tags_present"):
+    result.photo_gps = gps
+    # Only the state and problem codes go on the asset; the coordinates are held in the photo's location history.
+    result.metadata["exif_gps"] = {"state": gps.state, "problems": list(gps.problems)}
+    if gps.state == "candidate":
         result.unknowns["geolocation"] = (
-            "EXIF GPS tags are present but are unverified metadata; they are not used as a location."
+            "EXIF GPS coordinates were read and are held as an unverified candidate. They are not a location "
+            "until a person confirms them."
+        )
+    elif gps.state == "unusable":
+        reasons = " ".join(m["message"] for m in gps.messages())
+        result.unknowns["geolocation"] = (
+            f"EXIF GPS tags are present but cannot be used as a location candidate. {reasons}"
+        )
+    elif exif and exif.get("gps_tags_present"):
+        result.unknowns["geolocation"] = (
+            "EXIF GPS tags are present but could not be read; they are not used as a location."
         )
     else:
         result.unknowns["geolocation"] = "A ground photograph has no georeferencing; no location is inferred."

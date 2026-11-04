@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/HP/Desktop/target/apps/web && cat playwright.ui-review.config.ts; ls review; wc -l review/*.ts; ls /d/geopoc-cache/review)",
+      "Read(//d/geopoc-cache/review/**)",
+      "Bash(grep -n \"Run analysis\\\\|Analyse\\\\|detection-box\\\\|getByRole\\(\\\\\"button\\\\\", { name: \\\\\"\" review/capture.spec.ts)",
+      "Bash(ffmpeg -hide_banner -encoders)",
+      "Bash(ffmpeg -version)",
+      "Bash(ls /d/geopoc-cache/demo-recording/frames 2>/dev/null | wc -l; du -sh /d/geopoc-cache/demo-recording 2>/dev/null; grep -v WebServer /c/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-target/db82887f-d159-48d4-9b76-52d51ce7bb24/scratchpad/demo-2.log | tail -5)",
+      "Read(//d/geopoc-cache/demo-recording/frames/**)",
+      "Read(//c/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-target/db82887f-d159-48d4-9b76-52d51ce7bb24/scratchpad/**)",
+      "Read(//d/geopoc-cache/demo-recording/**)",
+      "PowerShell(& D:\\\\geopoc-cache\\\\venv-api\\\\Scripts\\\\python.exe -I -c \"import torch; print\\('torch', torch.__version__, torch.__file__, 'cuda', torch.cuda.is_available\\(\\)\\); import torchvision; print\\('torchvision', torchvision.__version__, torchvision.__file__\\)\" 2>&1 | Select-Object -Last 6; uv pip freeze --python D:\\\\geopoc-cache\\\\venv-api\\\\Scripts\\\\python.exe 2>$null | Out-File -Encoding utf8 C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-HP-Desktop-target\\\\db82887f-d159-48d4-9b76-52d51ce7bb24\\\\scratchpad\\\\app-freeze-now.txt; \\(Get-FileHash C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-HP-Desktop-target\\\\db82887f-d159-48d4-9b76-52d51ce7bb24\\\\scratchpad\\\\app-freeze-now.txt\\).Hash; Compare-Object \\(Get-Content C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-HP-Desktop-target\\\\db82887f-d159-48d4-9b76-52d51ce7bb24\\\\scratchpad\\\\app-freeze-before.txt\\) \\(Get-Content C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-HP-Desktop-target\\\\db82887f-d159-48d4-9b76-52d51ce7bb24\\\\scratchpad\\\\app-freeze-now.txt\\); Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{n='MB';e={[int]\\($_.WorkingSet64/1MB\\)}} | Format-Table -AutoSize; nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv)",
+      "Read(//c/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-target/db82887f-d159-48d4-9b76-52d51ce7bb24/tasks/**)",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '\\\\''playwright|geopoc|vite|msedge.*remote-debugging'\\\\'' } | Select-Object ProcessId, Name, CreationDate, @{n='\\\\''Cmd'\\\\'';e={$_.CommandLine.Substring\\(0,[Math]::Min\\(110,$_.CommandLine.Length\\)\\)}} | Format-Table -AutoSize | Out-String -Width 220')",
+      "PowerShell(Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -in 22812, 12908 } | Select-Object ProcessId, Name, CreationDate, @{n='Cmd';e={$_.CommandLine.Substring\\(0,[Math]::Min\\(160,$_.CommandLine.Length\\)\\)}} | Format-Table -AutoSize | Out-String -Width 250; $kids = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'test_raster_tools' }; $kids | Select-Object ProcessId, ParentProcessId, Name, CreationDate | Format-Table -AutoSize | Out-String; foreach \\($k in $kids\\) { Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $k.ProcessId } | Select-Object ProcessId, Name, CreationDate, @{n='Cmd';e={$_.CommandLine.Substring\\(0,[Math]::Min\\(120,$_.CommandLine.Length\\)\\)}} | Format-Table -AutoSize | Out-String -Width 250 })",
+      "PowerShell(. C:\\\\Users\\\\HP\\\\Desktop\\\\target\\\\scripts\\\\env.ps1 | Out-Null; cd C:\\\\Users\\\\HP\\\\Desktop\\\\target\\\\services\\\\api; 1..5 | ForEach-Object { $t = Measure-Command { $o = & D:\\\\geopoc-cache\\\\venv-api\\\\Scripts\\\\python.exe -m geopoc.jobs.probe 2>&1 | Select-Object -Last 1 }; \"{0:N1}s  {1}\" -f $t.TotalSeconds, \\($o | Out-String\\).Trim\\(\\).Substring\\(0, [Math]::Min\\(230, \\($o | Out-String\\).Trim\\(\\).Length\\)\\) })",
+      "PowerShell(taskkill /PID 26844 /T /F | Select-Object -Last 3; Start-Sleep -Seconds 3; Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'ui-review|geopoc_review|_review' } | Select-Object ProcessId, Name | Format-Table -AutoSize | Out-String; $p = Get-NetTCPConnection -State Listen -LocalPort 8011,5175 -ErrorAction SilentlyContinue; \"review ports still listening: \" + @\\($p\\).Count)",
+      "PowerShell(Get-Process -Id 38668,25496,7484,12240 -ErrorAction SilentlyContinue)",
+      "Bash(python -)",
+      "Bash(ls /d/geopoc-cache/demo-recording/frames 2>/dev/null | wc -l; ls -la --time-style=+%H:%M:%S /d/geopoc-cache/demo-recording/frames | tail -1; date +%H:%M:%S; grep -E \"capabilities|passed|failed|Error:\" /c/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-target/db82887f-d159-48d4-9b76-52d51ce7bb24/scratchpad/demo-3.log | cut -c1-200 | tail -3)",
+      "Bash(grep -v \"^\\\\s*$\")"
+    ]
+  }
+}
