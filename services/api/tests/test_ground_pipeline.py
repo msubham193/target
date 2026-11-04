@@ -338,7 +338,7 @@ def test_manifest_refuses_remote_and_stub_models_outside_tests(monkeypatch):
     assert sum("test stub and was refused" in e for e in locked_down.errors) == 5
 
 
-def test_the_real_manifest_is_valid_and_contains_no_stub_or_remote_model(monkeypatch):
+def test_the_real_manifest_is_valid_and_contains_no_stub_and_only_declared_online_models(monkeypatch):
     monkeypatch.setattr(get_settings(), "manifest_path", REPO_ROOT / "models" / "manifest.yaml")
     monkeypatch.setattr(get_settings(), "allow_stub_models", False)
     manifest = load_manifest()
@@ -346,7 +346,12 @@ def test_the_real_manifest_is_valid_and_contains_no_stub_or_remote_model(monkeyp
     for model in manifest.models:
         assert model.runtime != "stub" and model.pipeline == "ground_image"
         assert model.score_semantics and model.score_calibrated is False  # nothing is calibrated yet
-        assert model.weights_sha256 and len(model.weights_sha256) == 64 and model.licence != "not stated"
+        assert model.licence != "not stated"
+        if model.locality == "remote":
+            # The only way a photo may leave this machine: a runtime built for it, declared as such in the manifest.
+            assert model.runtime in {"roboflow", "roboflow_world"} and model.weights_sha256 is None
+        else:
+            assert model.weights_sha256 and len(model.weights_sha256) == 64
 
 
 def test_the_ground_pipeline_does_not_depend_on_other_pipelines():

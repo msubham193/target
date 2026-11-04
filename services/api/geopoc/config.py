@@ -78,6 +78,17 @@ class Settings(BaseSettings):
     # Derived spectral indices (geopoc.geo.indices): the one local folder searched for Sentinel-2 L2A band files and
     # their product metadata. Server side only; unset means no inputs are offered. Never supplied by a client.
     imagery_band_root: Path | None = None
+    # Online photo detection with Roboflow's hosted YOLO API (geopoc.pipelines.adapters.roboflow). Off unless
+    # `online_enabled` is on AND a key and a model id are set. The photo itself is sent to Roboflow, which is why it is
+    # never the default. The key lives only in .env, is never returned by the API, and is never logged.
+    roboflow_api_key: SecretStr | None = None
+    # "<project>/<version>", as shown on the model's page in Roboflow. Overrides `settings.model_id` in the manifest.
+    roboflow_model_id: str | None = None
+    # YOLO-World (open vocabulary): the comma-separated names it is asked to find. Overrides `settings.classes` in the
+    # manifest, so the list can be changed here without editing the manifest. Keep it short: more names, less reliable.
+    roboflow_world_classes: str | None = None
+    roboflow_api_url: str = "https://detect.roboflow.com"
+    roboflow_timeout_s: float = 30.0
     manifest_path: Path = REPO_ROOT / "models" / "manifest.yaml"
     # Folder that the manifest's weight paths are relative to. Defaults to the data root.
     weights_base: Path | None = None

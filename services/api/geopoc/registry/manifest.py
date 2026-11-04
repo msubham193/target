@@ -13,7 +13,10 @@ import yaml
 
 from geopoc.config import get_settings
 
-RUNTIMES = {"torchvision", "stub"}
+RUNTIMES = {"torchvision", "stub", "roboflow", "roboflow_world"}
+# Runtimes that send the photo to a third party. Only these may be declared `locality: remote`; every other model must
+# run on this machine. They stay unavailable until the account owner switches online mode on (GEOPOC_ONLINE_ENABLED).
+REMOTE_RUNTIMES = {"roboflow", "roboflow_world"}
 
 
 @dataclass(frozen=True)
@@ -33,6 +36,7 @@ class ModelEntry:
     weights_size_bytes: int | None = None
     weights_source_url: str | None = None
     card: str | None = None
+    locality: str = "local"  # "remote" means the photo is sent to a third party
 
     @property
     def key(self) -> str:
@@ -57,10 +61,13 @@ def _parse(index: int, raw: Any, allow_stub: bool) -> ModelEntry | str:
     if not isinstance(raw, dict) or not raw.get("name"):
         return f"Entry {index} is not a valid model definition."
     name = str(raw["name"])
-    if raw.get("locality", "local") != "local":
-        # Imagery and project data must never be sent to a remote model.
-        return f"Model {name!r} is not local and was refused."
+    locality = str(raw.get("locality", "local"))
     runtime = str(raw.get("runtime", ""))
+    if locality != "local" and not (locality == "remote" and runtime in REMOTE_RUNTIMES):
+        # Imagery and project data must never be sent to a remote model, except through a runtime built for it.
+        return f"Model {name!r} is not local and was refused."
+    if runtime in REMOTE_RUNTIMES and locality != "remote":
+        return f"Model {name!r} sends photos to a third party and must be declared 'locality: remote'."
     if runtime not in RUNTIMES:
         return f"Model {name!r} names an unknown runtime {runtime!r}."
     if runtime == "stub" and not allow_stub:
@@ -86,6 +93,7 @@ def _parse(index: int, raw: Any, allow_stub: bool) -> ModelEntry | str:
         weights_size_bytes=weights.get("size_bytes"),
         weights_source_url=weights.get("source_url"),
         card=raw.get("card"),
+        locality=locality,
     )
 
 
@@ -124,10 +132,28 @@ def _file_sha256(path: str, size: int, mtime_ns: int) -> str:
     return digest.hexdigest()
 
 
+def online_problem(entry: ModelEntry) -> str | None:
+    """Why an online model cannot be used yet, or None. It has no weights file; it needs the owner opt-in and a key."""
+    settings = get_settings()
+    if not settings.online_enabled:
+        return (
+            "Online detection is switched off. Photos are sent to a third party by this model, so it needs "
+            "GEOPOC_ONLINE_ENABLED=true in .env."
+        )
+    key = settings.roboflow_api_key
+    if key is None or not key.get_secret_value().strip():
+        return "No Roboflow API key is set. Add GEOPOC_ROBOFLOW_API_KEY to .env."
+    if entry.runtime == "roboflow" and not (settings.roboflow_model_id or entry.settings.get("model_id")):
+        return "No Roboflow model is chosen. Set GEOPOC_ROBOFLOW_MODEL_ID (project/version) in .env."
+    return None
+
+
 def weights_problem(entry: ModelEntry, verify_checksum: bool = False) -> str | None:
     """Why this model's files cannot be used, or None. The checksum is verified before a model is loaded."""
     if entry.runtime == "stub":
         return None
+    if entry.runtime in REMOTE_RUNTIMES:
+        return online_problem(entry)
     file = entry.weights_file()
     if file is None or not entry.weights_sha256:
         return "The manifest does not give this model's weights file and checksum."
@@ -143,8 +169,8 @@ def weights_problem(entry: ModelEntry, verify_checksum: bool = False) -> str | N
 
 def runtime_problem(entry: ModelEntry, capabilities: dict[str, Any] | None) -> str | None:
     """Why the worker cannot run this model, judged from what the worker last reported about itself."""
-    if entry.runtime == "stub":
-        return None
+    if entry.runtime == "stub" or entry.runtime in REMOTE_RUNTIMES:
+        return None  # an online model needs no PyTorch; the worker only needs a network connection
     if capabilities is None:
         return "No worker is running, so it is not known whether this model can be run."
     if capabilities.get("probe") == "running":

@@ -38,4 +38,12 @@ def load_adapter(entry: ModelEntry) -> DetectorAdapter:
         from geopoc.pipelines.adapters.torchvision_detection import TorchvisionDetector
 
         return TorchvisionDetector()
+    if entry.runtime == "roboflow":
+        from geopoc.pipelines.adapters.roboflow import RoboflowDetector
+
+        return RoboflowDetector()
+    if entry.runtime == "roboflow_world":
+        from geopoc.pipelines.adapters.roboflow import RoboflowWorldDetector
+
+        return RoboflowWorldDetector()
     raise ValueError(f"no adapter for runtime {entry.runtime!r}")

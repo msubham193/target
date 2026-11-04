@@ -36,3 +36,77 @@ models:
       max_detections: 100
       # Images are reduced to this longest side before inference; boxes are scaled back to the original.
       max_input_side: 1333
+
+  # ONLINE model. The photograph is sent to Roboflow's hosted YOLO API, so it is unavailable until the owner sets
+  # GEOPOC_ONLINE_ENABLED=true, GEOPOC_ROBOFLOW_API_KEY and GEOPOC_ROBOFLOW_MODEL_ID (project/version) in .env.
+  # It needs no weights and no PyTorch. See models/cards/roboflow_yolo_online.md.
+  - name: roboflow_yolo_online
+    version: hosted_v1
+    pipeline: ground_image
+    task: object_detection
+    runtime: roboflow
+    locality: remote
+    card: models/cards/roboflow_yolo_online.md
+    licence: "Online service: governed by Roboflow's terms and by the licence of whichever model is chosen. Photographs leave this machine."
+    score:
+      semantics: >-
+        The hosted model's own confidence for the predicted class. A ranking signal from the model, not a calibrated
+        probability.
+      calibrated: false
+      range: [0, 1]
+    settings:
+      taxonomy: roboflow
+      # Detections under this are not requested from Roboflow. NOT a validated threshold.
+      min_score: 0.4
+      max_detections: 100
+      # The image is reduced to this longest side before it is uploaded; boxes are scaled back to the original.
+      max_input_side: 1280
+
+  # ONLINE, OPEN-VOCABULARY model. YOLO-World finds whatever class names it is given in words (no training), so it suits
+  # ground, drone and satellite photographs alike. Same opt-in as above (online mode + API key; it needs no model id).
+  # Edit `classes` here, or set GEOPOC_ROBOFLOW_WORLD_CLASSES in .env. Keep the list short: more names, less reliable.
+  - name: roboflow_yolo_world_online
+    version: hosted_v1
+    pipeline: ground_image
+    task: object_detection
+    runtime: roboflow_world
+    locality: remote
+    card: models/cards/roboflow_yolo_world_online.md
+    licence: "Online service: governed by Roboflow's terms and the YOLO-World model's licence. Photographs leave this machine."
+    score:
+      semantics: >-
+        YOLO-World's own confidence that the box matches the class name it was given. A ranking signal from the model,
+        not a calibrated probability. It is relative to the names in the list, so adding or removing names changes it.
+      calibrated: false
+      range: [0, 1]
+    settings:
+      taxonomy: yolo_world
+      yolo_world_version: v2-l
+      min_score: 0.3
+      max_detections: 150
+      max_input_side: 1280
+      classes:
+        - person
+        - car
+        - truck
+        - bus
+        - van
+        - motorcycle
+        - bicycle
+        - train
+        - boat
+        - ship
+        - airplane
+        - helicopter
+        - building
+        - house
+        - bridge
+        - road
+        - tower
+        - antenna
+        - storage tank
+        - shipping container
+        - tent
+        - tree
+        - solar panel
+        - animal
