@@ -141,9 +141,9 @@ describe("located photographs on the map", () => {
     const list = await screen.findByRole("list", { name: "Located photographs" });
     expect(within(list).getAllByRole("listitem")).toHaveLength(1);
     expect(within(list).getByRole("button", { name: /gate\.jpg/ })).toBeInTheDocument();
-    expect(screen.getByText("Located photographs (1)")).toBeInTheDocument();
+    expect(screen.getByText("Photos on the map (1)")).toBeInTheDocument();
     await waitFor(() => expect(lastMap().photos).toEqual([{ id: "a1", lon: 77.2, lat: 28.6, label: "gate.jpg" }]));
-    expect(screen.getByText(/1 photograph\(s\) have an unconfirmed GPS position/)).toBeInTheDocument();
+    expect(screen.getByText(/1 photo\(s\) have a GPS position that is not confirmed yet/)).toBeInTheDocument();
     expect(screen.queryByText("candidate.jpg")).not.toBeInTheDocument();
   });
 
@@ -157,22 +157,21 @@ describe("located photographs on the map", () => {
   it("says when no photograph is located and still offers the rest of the map", async () => {
     listPhotoLocations.mockResolvedValue(locations([item({ state: "none", source: null, latitude: null, longitude: null })]));
     render();
-    expect(await screen.findByTestId("no-located-photos")).toHaveTextContent("No photograph has a confirmed location yet");
-    expect(screen.getByText("Nothing in this project can be placed on a map")).toBeInTheDocument();
-    expect(screen.getByRole("checkbox", { name: /Located photographs \(0\)/ })).toBeDisabled();
+    expect(await screen.findByTestId("no-located-photos")).toHaveTextContent("No photo has a confirmed location yet");
+    expect(screen.getByText("Nothing to show on the map yet")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /Photos on the map \(0\)/ })).toBeDisabled();
   });
 
-  it("states that there is no GeoTIFF imagery and that nothing is retrieved online", async () => {
+  it("states that there are no satellite images with a known location", async () => {
     render();
     const message = await screen.findByTestId("no-imagery");
-    expect(message).toHaveTextContent("No georeferenced rasters in this project.");
-    expect(message).toHaveTextContent("not retrieved from any online source");
+    expect(message).toHaveTextContent("No satellite images with a known location yet.");
   });
 
   it("shows an error for the photograph locations without breaking the map", async () => {
     listPhotoLocations.mockRejectedValue(new client.ApiError(500, "INTERNAL", "Something failed"));
     render();
-    expect(await screen.findByText("Photograph locations could not be loaded")).toBeInTheDocument();
+    expect(await screen.findByText("Photo locations could not be loaded")).toBeInTheDocument();
     expect(screen.getByTestId("map")).toBeInTheDocument();
     await waitFor(() => expect(lastMap().photos).toEqual([]));
   });
@@ -180,7 +179,7 @@ describe("located photographs on the map", () => {
   it("shows nothing about photographs when the layer is hidden", async () => {
     render();
     await screen.findByRole("list", { name: "Located photographs" });
-    await userEvent.click(screen.getByRole("checkbox", { name: /Located photographs \(1\)/ }));
+    await userEvent.click(screen.getByRole("checkbox", { name: /Photos on the map \(1\)/ }));
     await waitFor(() => expect(lastMap().showPhotos).toBe(false));
   });
 });

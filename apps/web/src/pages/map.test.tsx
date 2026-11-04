@@ -93,13 +93,14 @@ describe("MapPage", () => {
     expect(last().rasters.map((r) => r.layer.asset_id)).toEqual(["r1"]);
     expect(last().fitTo).toEqual([75, 27.12, 75.02, 27.1225]);
     const excluded = screen.getByRole("list", { name: "Files not placed on the map" });
-    expect(excluded).toHaveTextContent("scan.tifNo CRS in the file");
-    expect(excluded).toHaveTextContent("photo.jpgNo georeferencing");
+    expect(excluded).toHaveTextContent("scan.tifThe file does not say which coordinate system it uses");
+    expect(excluded).toHaveTextContent("photo.jpgNo location information");
     // Only the raster can have georeferencing recorded; the photograph cannot.
-    const links = within(excluded).getAllByRole("link", { name: "Record georeferencing…" });
+    const links = within(excluded).getAllByRole("link", { name: "Add location information…" });
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute("href", "/projects/p1/assets/s1#georeferencing");
-    expect(screen.getByText(/No offline basemap is configured/)).toBeInTheDocument();
+    // the server's note about an internal decision is not shown to people
+    expect(screen.queryByText(/No offline basemap is configured/)).not.toBeInTheDocument();
     expect(screen.getByText(/0 finding\(s\) have a known location and 3 do not/)).toBeInTheDocument();
   });
 
@@ -188,9 +189,9 @@ describe("MapPage", () => {
     vi.mocked(client.getLayers).mockResolvedValue(layers({ rasters: [{ ...LAYER, placement: "user_asserted", georef_version: 2 }] }));
     render();
     const list = await screen.findByRole("list", { name: "Raster layers" });
-    expect(list).toHaveTextContent("recorded georeferencing, version 2");
+    expect(list).toHaveTextContent("Location entered by a person");
     await userEvent.click(screen.getByRole("button", { name: "Details" }));
-    expect(screen.getByText("Placed from recorded georeferencing")).toBeInTheDocument();
+    expect(screen.getAllByText("Location entered by a person")).toHaveLength(2); // in the list, and as the badge in the details
     expect(screen.getByText(/not read from the file/)).toBeInTheDocument();
   });
 
@@ -244,12 +245,12 @@ describe("MapPage", () => {
     vi.mocked(client.getLayers).mockImplementation(async (_project, operations = []) => layers({ rasters: [operations.length > 0 ? placed : open] }));
     render();
     const choice = await screen.findByTestId("transformation-choice");
-    expect(choice).toHaveTextContent("Choose a datum transformation to place this layer");
+    expect(choice).toHaveTextContent("Choose how to place this image");
     expect(last().rasters[0]!.layer.tile_url).toBeNull(); // nothing is drawn through a default
     const list = screen.getByRole("list", { name: "Raster layers" });
     expect(within(list).getByRole("checkbox")).toBeDisabled();
     expect(within(list).queryByLabelText("Opacity")).not.toBeInTheDocument();
-    const select = within(choice).getByRole("combobox", { name: /Datum transformation for harbour_utm43n.tif/ });
+    const select = within(choice).getByRole("combobox", { name: /How to place harbour_utm43n.tif/ });
     expect(select).toHaveValue(""); // the smaller figure is not pre-selected
     expect(within(select).getAllByRole("option")).toHaveLength(3);
 
@@ -282,7 +283,7 @@ describe("MapPage", () => {
     expect(await screen.findByTestId("approximate-note")).toHaveTextContent("Approximate: EPSG:1247, accuracy about 999 m");
     await userEvent.click(screen.getByRole("button", { name: "Details" }));
     expect(screen.getByText("Approximate: EPSG:1247, accuracy about 999 m", { selector: "dd" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /CRS assessment: datum, projection and transformation options/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Coordinate system details and options/ })).toHaveAttribute(
       "href",
       "/projects/p1/assets/r1#crs-assessment",
     );
@@ -306,16 +307,16 @@ describe("MapPage", () => {
     );
     render();
     const excluded = await screen.findByRole("list", { name: "Files not placed on the map" });
-    expect(excluded).toHaveTextContent("kalianpur_zone1.tifDatum transformation blocked");
+    expect(excluded).toHaveTextContent("kalianpur_zone1.tifNeeds your approval before it can be placed");
     expect(excluded).toHaveTextContent("Only a rough ballpark transformation is available. It is blocked.");
   });
 
   it("says so when nothing can be placed and never draws an area of interest that was not entered", async () => {
     vi.mocked(client.getLayers).mockResolvedValue(layers({ rasters: [] }));
     render();
-    expect(await screen.findByText("Nothing in this project can be placed on a map")).toBeInTheDocument();
+    expect(await screen.findByText("Nothing to show on the map yet")).toBeInTheDocument();
     expect(last().aoi).toBeNull();
-    expect(screen.getByRole("checkbox", { name: /Project area of interest/ })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /Project area/ })).toBeDisabled();
   });
 
   it("draws the entered area of interest as its own layer", async () => {
@@ -382,7 +383,7 @@ describe("MapPage", () => {
     });
     render();
     await userEvent.click(await screen.findByRole("button", { name: "click the map" }));
-    const values = await screen.findByRole("list", { name: "Raster values at the pinned point" });
+    const values = await screen.findByRole("list", { name: "Image values at the pinned point" });
     expect(await within(values).findByText(/pixel 12, 40/)).toBeInTheDocument();
     expect(values).toHaveTextContent("87");
     expect(client.getPixel).toHaveBeenCalledWith("r1", { lon: 75.0005, lat: 27.1222 });

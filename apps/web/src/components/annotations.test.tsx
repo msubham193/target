@@ -108,9 +108,9 @@ describe("the annotation panel before anything is drawn", () => {
   it("says what annotations are and are not, and that the author is attribution only", async () => {
     render();
     expect(await screen.findByText(/No annotations yet/)).toBeInTheDocument();
-    expect(screen.getByText(/Your annotations \(not findings\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Not detections, not photograph locations/)).toBeInTheDocument();
-    expect(screen.getByText(/Profiles are not authenticated/)).toBeInTheDocument();
+    expect(screen.getByText(/Your own notes on the map/)).toBeInTheDocument();
+    expect(screen.getByText(/separate from the findings found in photos/)).toBeInTheDocument();
+    expect(screen.getByText(/Profiles are not a sign-in/)).toBeInTheDocument();
     for (const name of ["Add point", "Add line", "Add polygon"]) expect(screen.getByRole("button", { name })).toBeEnabled();
     expect(listAnnotations).toHaveBeenCalledWith("p1", false); // deleted ones are not asked for by default
   });

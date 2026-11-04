@@ -216,9 +216,9 @@ describe("the map's pixel readout", () => {
     const user = userEvent.setup();
     renderMap();
     await user.click(await screen.findByRole("button", { name: "click the map" }));
-    const values = await screen.findByRole("list", { name: "Raster values at the pinned point" });
+    const values = await screen.findByRole("list", { name: "Image values at the pinned point" });
     expect(values).toHaveTextContent("not looked up: Choose a transformation");
-    expect(values).not.toHaveTextContent("outside the raster");
+    expect(values).not.toHaveTextContent("outside the image");
     expect(client.getPixel).toHaveBeenCalledWith("r1", { lon: 100.1, lat: 14.1, operation: undefined });
   });
 
@@ -229,9 +229,9 @@ describe("the map's pixel readout", () => {
     } as client.PixelValues);
     const user = userEvent.setup();
     renderMap();
-    await user.selectOptions(await screen.findByLabelText("Datum transformation for thai.tif"), "EPSG:1812");
+    await user.selectOptions(await screen.findByLabelText("How to place thai.tif"), "EPSG:1812");
     await user.click(await screen.findByRole("button", { name: "click the map" }));
-    const values = await screen.findByRole("list", { name: "Raster values at the pinned point" });
+    const values = await screen.findByRole("list", { name: "Image values at the pinned point" });
     expect(await within(values).findByText(/pixel 3, 4/)).toBeInTheDocument();
     expect(client.getPixel).toHaveBeenLastCalledWith("r1", { lon: 100.1, lat: 14.1, operation: "EPSG:1812" });
   });

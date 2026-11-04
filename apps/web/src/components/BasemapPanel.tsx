@@ -53,16 +53,16 @@ export function BasemapPanel({
 
   return (
     <Panel
-      title="Basemap and location"
+      title="Map background"
       actions={satellite ? <Badge tone="accent">Online</Badge> : <Badge tone="neutral">Offline</Badge>}
-      description="What is drawn under your layers, and where the map looks."
+      description="Choose what is drawn under your images, and jump to a place."
     >
       <div className="space-y-4 text-[13px]">
         <fieldset className="space-y-1.5">
-          <legend className="mb-1 text-xs font-medium text-fg-muted">Basemap</legend>
+          <legend className="mb-1 text-xs font-medium text-fg-muted">Background</legend>
           <label className="flex items-center gap-2">
             <input type="radio" name="basemap" className="accent-accent" checked={!satellite} onChange={() => onBasemap("offline")} />
-            Offline map (graticule only)
+            Plain map (works without internet)
           </label>
           <label className="flex items-start gap-2">
             <input
@@ -74,44 +74,44 @@ export function BasemapPanel({
               onChange={() => onBasemap("mapbox")}
             />
             <span>
-              Mapbox Standard Satellite <span className="text-fg-subtle">(online)</span>
+              Satellite map <span className="text-fg-subtle">(online)</span>
               <span className="block text-xs text-fg-subtle">
-                Satellite and aerial imagery with roads, labels and places. Needs the network and a Mapbox token.
+                Real satellite pictures with roads, labels and places. Needs an internet connection.
               </span>
             </span>
           </label>
         </fieldset>
 
         {!token.ok ? (
-          <Notice tone="warning" title="Mapbox satellite is not configured">
+          <Notice tone="warning" title="The satellite map is not set up">
             <p className="text-xs" data-testid="mapbox-config-error">
               {token.message}
             </p>
           </Notice>
         ) : null}
 
-        {satellite && status?.state === "loading" ? <p className="text-xs text-fg-muted">Loading the Mapbox basemap…</p> : null}
+        {satellite && status?.state === "loading" ? <p className="text-xs text-fg-muted">Loading the satellite map…</p> : null}
         {satellite && status?.state === "error" ? (
-          <Notice tone="error" title="The Mapbox basemap has a problem">
+          <Notice tone="error" title="The satellite map has a problem">
             <p className="text-xs" data-testid="mapbox-status-error">
               {status.message} Your layers, annotations and measurements are still drawn and usable.
             </p>
           </Notice>
         ) : null}
         {enlarged ? (
-          <Notice tone="info" title="Imagery detail">
+          <Notice tone="info" title="Picture detail">
             <p className="text-xs" data-testid="mapbox-zoom-note">
               {enlarged}
             </p>
           </Notice>
         ) : null}
 
-        <form onSubmit={submit} className="space-y-2" aria-label="Go to a latitude and longitude" noValidate>
+        <form onSubmit={submit} className="space-y-2" aria-label="Go to a place by its coordinates" noValidate>
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Latitude" htmlFor="go-lat" hint="Decimal degrees, e.g. 20.2961 or 20.2961 N">
+            <Field label="Latitude" htmlFor="go-lat" hint="e.g. 20.2961">
               <input id="go-lat" className={inputClass} inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} />
             </Field>
-            <Field label="Longitude" htmlFor="go-lon" hint="e.g. 85.8245 or 85.8245 E">
+            <Field label="Longitude" htmlFor="go-lon" hint="e.g. 85.8245">
               <input id="go-lon" className={inputClass} inputMode="decimal" value={lon} onChange={(e) => setLon(e.target.value)} />
             </Field>
           </div>
@@ -140,16 +140,16 @@ export function BasemapPanel({
               </label>
             ))}
             <p className="pt-1 text-[11px] text-fg-subtle">
-              Whether a given road, transit or place label appears also depends on the zoom and on what Mapbox has for that place.
+              Which labels appear also depends on how far you zoom in and on what is known about the place.
             </p>
           </fieldset>
         ) : null}
 
         {satellite ? (
           <p className="text-[11px] text-fg-subtle" data-testid="mapbox-attribution-note">
-            Imagery and map data © Mapbox and its data providers (including OpenStreetMap contributors); the full attribution is shown on
-            the map. This is a base picture for orientation: it is not live, its capture date is not shown here, and it varies by place.
-            Your layers are drawn on top of it and are not positioned by it.
+            Imagery and map data © Mapbox and its data providers (including OpenStreetMap contributors); the full credit is shown on
+            the map. It is a background to help you find your way: it is not live and may be out of date. Your images are drawn on top
+            of it.
           </p>
         ) : null}
       </div>

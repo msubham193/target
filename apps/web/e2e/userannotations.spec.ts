@@ -61,7 +61,7 @@ test("points, lines and polygons are drawn, measured, listed, selected on the ma
   await page.getByRole("button", { name: "Create project" }).click();
   await openMap(page);
   await expect(panel(page)).toContainText("No annotations yet");
-  await expect(panel(page)).toContainText("Your annotations (not findings)");
+  await expect(panel(page)).toContainText("Your own notes on the map");
 
   // A point: nothing can be saved before it is placed.
   await panel(page).getByRole("button", { name: "Add point" }).click();

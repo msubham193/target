@@ -338,9 +338,9 @@ describe("BasemapPanel", () => {
     vi.stubEnv("VITE_MAPBOX_ACCESS_TOKEN", "");
     render(<Harness initial="offline" />);
     expect(screen.getByTestId("mapbox-config-error")).toHaveTextContent("VITE_MAPBOX_ACCESS_TOKEN");
-    const satellite = screen.getByRole("radio", { name: /Mapbox Standard Satellite/ });
+    const satellite = screen.getByRole("radio", { name: /Satellite map/ });
     expect(satellite).toBeDisabled();
-    expect(screen.getByRole("radio", { name: /Offline map/ })).toBeChecked();
+    expect(screen.getByRole("radio", { name: /Plain map/ })).toBeChecked();
     expect(screen.queryByRole("group", { name: "Show on the satellite map" })).toBeNull();
     // Going to a position still works.
     const user = userEvent.setup();
@@ -379,7 +379,7 @@ describe("BasemapPanel", () => {
     expect(within(group).getByRole("checkbox", { name: "Points of interest" })).not.toBeChecked();
     expect(within(group).getByRole("checkbox", { name: "Road labels" })).toBeChecked();
 
-    await user.click(screen.getByRole("radio", { name: /Offline map/ }));
+    await user.click(screen.getByRole("radio", { name: /Plain map/ }));
     expect(screen.queryByRole("group", { name: "Show on the satellite map" })).toBeNull();
     expect(screen.queryByTestId("mapbox-attribution-note")).toBeNull();
   });

@@ -20,7 +20,6 @@ import {
   formatLength,
   formatPosition,
   KIND_LABEL,
-  LEGEND,
   MAX_NOTE,
   MIN_POINTS,
   type Position,
@@ -154,7 +153,7 @@ export function AnnotationPanel(props: AnnotationPanelProps) {
   return (
     <Panel
       title="Annotations"
-      description={`${LEGEND}. Marks you draw, with a note. Not detections, not photograph locations.`}
+      description="Your own notes on the map. Draw a point, line or area and add a note. They are separate from the findings found in photos."
     >
       <div className="space-y-3">
         {list.isLoading ? <Loading label="Loading annotations…" /> : null}
@@ -352,8 +351,7 @@ export function AnnotationPanel(props: AnnotationPanelProps) {
         ) : null}
 
         <p className="text-xs text-fg-subtle">
-          The author shown is the local profile that made the change. Profiles are not authenticated, so this is attribution,
-          not proof of who drew it.
+          The name shown is the profile that made the change. Profiles are not a sign-in, so it does not prove who drew it.
         </p>
       </div>
     </Panel>

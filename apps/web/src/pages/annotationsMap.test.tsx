@@ -209,7 +209,7 @@ describe("annotations on the map page", () => {
     listAnnotations.mockResolvedValue(listing([annotation()]));
     render();
     await waitFor(() => expect(last().annotations).toHaveLength(1));
-    expect(screen.queryByText("Nothing in this project can be placed on a map")).not.toBeInTheDocument();
+    expect(screen.queryByText("Nothing to show on the map yet")).not.toBeInTheDocument();
   });
 
   it("says annotations are unavailable, without breaking the rest of the page, when the database is not updated", async () => {

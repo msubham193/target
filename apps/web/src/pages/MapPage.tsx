@@ -59,14 +59,21 @@ import { projectCrumbs, useProject } from "./ProjectLayout";
 const MapCanvas = lazy(() => import("../components/MapCanvas").then((module) => ({ default: module.MapCanvas })));
 
 const EXCLUSION_LABELS: Record<string, string> = {
-  NOT_GEOREFERENCED: "No georeferencing",
-  CRS_MISSING: "No CRS in the file",
-  CRS_INVALID: "CRS not usable",
-  NO_GEOTRANSFORM: "No geotransform",
-  INVALID_GEOREFERENCING: "Georeferencing not trusted",
-  TRANSFORMATION_BLOCKED: "Datum transformation blocked",
-  ANTIMERIDIAN_CROSSING_UNSUPPORTED: "Crosses longitude 180° (not drawn)",
+  NOT_GEOREFERENCED: "No location information",
+  CRS_MISSING: "The file does not say which coordinate system it uses",
+  CRS_INVALID: "The coordinate system in the file can't be used",
+  NO_GEOTRANSFORM: "The file has no position data",
+  INVALID_GEOREFERENCING: "The location in the file looks unreliable",
+  TRANSFORMATION_BLOCKED: "Needs your approval before it can be placed",
+  ANTIMERIDIAN_CROSSING_UNSUPPORTED: "Crosses the 180° line, so it can't be drawn",
 };
+
+/** Why a file is not on the map, in everyday words. A photo or video has no map position of its own. */
+function plainReason(item: { modality?: string; detail: string }): string {
+  if (item.modality === "ground_image") return "Photos don't carry a map location. You can set one in Photo Analysis.";
+  if (item.modality === "video") return "Videos don't carry a map location.";
+  return item.detail;
+}
 
 type Bounds = [number, number, number, number];
 
@@ -143,14 +150,13 @@ function LayerPanel({
     <div className="space-y-3">
       <Panel
         title="Layers"
-        description="Your map sheets and images, placed using the location information stored in each file, or by a person who recorded it. The top of the list is drawn on top."
+        description="Your satellite images and map sheets. The one at the top of the list is drawn on top."
         padded={false}
       >
         <div className="space-y-1 p-2">
           {data.rasters.length === 0 ? (
             <p className="px-2 py-1.5 text-xs text-fg-subtle" data-testid="no-imagery">
-              No georeferenced rasters in this project. Upload a GeoTIFF with a valid CRS to show it here as contextual imagery.
-              Satellite or aerial imagery is not retrieved from any online source.
+              No satellite images with a known location yet. Upload a GeoTIFF image that carries its location to see it here.
             </p>
           ) : (
             <ul aria-label="Raster layers" className="space-y-1">
@@ -171,8 +177,7 @@ function LayerPanel({
                       <label htmlFor={`layer-${layer.asset_id}`} className="min-w-0 flex-1 text-[13px] text-fg">
                         <span className="block truncate">{layer.title}</span>
                         <span className={`block text-[11px] ${layer.placement === "trusted" ? "text-ok" : "text-accent"}`}>
-                          {layer.crs_id ?? layer.crs_name}
-                          {layer.placement === "user_asserted" ? ` · recorded georeferencing, version ${layer.georef_version}` : ""}
+                          {layer.placement === "trusted" ? "Location read from the file" : "Location entered by a person"}
                         </span>
                         {layer.map_sheet ? (
                           <span className="block text-[11px] text-fg-subtle" data-testid="map-sheet-tag">
@@ -180,7 +185,7 @@ function LayerPanel({
                             {layer.map_sheet.sheet_label ? ` · ${layer.map_sheet.sheet_label}` : ""} · {layer.map_sheet.georeferencing_basis_label}
                           </span>
                         ) : (
-                          <span className="block text-[11px] text-fg-subtle">Raster</span>
+                          <span className="block text-[11px] text-fg-subtle">Satellite image</span>
                         )}
                       </label>
                       <div className="flex shrink-0 flex-col">
@@ -206,9 +211,9 @@ function LayerPanel({
                     </div>
                     {layer.transformation?.selection_required ? (
                       <div className="mt-1.5 space-y-1 pl-5" data-testid="transformation-choice">
-                        <p className="text-[11px] font-medium text-warn">Choose a datum transformation to place this layer</p>
+                        <p className="text-[11px] font-medium text-warn">Choose how to place this image</p>
                         <label htmlFor={`operation-${layer.asset_id}`} className="sr-only">
-                          Datum transformation for {layer.title}
+                          How to place {layer.title}
                         </label>
                         <select
                           id={`operation-${layer.asset_id}`}
@@ -224,7 +229,7 @@ function LayerPanel({
                           ))}
                         </select>
                         <p className="text-[11px] text-fg-subtle">
-                          Each gives a different position. The choice applies to this view only.{" "}
+                          Each option puts the image in a slightly different place. Your choice applies to this view only.{" "}
                           <Link to={`/projects/${projectId}/assets/${layer.asset_id}#crs-assessment`} className="text-accent hover:underline">
                             Compare them
                           </Link>
@@ -286,7 +291,7 @@ function LayerPanel({
                 disabled={!data.aoi}
                 onChange={(e) => setShowAoi(e.target.checked)}
               />
-              Project area of interest{data.aoi ? "" : " (none entered)"}
+              Project area{data.aoi ? "" : " (not set)"}
             </label>
           </div>
         </div>
@@ -294,12 +299,12 @@ function LayerPanel({
 
       <Panel
         title="Photographs"
-        description="Photos with a location a person has confirmed. An EXIF position is a candidate until confirmed, and is never drawn here."
+        description="Photos whose location you have confirmed. A position found inside a photo is only a suggestion until you confirm it."
         padded={false}
       >
         <div className="space-y-1 p-2">
-          {photosQuery.isLoading ? <Loading label="Loading photograph locations…" /> : null}
-          {photosQuery.isError ? <ErrorNotice error={photosQuery.error} title="Photograph locations could not be loaded" /> : null}
+          {photosQuery.isLoading ? <Loading label="Loading photo locations…" /> : null}
+          {photosQuery.isError ? <ErrorNotice error={photosQuery.error} title="Photo locations could not be loaded" /> : null}
           {photosQuery.data ? (
             <>
               <label className="flex items-center gap-2 px-2 py-1 text-[13px] text-fg-muted">
@@ -310,11 +315,11 @@ function LayerPanel({
                   disabled={photos.length === 0}
                   onChange={(e) => setShowPhotos(e.target.checked)}
                 />
-                Located photographs ({photos.length})
+                Photos on the map ({photos.length})
               </label>
               {photos.length === 0 ? (
                 <p className="px-2 py-1 text-xs text-fg-subtle" data-testid="no-located-photos">
-                  No photograph has a confirmed location yet. Open a photograph in Photo Analysis to read its GPS position or place it.
+                  No photo has a confirmed location yet. Open a photo in Photo Analysis to use its GPS position or set its location.
                 </p>
               ) : (
                 <ul aria-label="Located photographs" className="space-y-0.5">
@@ -335,8 +340,8 @@ function LayerPanel({
               )}
               {photosQuery.data.candidates > 0 ? (
                 <p className="px-2 pt-1 text-xs text-warn">
-                  {photosQuery.data.candidates} photograph(s) have an unconfirmed GPS position. They are not on the map until a person
-                  confirms them in Photo Analysis.
+                  {photosQuery.data.candidates} photo(s) have a GPS position that is not confirmed yet. They appear on the map after you
+                  confirm them in Photo Analysis.
                 </p>
               ) : null}
             </>
@@ -344,7 +349,7 @@ function LayerPanel({
         </div>
       </Panel>
 
-      <Panel title="Not placed" description="Files with no valid georeferencing. Nothing is positioned by assumption." padded={false}>
+      <Panel title="Not on the map" description="Files that can't be shown because their location is missing or unusable." padded={false}>
         {data.excluded.length === 0 ? (
           <p className="p-4 text-xs text-fg-subtle">None.</p>
         ) : (
@@ -359,10 +364,10 @@ function LayerPanel({
                   </span>
                 ) : null}
                 <span className="block text-[11px] text-warn">{EXCLUSION_LABELS[item.reason] ?? item.reason}</span>
-                <span className="block text-[11px] text-fg-subtle">{item.detail}</span>
+                <span className="block text-[11px] text-fg-subtle">{plainReason(item)}</span>
                 {item.georeferencing_can_be_recorded ? (
                   <Link to={`/projects/${projectId}/assets/${item.asset_id}#georeferencing`} className="mt-0.5 mr-3 inline-block text-[11px] text-accent hover:underline">
-                    Record georeferencing…
+                    Add location information…
                   </Link>
                 ) : null}
                 {item.map_sheet ? (
@@ -370,7 +375,7 @@ function LayerPanel({
                     to={`/projects/${projectId}/assets/${item.asset_id}#${item.georeferencing_can_be_recorded ? "control-points" : "map-sheet"}`}
                     className="mt-0.5 inline-block text-[11px] text-accent hover:underline"
                   >
-                    {item.georeferencing_can_be_recorded ? "Use control points…" : "Review the sheet…"}
+                    {item.georeferencing_can_be_recorded ? "Place using reference points…" : "Review the sheet…"}
                   </Link>
                 ) : null}
               </li>
@@ -379,9 +384,6 @@ function LayerPanel({
         )}
       </Panel>
 
-      <Panel title="Basemap">
-        <p className="text-xs text-fg-muted">{data.basemap.detail}</p>
-      </Panel>
     </div>
   );
 }
@@ -402,7 +404,7 @@ function MeasurePanel({
   const measure = useMutation({ mutationFn: () => measurePoints({ kind: tool, space: "lonlat", points }) });
   return (
     <div className="space-y-2">
-      <p className="text-xs text-fg-subtle">Click the map to add points ({points.length} so far). Measured on the WGS 84 ellipsoid.</p>
+      <p className="text-xs text-fg-subtle">Click the map to add points ({points.length} so far). Measured along the Earth's surface.</p>
       <div className="flex flex-wrap gap-2">
         <Button size="sm" disabled={points.length < (tool === "area" ? 3 : 2) || measure.isPending} onClick={() => measure.mutate()}>
           Measure
@@ -440,9 +442,9 @@ function RasterValuesAt({
       retry: false,
     })),
   });
-  if (under.length === 0) return <p className="text-xs text-fg-subtle">No placed raster covers this point.</p>;
+  if (under.length === 0) return <p className="text-xs text-fg-subtle">No image on the map covers this point.</p>;
   return (
-    <ul className="space-y-1.5 text-xs" aria-label="Raster values at the pinned point">
+    <ul className="space-y-1.5 text-xs" aria-label="Image values at the pinned point">
       {under.map((layer, i) => {
         const result = results[i];
         return (
@@ -460,7 +462,7 @@ function RasterValuesAt({
               <span className="text-fg-subtle">
                 {result.error instanceof ApiError && result.error.code.startsWith("TRANSFORMATION_")
                   ? ` · not looked up: ${result.error.message}`
-                  : " · outside the raster"}
+                  : " · outside the image"}
               </span>
             ) : (
               <span className="text-fg-subtle"> · reading…</span>
@@ -523,7 +525,7 @@ function Readout({
     retry: false,
   });
   return (
-    <Panel title="Coordinates and measurement" description="Display formats are converted from the stored numbers.">
+    <Panel title="Coordinates and measuring" description="Pin a point to read its position, or measure a distance or an area.">
       <div className="space-y-3 text-[13px]">
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Map tools">
           {(
@@ -541,8 +543,8 @@ function Readout({
         {tool !== "pin" ? <MeasurePanel key={tool} tool={tool} points={sketch} onClear={() => setSketch([])} onUndo={() => setSketch(sketch.slice(0, -1))} /> : null}
         <p className="font-mono text-xs text-fg-muted" aria-live="off">
           {pointer
-            ? `Pointer: ${formatDecimalDegrees(pointer.lat, "lat", 5)}, ${formatDecimalDegrees(pointer.lon, "lon", 5)}`
-            : "Pointer: off the map"}
+            ? `Cursor: ${formatDecimalDegrees(pointer.lat, "lat", 5)}, ${formatDecimalDegrees(pointer.lon, "lon", 5)}`
+            : "Cursor: not over the map"}
         </p>
         {picked ? (
           <div className="space-y-2" role="status" aria-label="Pinned point">
@@ -551,7 +553,7 @@ function Readout({
               rows={[
                 ["Latitude", <span className="font-mono text-xs">{formatDecimalDegrees(picked.lat, "lat")} · {formatDms(picked.lat, "lat")}</span>],
                 ["Longitude", <span className="font-mono text-xs">{formatDecimalDegrees(picked.lon, "lon")} · {formatDms(picked.lon, "lon")}</span>],
-                ["CRS", "EPSG:4326 (WGS 84)"],
+                ["Coordinate system", "GPS (WGS 84, EPSG:4326)"],
               ]}
             />
             {crsChoices.length > 1 ? (
@@ -570,7 +572,7 @@ function Readout({
             ) : null}
             {target !== "EPSG:4326" ? <Converted query={converted} onAcknowledge={(need) => setReadoutAck({ operation: need.operationId, accuracy: need.accuracyM })} /> : null}
             <div className="border-t border-line pt-2">
-              <p className="mb-1 text-xs font-medium text-fg-muted">Stored raster values here</p>
+              <p className="mb-1 text-xs font-medium text-fg-muted">Image values at this point</p>
               <RasterValuesAt point={picked} layers={layers} chosen={chosen} />
             </div>
           </div>
@@ -578,7 +580,7 @@ function Readout({
           <p className="text-xs text-fg-subtle">No point pinned.</p>
         )}
         <p className="text-[11px] text-fg-subtle">
-          A map position is where you clicked on the drawn layers. It is not a measurement of any feature.
+          The position is simply where you clicked on the map.
         </p>
       </div>
     </Panel>
@@ -668,9 +670,9 @@ function LayerDetails({
       title="Layer details"
       actions={
         layer.placement === "trusted" ? (
-          <Badge tone="ok">Placed from its own georeferencing</Badge>
+          <Badge tone="ok">Location read from the file</Badge>
         ) : (
-          <Badge tone="accent">Placed from recorded georeferencing</Badge>
+          <Badge tone="accent">Location entered by a person</Badge>
         )
       }
     >
@@ -685,19 +687,18 @@ function LayerDetails({
                   ["Position established by", layer.map_sheet.georeferencing_basis_label],
                 ] as [string, string][])
               : []),
-            ["CRS", `${layer.crs_id ?? "no registry code"} — ${layer.crs_name ?? ""}`],
-            ["Pixel size", `${layer.pixel_size.map((v) => v.toPrecision(4)).join(" × ")} ${layer.pixel_units ?? ""}`],
-            ["Extent (EPSG:4326)", <span className="font-mono text-xs">{layer.bounds_4326.map((v) => v.toFixed(6)).join(", ")}</span>],
-            ["Native zoom", String(layer.native_zoom)],
-            ["Bands shown", layer.bands_shown.join(", ")],
+            ["Coordinate system", `${layer.crs_id ?? "no code"} — ${layer.crs_name ?? ""}`],
+            ["Detail per pixel", `${layer.pixel_size.map((v) => v.toPrecision(4)).join(" × ")} ${layer.pixel_units ?? ""}`],
+            ["Area covered (latitude, longitude)", <span className="font-mono text-xs">{layer.bounds_4326.map((v) => v.toFixed(6)).join(", ")}</span>],
+                        ["Colour channels shown", layer.bands_shown.join(", ")],
             [
               "Display",
               typeof layer.display_stretch === "string"
                 ? layer.display_stretch
-                : "Brightness stretched for display (2nd–98th percentile); not the measured values",
+                : "Brightness adjusted so it is easier to see; the stored values are not changed",
             ],
             [
-              "Datum transformation",
+              "How the position was converted",
               layer.transformation?.classification
                 ? describeOperation({
                     id: layer.transformation.operation_id ?? "",
@@ -706,22 +707,22 @@ function LayerDetails({
                   })
                 : "none chosen yet",
             ],
-            ["Outline transform", transformation?.definition ?? "not recorded"],
-            ["Stated accuracy", transformation?.accuracy_m == null ? "not stated" : `${transformation.accuracy_m} m`],
+            ["Outline conversion", transformation?.definition ?? "not recorded"],
+            ["Accuracy", transformation?.accuracy_m == null ? "not stated" : `${transformation.accuracy_m} m`],
           ]}
         />
         {layer.map_sheet ? (
           <Link to={`/projects/${project.id}/assets/${layer.asset_id}#map-sheet`} className="block text-xs text-accent hover:underline">
-            Map-sheet metadata: what the file states and what is unresolved
+            Map sheet details
           </Link>
         ) : null}
         <Link to={`/projects/${project.id}/assets/${layer.asset_id}#crs-assessment`} className="block text-xs text-accent hover:underline">
-          CRS assessment: datum, projection and transformation options
+          Coordinate system details and options
         </Link>
         {layer.placement === "user_asserted" ? (
           <p className="text-xs text-fg-muted">
-            The CRS or geotransform was recorded by a person (version {layer.georef_version}), not read from the file. Its
-            correctness is not established by the software.{" "}
+            Its location was entered by a person (version {layer.georef_version}), not read from the file. The software cannot
+            check that it is correct.{" "}
             <Link to={`/projects/${project.id}/assets/${layer.asset_id}#georeferencing`} className="text-accent hover:underline">
               See the record
             </Link>
@@ -864,8 +865,8 @@ export function MapPage() {
       <div className="mt-2">
         <PageHeader
           title="Map"
-          description="Your satellite images and photographs with a known location, on a map. Nothing is placed by guesswork."
-          meta={data ? <Badge tone="neutral">{data.rasters.length} placed · {data.excluded.length} not placed</Badge> : undefined}
+          description="See your satellite images and photos on a map. Only files with a known location are shown."
+          meta={data ? <Badge tone="neutral">{data.rasters.length} on the map · {data.excluded.length} not on the map</Badge> : undefined}
           actions={
             everything ? (
               <Button variant="secondary" onClick={() => setFitTo([...everything])}>
@@ -911,9 +912,9 @@ export function MapPage() {
           main={
             <div className="space-y-3">
               {nothingToDraw ? (
-                <EmptyState icon={<IconMap size={28} />} title="Nothing in this project can be placed on a map">
-                  Only rasters with a valid CRS and geotransform are placed, and no area of interest was entered. The files
-                  that cannot be placed are listed with the reason. Nothing is positioned by assumption.
+                <EmptyState icon={<IconMap size={28} />} title="Nothing to show on the map yet">
+                  Add a satellite image that carries its location, or give the project an area, to see it here. Files that can't be shown
+                  are listed on the left with the reason.
                 </EmptyState>
               ) : null}
               <Suspense fallback={<Loading label="Loading the map…" />}>
@@ -1000,7 +1001,8 @@ export function MapPage() {
               ) : null}
               <p className="text-xs text-fg-subtle">
                 {data.observations.with_location} finding(s) have a known location and{" "}
-                {data.observations.without_location} do not. {data.observations.note}
+                {data.observations.without_location} do not. Findings from photos mark a spot inside the picture, not a place on
+                the map, so you will see them in Photo Analysis.
               </p>
               {data.aoi ? <p className="text-xs text-fg-subtle">Dashed outline: {data.aoi.note}</p> : null}
             </div>
@@ -1048,7 +1050,7 @@ export function MapPage() {
             </div>
           }
           leftLabel="Layers"
-          rightLabel="Coordinates and layer details"
+          rightLabel="Coordinates and image details"
         />
       ) : null}
     </div>

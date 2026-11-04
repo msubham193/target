@@ -266,8 +266,8 @@ describe("the map workspace with map sheets", () => {
     const list = await screen.findByRole("list", { name: "Raster layers" });
     const tag = within(list).getByTestId("map-sheet-tag");
     expect(tag).toHaveTextContent("Map sheet · OSM · NF 43-01 · Control points supplied by a person");
-    expect(within(list).getByText("Raster")).toBeInTheDocument();
-    expect(within(list).getByText(/recorded georeferencing, version 1/)).toBeInTheDocument();
+    expect(within(list).getByText("Satellite image")).toBeInTheDocument();
+    expect(within(list).getByText(/Location entered by a person/)).toBeInTheDocument();
   });
 
   it("draws the newest layer on top and lets a person reorder the stack", async () => {
@@ -327,7 +327,7 @@ describe("the map workspace with map sheets", () => {
     renderMap();
     const excluded = await screen.findByRole("list", { name: "Files not placed on the map" });
     expect(excluded).toHaveTextContent("scan.pngMap sheet · ESM");
-    expect(within(excluded).getByRole("link", { name: "Use control points…" })).toHaveAttribute("href", "/projects/p1/assets/scan#control-points");
+    expect(within(excluded).getByRole("link", { name: "Place using reference points…" })).toHaveAttribute("href", "/projects/p1/assets/scan#control-points");
     expect(within(excluded).getByRole("link", { name: "Review the sheet…" })).toHaveAttribute("href", "/projects/p1/assets/pdf#map-sheet");
   });
 
@@ -370,7 +370,7 @@ describe("the map workspace with map sheets", () => {
     renderMap();
     const list = await screen.findByRole("list", { name: "Raster layers" });
     await user.click(within(list).getAllByRole("button", { name: "Details" })[1]!); // the sheet is second from the top
-    expect(await screen.findByRole("link", { name: /Map-sheet metadata/ })).toHaveAttribute("href", "/projects/p1/assets/sheet#map-sheet");
+    expect(await screen.findByRole("link", { name: /Map sheet details/ })).toHaveAttribute("href", "/projects/p1/assets/sheet#map-sheet");
     expect(screen.getByText("Control points supplied by a person", { selector: "dd" })).toBeInTheDocument();
   });
 });
