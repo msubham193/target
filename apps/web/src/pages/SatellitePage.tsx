@@ -1,178 +1,43 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { type ChangeEvent, type ReactNode, useRef, useState } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { type Asset, getRasterTools, listTerrain, type PixelValues } from "../api/client";
-import { AssetPreview, AssetThumb } from "../components/AssetPreview";
-import { DisplayToolbar } from "../components/DisplayToolbar";
-import { BandStatistics, DisplayControls, DisplayCopyPanel, useDisplayQuery } from "../components/RasterTools";
-import { ComparePanel, LineagePanel, PixelPanel, RasterWorkbench } from "../components/RasterWorkbench";
-import { IconAlert, IconCheck, IconCube, IconLayers, IconSatellite, IconUpload } from "../components/icons";
 import {
-  Badge,
-  Breadcrumbs,
-  DescriptionList,
-  EmptyState,
-  ErrorNotice,
-  LinkButton,
-  Loading,
-  muted,
-  notAvailable,
-  Notice,
-  PageHeader,
-  Panel,
-} from "../components/ui";
-import { describeGeometry, formatDateTime } from "../lib/format";
+  ApiError,
+  type Asset,
+  getIngestionRules,
+  getRasterTools,
+  listTerrain,
+  renderUrl,
+  uploadAsset,
+} from "../api/client";
+import { IconCube, IconSatellite, IconUpload } from "../components/icons";
+import { PanZoomViewer } from "../components/PanZoomViewer";
+import { Badge, Button, EmptyState, ErrorNotice, LinkButton, Loading, Notice } from "../components/ui";
+import { checkFile } from "../lib/ingestion";
 import { useAsset, useAssets } from "../lib/queries";
-import { adjustFilter, bandsDeclaredRgb, DEFAULT_ADJUST } from "../lib/rasterDisplay";
-import { CRS_STATUS, UnknownList } from "./AssetDetailPage";
-import { projectCrumbs, useProject } from "./ProjectLayout";
+import { useProject } from "./ProjectLayout";
+
+/** The longest side of the picture the server renders for the viewer (the server's own ceiling). */
+const RENDER_SIDE = 2048;
 
 /**
  * Which of the project's rasters are elevation data (a height grid, not a picture). The 3D Terrain check decides this on
  * the server from what each file declares; this page only asks. If it cannot be asked, nothing is hidden or relabelled.
  */
-function useElevationIds(projectId: string): { ids: Set<string>; known: boolean } {
+function useElevationIds(projectId: string): { ids: Set<string>; loading: boolean } {
   const terrain = useQuery({ queryKey: ["terrain", projectId], queryFn: () => listTerrain(projectId) });
   const ids = new Set(
     (terrain.data?.items ?? []).filter((item) => item.status === "usable" || item.status === "needs_confirmation").map((item) => item.asset_id),
   );
-  return { ids, known: terrain.isSuccess };
-}
-
-/** The project's satellite and aerial images as a row above the viewer, so the image can use the full width. */
-function RasterStrip({ projectId, selectedId }: { projectId: string; selectedId: string }) {
-  const rasters = useAssets(projectId, "overhead_raster");
-  const elevation = useElevationIds(projectId);
-  if (rasters.isLoading || rasters.isError) return null;
-  const all = rasters.data!.items as Asset[];
-  const images = all.filter((asset) => !elevation.ids.has(asset.id));
-  const heights = all.filter((asset) => elevation.ids.has(asset.id));
-  if (images.length < 2 && heights.length === 0) return null;
-  return (
-    <nav aria-label="Satellite and aerial images" className="flex items-stretch gap-2 overflow-x-auto pb-1">
-      {images.map((asset) => {
-        const selected = asset.id === selectedId;
-        const placed = asset.georeferencing?.placed;
-        return (
-          <Link
-            key={asset.id}
-            to={`/projects/${projectId}/assets/${asset.id}/overhead`}
-            aria-current={selected ? "page" : undefined}
-            title={asset.original_filename}
-            className={`flex w-52 shrink-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-xs transition-colors ${
-              selected ? "border-accent bg-accent-soft text-fg" : "border-line bg-surface text-fg-muted hover:bg-overlay hover:text-fg"
-            }`}
-          >
-            <AssetThumb asset={asset} className="h-9 w-12" />
-            <span className="min-w-0">
-              <span className="block truncate">{asset.original_filename}</span>
-              <span className={`block text-[11px] ${placed ? "text-ok" : "text-warn"}`}>{placed ? "Georeferenced" : "Not georeferenced"}</span>
-            </span>
-          </Link>
-        );
-      })}
-      {heights.length > 0 ? (
-        <Link
-          to={`/projects/${projectId}/3d`}
-          title={heights.map((asset) => asset.original_filename).join("\n")}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-dashed border-line px-3 text-xs text-fg-subtle hover:bg-overlay hover:text-fg"
-        >
-          <IconCube size={15} />
-          {heights.length} elevation file{heights.length === 1 ? "" : "s"} · open in 3D Terrain
-        </Link>
-      ) : null}
-    </nav>
-  );
-}
-
-function RasterDetails({ asset }: { asset: Asset }) {
-  const raster = asset.raster!;
-  const bounds = raster.bounds_native as { left: number; bottom: number; right: number; top: number } | null;
-  const footprint = raster.footprint_4326
-    ? describeGeometry(raster.footprint_4326 as { type?: unknown; coordinates?: unknown }, { x: "longitude", y: "latitude" }, 6)
-    : null;
-  return (
-    <div className="space-y-4">
-      <Panel
-        title="Georeferencing"
-        actions={raster.georeferenced ? <Badge tone="ok">Georeferenced</Badge> : <Badge tone="warn">Not georeferenced</Badge>}
-      >
-        <DescriptionList
-          rows={[
-            ["CRS status", CRS_STATUS[raster.crs_status] ?? raster.crs_status],
-            ["CRS", raster.crs_identifier ?? muted],
-            ["CRS name", raster.crs_name ?? muted],
-            [
-              "Pixel size",
-              raster.pixel_size_x == null
-                ? muted
-                : `${raster.pixel_size_x} × ${raster.pixel_size_y} ${raster.pixel_units ?? "(units unknown)"}`,
-            ],
-            ["Geotransform", raster.geotransform ? <span className="font-mono text-xs">{raster.geotransform.join(", ")}</span> : muted],
-          ]}
-        />
-      </Panel>
-
-      <Panel title="Spatial extent">
-        <DescriptionList
-          rows={[
-            [
-              "In the file's CRS",
-              bounds ? `left ${bounds.left}, bottom ${bounds.bottom}, right ${bounds.right}, top ${bounds.top}` : notAvailable,
-            ],
-            ["In EPSG:4326", footprint ? `${footprint} (outline extent, 6 decimals)` : notAvailable],
-          ]}
-        />
-        {!raster.georeferenced ? (
-          <p className="mt-2 text-xs text-fg-subtle">No extent is given because the raster's position on the Earth is not established.</p>
-        ) : null}
-      </Panel>
-
-      <Panel title="Bands">
-        <DescriptionList
-          rows={[
-            ["Size", `${raster.width} × ${raster.height} pixels`],
-            ["Bands", String(raster.band_count)],
-            ["Data types", raster.dtypes.join(", ")],
-            ["No-data", raster.nodata.map((value) => (value === null ? "none" : String(value))).join(", ")],
-          ]}
-        />
-      </Panel>
-
-      <Panel title="On the map" actions={asset.georeferencing?.placed ? <Badge tone="ok">Placed</Badge> : <Badge tone="warn">Not placed</Badge>}>
-        {asset.georeferencing?.placed ? (
-          <div className="space-y-2 text-[13px] text-fg-muted">
-            <p>
-              {asset.georeferencing.source === "recorded"
-                ? `Drawn on the Map using georeferencing recorded by a person (version ${asset.georeferencing.version}), not the file's own metadata.`
-                : "Drawn on the Map from its own CRS and geotransform."}
-            </p>
-            <Link to={`/projects/${asset.project_id}/map`} className="text-xs text-accent hover:underline">
-              Open the map
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-2 text-[13px] text-fg-muted">
-            <p>Without valid georeferencing this raster is not placed on the map. No CRS is assumed or suggested.</p>
-            <Link to={`/projects/${asset.project_id}/assets/${asset.id}#georeferencing`} className="text-xs text-accent hover:underline">
-              Record georeferencing from a documented source…
-            </Link>
-          </div>
-        )}
-      </Panel>
-
-      <Panel title="What is not known">
-        <UnknownList asset={asset} />
-      </Panel>
-    </div>
-  );
+  return { ids, loading: terrain.isLoading };
 }
 
 function useRasterTools(assetId: string) {
   return useQuery({
     queryKey: ["raster-tools", assetId],
     queryFn: () => getRasterTools(assetId),
+    // A picture that cannot be drawn yet (statistics or a display copy still being made) is asked for again when they land.
     refetchInterval: (query) => {
       const data = query.state.data;
       const active = (s?: string) => s === "queued" || s === "validating" || s === "processing";
@@ -181,214 +46,236 @@ function useRasterTools(assetId: string) {
   });
 }
 
-const FORMAT_NAMES: Record<string, string> = { GTiff: "GeoTIFF" };
-
-/** One line saying whether the image is placed on the Earth. A failure is stated, never hidden. */
-function GeoreferenceLine({ asset }: { asset: Asset }) {
-  const raster = asset.raster!;
-  const recorded = asset.georeferencing?.source === "recorded" && asset.georeferencing.placed;
-  if (recorded) {
-    return (
-      <div className="flex items-start gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-fg-muted" role="status">
-        <IconCheck size={15} className="mt-0.5 shrink-0 text-accent" />
-        <p>
-          <span className="font-medium text-fg">Placed from recorded georeferencing</span> — the file's own metadata is missing or invalid.
-          A person recorded the CRS {asset.georeferencing?.crs_id ?? ""} and geotransform (version {asset.georeferencing?.version}); the
-          software does not establish that they are correct.
-        </p>
-      </div>
-    );
-  }
-  if (raster.georeferenced) {
-    return (
-      <div className="flex items-center gap-2 rounded-lg border border-ok/35 bg-surface px-3 py-2 text-[13px] text-fg-muted" role="status">
-        <IconCheck size={15} className="shrink-0 text-ok" />
-        <p>
-          <span className="font-medium text-ok">Georeferenced</span> — valid CRS ({raster.crs_identifier ?? raster.crs_name}) and usable geotransform.
-        </p>
-      </div>
-    );
-  }
-  const reason =
-    raster.crs_status === "missing"
-      ? "The file declares no coordinate reference system."
-      : raster.crs_status === "invalid"
-        ? "The file's CRS cannot be used."
-        : "The file's CRS is valid, but its geotransform or coordinates are not usable.";
-  return (
-    <div className="rounded-lg border border-warn/40 bg-surface px-3 py-2 text-[13px] text-fg-muted" role="alert">
-      <div className="flex items-start gap-2">
-        <IconAlert size={15} className="mt-0.5 shrink-0 text-warn" />
-        <p>
-          <span className="font-medium text-warn">Not georeferenced</span> — no coordinates are assigned. {reason} It can be viewed as an
-          image, but not placed on a map or measured in ground units. Nothing has been assumed about its position.
-        </p>
-      </div>
-      <Link to={`/projects/${asset.project_id}/assets/${asset.id}#georeferencing`} className="mt-1 inline-block pl-6 text-xs text-accent hover:underline">
-        Record georeferencing from a documented source…
-      </Link>
-    </div>
-  );
-}
-
-/** The few facts worth knowing at a glance. The full technical detail is under Advanced inspection. */
-function ImageInformation({ asset }: { asset: Asset }) {
-  const raster = asset.raster!;
-  const footprint = raster.footprint_4326
-    ? describeGeometry(raster.footprint_4326 as { type?: unknown; coordinates?: unknown }, { x: "longitude", y: "latitude" }, 4)
-    : null;
-  return (
-    <section aria-labelledby="image-info-heading" className="rounded-xl border border-line/80 bg-surface p-4">
-      <h2 id="image-info-heading" className="mb-2 text-sm font-semibold text-fg">
-        Image information
-      </h2>
-      <DescriptionList
-        labelWidth="sm"
-        rows={[
-          ["File", <span className="wrap-anywhere">{asset.original_filename}</span>],
-          ["Format", FORMAT_NAMES[raster.driver] ?? raster.driver],
-          ["Acquired", asset.acquisition_time ? formatDateTime(asset.acquisition_time) : "Not in the file"],
-          ["CRS", raster.crs_identifier ? `${raster.crs_identifier}${raster.crs_name ? ` · ${raster.crs_name}` : ""}` : muted],
-          ["Extent", raster.georeferenced && footprint ? footprint : "Not established"],
-          [
-            "Resolution",
-            raster.pixel_size_x == null ? "Not available" : `${raster.pixel_size_x.toPrecision(4)} × ${(raster.pixel_size_y ?? raster.pixel_size_x).toPrecision(4)} ${raster.pixel_units ?? "(units unknown)"} per pixel`,
-          ],
-          ["Bands", `${raster.band_count} · ${raster.width} × ${raster.height} px`],
-          ["Georeferencing", raster.georeferenced ? "Valid" : (CRS_STATUS[raster.crs_status] ?? raster.crs_status)],
-        ]}
-      />
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-        {asset.georeferencing?.placed ? (
-          <Link to={`/projects/${asset.project_id}/map`} className="text-accent hover:underline">
-            Open on the Map (measure distance and area there)
-          </Link>
-        ) : (
-          <span className="text-fg-subtle">Not placed on the Map</span>
-        )}
-      </div>
-    </section>
-  );
+interface UploadProblem {
+  title: string;
+  detail?: string | null;
 }
 
 /**
- * The imagery viewer and everything around it. The image comes first, with a small display toolbar; the technical tools
- * (band choice, statistics, pixel values, comparison, full metadata) sit under Advanced inspection and are all still here.
+ * Uploads one GeoTIFF with the same call and the same pre-checks as Add Files, then opens it here. The server repeats
+ * every check and stores the original unchanged; nothing about the file is decided on this page.
  */
-function ImageryWorkspace({ asset, projectId }: { asset: Asset; projectId: string }) {
-  const tools = useRasterTools(asset.id);
-  const [display, setDisplay] = useDisplayQuery(asset.id);
-  const [adjust, setAdjust] = useState(DEFAULT_ADJUST);
-  const [pixel, setPixel] = useState<PixelValues | null>(null);
-  const [advanced, setAdvanced] = useState(false);
-  const [resetKey, setResetKey] = useState(0);
-  const raster = asset.raster!;
-  const customBands = Boolean(display.bands || display.stretch);
+function useImageUpload(projectId: string) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const rules = useQuery({ queryKey: ["ingestion-rules"], queryFn: getIngestionRules, staleTime: Infinity });
+  const rule = rules.data?.rules.find((candidate) => candidate.modality === "overhead_raster");
+  const [progress, setProgress] = useState<number | null>(null);
+  const [problem, setProblem] = useState<UploadProblem | null>(null);
 
-  if (tools.isLoading) return <Loading label="Loading the image…" />;
-  if (tools.isError) {
+  const upload = async (file: File) => {
+    setProblem(null);
+    if (!rule) {
+      setProblem({ title: "The accepted file formats could not be read", detail: "Try again in a moment." });
+      return;
+    }
+    const rejected = checkFile(file, rule);
+    if (rejected) {
+      setProblem({ title: rejected.title, detail: rejected.detail });
+      return;
+    }
+    setProgress(0);
+    try {
+      const result = await uploadAsset(projectId, "overhead_raster", file, setProgress);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["assets", projectId] }),
+        queryClient.invalidateQueries({ queryKey: ["summary", projectId] }),
+        queryClient.invalidateQueries({ queryKey: ["terrain", projectId] }),
+      ]);
+      navigate(`/projects/${projectId}/assets/${result.asset.id}/overhead`);
+    } catch (error) {
+      setProblem(
+        error instanceof ApiError
+          ? { title: error.message, detail: error.detail }
+          : { title: "The upload failed unexpectedly", detail: "Nothing was added. Try again." },
+      );
+    } finally {
+      setProgress(null);
+    }
+  };
+
+  return { rule, progress, problem, dismiss: () => setProblem(null), upload };
+}
+
+type ImageUpload = ReturnType<typeof useImageUpload>;
+
+function UploadButton({ upload, archived, variant = "primary" }: { upload: ImageUpload; archived: boolean; variant?: "primary" | "secondary" }) {
+  const input = useRef<HTMLInputElement>(null);
+  const busy = upload.progress !== null;
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // so choosing the same file again still fires
+    if (file) void upload.upload(file);
+  };
+  return (
+    <>
+      <input
+        ref={input}
+        type="file"
+        className="sr-only"
+        tabIndex={-1}
+        aria-label="Choose a satellite or aerial image file"
+        accept={upload.rule?.extensions.join(",")}
+        onChange={onChange}
+      />
+      <Button
+        variant={variant}
+        size={variant === "primary" ? "md" : "sm"}
+        disabled={busy || archived || !upload.rule}
+        title={archived ? "This project is archived. Restore it before adding files." : undefined}
+        onClick={() => input.current?.click()}
+      >
+        <IconUpload size={15} />
+        {busy ? `Uploading… ${Math.round((upload.progress ?? 0) * 100)}%` : "Upload image"}
+      </Button>
+    </>
+  );
+}
+
+function UploadProblemNotice({ upload }: { upload: ImageUpload }) {
+  if (!upload.problem) return null;
+  return (
+    <div className="px-3 pt-2">
+      <Notice tone="error" title={upload.problem.title}>
+        {upload.problem.detail ? <p>{upload.problem.detail}</p> : null}
+        <button type="button" className="text-xs text-accent hover:underline" onClick={upload.dismiss}>
+          Dismiss
+        </button>
+      </Notice>
+    </div>
+  );
+}
+
+/** The thin bar above the picture: which image this is, whether it is placed on the Earth, and the way to add another. */
+function ViewerBar({
+  projectId,
+  asset,
+  choices,
+  upload,
+  archived,
+}: {
+  projectId: string;
+  asset: Asset;
+  choices: Asset[];
+  upload: ImageUpload;
+  archived: boolean;
+}) {
+  const navigate = useNavigate();
+  const placed = Boolean(asset.georeferencing?.placed ?? asset.raster?.georeferenced);
+  const options = choices.some((item) => item.id === asset.id) ? choices : [asset, ...choices];
+  return (
+    <div className="flex h-11 shrink-0 items-center gap-3 border-b border-line/70 bg-surface/80 px-3 backdrop-blur-md">
+      <IconSatellite size={16} className="shrink-0 text-fg-subtle" />
+      {options.length > 1 ? (
+        <select
+          aria-label="Image"
+          value={asset.id}
+          onChange={(event) => navigate(`/projects/${projectId}/assets/${event.target.value}/overhead`)}
+          className="h-8 min-w-0 max-w-[22rem] truncate rounded-lg border border-line-strong bg-raised px-2 text-[13px] text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          {options.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.original_filename}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <span className="min-w-0 truncate text-[13px] font-medium text-fg" title={asset.original_filename}>
+          {asset.original_filename}
+        </span>
+      )}
+      <span
+        title={
+          placed
+            ? "This image is placed on the Earth. It is drawn on the Map."
+            : "No coordinates are assigned to this image. It is shown as a picture only."
+        }
+      >
+        <Badge tone={placed ? "ok" : "warn"}>{placed ? "Georeferenced" : "Not georeferenced"}</Badge>
+      </span>
+      <div className="ml-auto">
+        <UploadButton upload={upload} archived={archived} variant="secondary" />
+      </div>
+    </div>
+  );
+}
+
+/** One screen-filling area. The page's own content is the picture, so it bleeds to the edges of the content area. */
+function Stage({ children }: { children: ReactNode }) {
+  return <div className="-mx-4 -my-5 h-[calc(100vh-3rem)] min-h-[28rem] sm:-mx-6">{children}</div>;
+}
+
+function Centered({ children }: { children: ReactNode }) {
+  return <div className="flex h-full items-center justify-center px-6">{children}</div>;
+}
+
+function ImageViewer({
+  projectId,
+  asset,
+  choices,
+  isElevation,
+  upload,
+  archived,
+}: {
+  projectId: string;
+  asset: Asset;
+  choices: Asset[];
+  isElevation: boolean;
+  upload: ImageUpload;
+  archived: boolean;
+}) {
+  const tools = useRasterTools(asset.id);
+  const bar = <ViewerBar projectId={projectId} asset={asset} choices={choices} upload={upload} archived={archived} />;
+  const header = (
+    <>
+      {bar}
+      <UploadProblemNotice upload={upload} />
+      {isElevation ? (
+        <div className="px-3 pt-2">
+          <Notice tone="warning" title="This file is elevation data, not a satellite image">
+            <p>
+              It holds a grid of heights, not colours, so it looks like a grey relief map here.{" "}
+              <Link to={`/projects/${projectId}/3d`} className="text-accent hover:underline">
+                Open it in 3D Terrain
+              </Link>
+              .
+            </p>
+          </Notice>
+        </div>
+      ) : null}
+    </>
+  );
+
+  if (tools.isLoading || tools.isError || !(tools.data!.width > 0 && tools.data!.height > 0)) {
     return (
-      <div className="space-y-3">
-        <ErrorNotice error={tools.error} />
-        <AssetPreview asset={asset} large />
+      <div className="flex h-full min-h-0 flex-col bg-canvas">
+        {header}
+        <Centered>
+          {tools.isLoading ? (
+            <Loading label="Loading the image…" />
+          ) : tools.isError ? (
+            <ErrorNotice error={tools.error} />
+          ) : (
+            <Notice tone="error" title="This image has no readable size, so it cannot be shown" />
+          )}
+        </Centered>
       </div>
     );
   }
+
   const data = tools.data!;
-  const multiband = raster.band_count >= 3;
-  const caption = customBands
-    ? "Showing the bands and contrast chosen under Advanced inspection."
-    : multiband
-      ? bandsDeclaredRgb(data.bands)
-        ? "Natural colour: bands 1, 2 and 3 are declared red, green and blue by the file."
-        : "Bands 1, 2 and 3 are shown as red, green and blue. The file does not say which bands are which."
-      : "One band, shown in grey.";
-
-  const technical = (
-    <div className="space-y-4 pt-4">
-      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
-        <div className="min-w-0 space-y-4">
-          <DisplayControls key={`${asset.id}-${resetKey}`} assetId={asset.id} tools={data} value={display} onChange={setDisplay} />
-          <Panel title="Pixel values" description="Click the picture to read the stored values at that pixel.">
-            {pixel ? <PixelPanel pixel={pixel} /> : <p className="text-xs text-fg-subtle">No pixel chosen.</p>}
-          </Panel>
-        </div>
-        <div className="min-w-0 space-y-4">
-          <BandStatistics assetId={asset.id} tools={data} />
-          <DisplayCopyPanel assetId={asset.id} tools={data} />
-        </div>
-      </div>
-      <LineagePanel tools={data} projectId={projectId} />
-      <ComparePanel asset={asset} tools={data} projectId={projectId} />
-      <RasterDetails asset={asset} />
-      <p className="flex items-start gap-2 text-xs text-fg-subtle">
-        <IconLayers size={14} className="mt-0.5 shrink-0" />
-        AI raster analysis is planned. No raster model is approved or installed, so nothing is detected or classified here; the tools on this
-        page show stored values and compare pixels.
-      </p>
-    </div>
-  );
-
   return (
-    <div className="space-y-3">
-      <GeoreferenceLine asset={asset} />
-      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_21rem]">
-        <div className="min-w-0 space-y-2">
-          <RasterWorkbench
-            key={`workbench-${asset.id}`}
-            asset={asset}
-            tools={data}
-            display={display}
-            measurements={false}
-            showPixelPanel={false}
-            onPixel={setPixel}
-            imageFilter={adjustFilter({ ...adjust, mode: multiband ? adjust.mode : "colour" })}
-            large
-            allowFullscreen
-            toolbar={
-              <DisplayToolbar
-                bandCount={raster.band_count}
-                adjust={adjust}
-                onAdjust={setAdjust}
-                changed={customBands}
-                onReset={() => {
-                  setAdjust(DEFAULT_ADJUST);
-                  setDisplay({});
-                  setResetKey((n) => n + 1);
-                }}
-              />
-            }
-          />
-          <p className="text-xs text-fg-subtle">
-            {caption} Brightness, contrast and grey change only how the picture is drawn, never the stored values.
-          </p>
-          {pixel ? (
-            <p className="rounded-lg border border-line bg-surface px-3 py-2 text-xs text-fg-muted" role="status" aria-label="Pixel reading">
-              Pixel column {pixel.col}, row {pixel.row}:{" "}
-              {pixel.values.map((v) => `band ${v.band} ${v.nodata ? "nodata" : String(v.raw)}`).join(" · ")}{" "}
-              <button type="button" className="text-accent hover:underline" onClick={() => setAdvanced(true)}>
-                Details in Advanced inspection
-              </button>
-            </p>
-          ) : null}
-        </div>
-        <aside className="min-w-0">
-          <ImageInformation asset={asset} />
-        </aside>
-      </div>
-
-      <details
-        className="rounded-xl border border-line/80 bg-surface"
-        open={advanced}
-        onToggle={(event) => setAdvanced((event.currentTarget as HTMLDetailsElement).open)}
-      >
-        <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-[13px] font-medium text-fg">
-          Advanced inspection
-          <span className="text-xs font-normal text-fg-subtle">bands, statistics, pixel values, comparison, full details</span>
-        </summary>
-        <div className="border-t border-line/70 px-4 pb-4">{advanced ? technical : null}</div>
-      </details>
-    </div>
+    <PanZoomViewer
+      key={asset.id}
+      // The address changes when statistics or a display copy become available, so a picture that could not be drawn
+      // before (for example a new 16-bit raster without statistics yet) is requested again.
+      src={`${renderUrl(asset.id, {}, RENDER_SIDE)}&ready=${data.statistics ? "s" : "n"}-${data.display_source}`}
+      alt={`Satellite or aerial image ${asset.original_filename}`}
+      width={data.width}
+      height={data.height}
+      renderedSide={RENDER_SIDE}
+      header={header}
+    />
   );
 }
 
@@ -398,111 +285,94 @@ export function SatellitePage() {
   const asset = useAsset(assetId);
   const rasters = useAssets(project.id, "overhead_raster");
   const elevation = useElevationIds(project.id);
-
-  const header = (subtitle?: string, acquired?: string | null) => (
-    <>
-      <Breadcrumbs
-        items={projectCrumbs(
-          project,
-          { label: "Satellite Images", to: `/projects/${project.id}/satellite` },
-          ...(subtitle ? [{ label: subtitle }] : []),
-        )}
-      />
-      <div className="mt-2">
-        <PageHeader
-          title="Satellite Images"
-          description={subtitle ? undefined : "Satellite and aerial pictures: where they are, how far they reach, and their colour bands."}
-          meta={
-            subtitle ? (
-              <>
-                <span className="wrap-anywhere text-fg-muted">{subtitle}</span>
-                {acquired ? <span>Acquired {formatDateTime(acquired)}</span> : null}
-              </>
-            ) : undefined
-          }
-          actions={
-            assetId ? (
-              <LinkButton variant="secondary" to={`/projects/${project.id}/assets/${assetId}`}>
-                File details
-              </LinkButton>
-            ) : undefined
-          }
-        />
-      </div>
-    </>
-  );
+  const upload = useImageUpload(project.id);
+  const archived = Boolean(project.archived_at);
+  const images = (rasters.data?.items ?? []).filter((item) => !elevation.ids.has(item.id));
 
   if (!assetId) {
-    if (rasters.isLoading) return <Loading label="Loading rasters…" />;
-    if (rasters.isError) return <ErrorNotice error={rasters.error} />;
+    if (rasters.isLoading || elevation.loading) {
+      return (
+        <Stage>
+          <Centered>
+            <Loading label="Loading images…" />
+          </Centered>
+        </Stage>
+      );
+    }
+    if (rasters.isError) {
+      return (
+        <Stage>
+          <Centered>
+            <ErrorNotice error={rasters.error} />
+          </Centered>
+        </Stage>
+      );
+    }
     // The first real picture, never an elevation grid: a height map opened here is confusing.
-    const first = rasters.data!.items.find((item) => !elevation.ids.has(item.id));
-    if (first) return <Navigate to={`/projects/${project.id}/assets/${first.id}/overhead`} replace />;
-    const onlyHeights = rasters.data!.items.length > 0 && elevation.known;
+    if (images[0]) return <Navigate to={`/projects/${project.id}/assets/${images[0].id}/overhead`} replace />;
+    const onlyHeights = rasters.data!.items.length > 0;
     return (
-      <div>
-        {header()}
-        <EmptyState
-          icon={<IconSatellite size={28} />}
-          title="No satellite or aerial images in this project"
-          action={
-            onlyHeights ? (
-              <LinkButton to={`/projects/${project.id}/3d`}>
-                <IconCube size={15} />
-                Open 3D Terrain
-              </LinkButton>
-            ) : (
-              <LinkButton to={`/projects/${project.id}/assets/new`}>
-                <IconUpload size={15} />
-                Upload a satellite image
-              </LinkButton>
-            )
-          }
-        >
-          {onlyHeights
-            ? "The rasters in this project are elevation files (height grids). They are viewed in 3D Terrain. Upload a satellite or aerial image (GeoTIFF) to inspect it here."
-            : "Upload a satellite or aerial image (GeoTIFF) to inspect its location, extent and bands here."}
-        </EmptyState>
-      </div>
-    );
-  }
-
-  if (asset.isLoading) return <Loading label="Loading raster…" />;
-  if (asset.isError) return <ErrorNotice error={asset.error} />;
-  const file = asset.data!;
-  if (file.project_id !== project.id) return <Notice tone="error" title="This asset belongs to a different project" />;
-  if (file.modality !== "overhead_raster" || !file.raster) {
-    return (
-      <div>
-        {header(file.original_filename)}
-        <Notice tone="error" title="This screen shows satellite and aerial rasters; this file is a different kind of input" />
-      </div>
-    );
-  }
-
-  const isElevation = elevation.ids.has(file.id);
-  return (
-    <div className="space-y-4">
-      {header(file.original_filename, file.acquisition_time)}
-      <RasterStrip projectId={project.id} selectedId={file.id} />
-      {isElevation ? (
-        <Notice tone="warning" title="This file is elevation data, not a satellite image">
-          <p>
-            It holds a grid of heights, not colours, so it looks like a grey relief map here. For a satellite picture, choose one from
-            the row above. To see this file as terrain, open it in 3D Terrain.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <LinkButton size="sm" to={`/projects/${project.id}/3d`}>
-              <IconCube size={14} />
-              Open 3D Terrain
-            </LinkButton>
-            <LinkButton size="sm" variant="secondary" to={`/projects/${project.id}/map`}>
-              Show on the map
-            </LinkButton>
+      <Stage>
+        <Centered>
+          <div className="w-full max-w-md space-y-3">
+            <EmptyState
+              icon={<IconSatellite size={28} />}
+              title="No satellite or aerial images"
+              action={<UploadButton upload={upload} archived={archived} />}
+            >
+              Upload a GeoTIFF satellite or aerial image to view it here.
+              {onlyHeights ? (
+                <span className="mt-2 block text-xs">
+                  The rasters in this project are elevation files (height grids).{" "}
+                  <Link to={`/projects/${project.id}/3d`} className="inline-flex items-center gap-1 text-accent hover:underline">
+                    <IconCube size={12} />
+                    View them in 3D Terrain
+                  </Link>
+                </span>
+              ) : null}
+            </EmptyState>
+            {upload.problem ? (
+              <Notice tone="error" title={upload.problem.title}>
+                {upload.problem.detail ? <p>{upload.problem.detail}</p> : null}
+              </Notice>
+            ) : null}
           </div>
-        </Notice>
-      ) : null}
-      <ImageryWorkspace key={file.id} asset={file} projectId={project.id} />
-    </div>
+        </Centered>
+      </Stage>
+    );
+  }
+
+  const failure = (content: ReactNode) => (
+    <Stage>
+      <Centered>{content}</Centered>
+    </Stage>
+  );
+  if (asset.isLoading) {
+    return failure(<Loading label="Loading the image…" />);
+  }
+  if (asset.isError) return failure(<ErrorNotice error={asset.error} />);
+  const file = asset.data!;
+  if (file.project_id !== project.id) return failure(<Notice tone="error" title="This asset belongs to a different project" />);
+  if (file.modality !== "overhead_raster" || !file.raster) {
+    return failure(
+      <Notice tone="error" title="This screen shows satellite and aerial rasters; this file is a different kind of input">
+        <LinkButton size="sm" variant="secondary" to={`/projects/${project.id}/satellite`} className="mt-2">
+          Back to Satellite Images
+        </LinkButton>
+      </Notice>,
+    );
+  }
+
+  return (
+    <Stage>
+      <ImageViewer
+        projectId={project.id}
+        asset={file}
+        choices={images}
+        isElevation={elevation.ids.has(file.id)}
+        upload={upload}
+        archived={archived}
+      />
+    </Stage>
   );
 }
