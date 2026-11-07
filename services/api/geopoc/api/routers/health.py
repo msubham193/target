@@ -62,6 +62,9 @@ def model_out(entry: ModelEntry, capabilities: dict[str, Any] | None) -> ModelOu
         weights_size_bytes=entry.weights_size_bytes,
         available=reason is None,
         reason_unavailable=reason,
+        custom=entry.custom,
+        original_filename=entry.original_filename,
+        added_at=entry.added_at,
     )
 
 

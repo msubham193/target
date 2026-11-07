@@ -39,6 +39,11 @@ rejects the token (HTTP 401/403) or a basemap tile cannot be loaded, the page sa
   basemap and are **not positioned by it**. CRS conversion, the transformation rules and OSM/ESM handling are unchanged. The 3D
   terrain viewer and NDVI Studio are separate screens and untouched.
 
+## Online 3D view
+
+The 3D Terrain screen has an "Online 3D (Mapbox)" tab that uses the same token and style with terrain and raised buildings,
+tilted. See docs/3d-terrain-viewer.md, section 0. Like the basemap, it sends the view to Mapbox.
+
 ## Imagery: what is and is not claimed
 
 - The picture is Mapbox's own satellite imagery as Mapbox serves it: not Sentinel-2, not false colour, not sharpened or
@@ -94,3 +99,76 @@ the places you care about stop showing real detail; this app cannot tell you.
 made, with what; one map at a time; view carried over; label switches; go-to; error reporting; the panel) run against stand-ins for
 both libraries, because jsdom has no WebGL. **They do not show that any place looks right.** No location was visually verified
 (see the test log in the change report): that needs a real token, the network and a browser.
+
+## Satellite Images: find a location, and where an uploaded image is
+
+**Find a location** (`/projects/:id/satellite?view=location`, also the screen when a project has no images) is the Mapbox
+satellite map with one search box (`components/SatelliteLocationView.tsx`, `PlaceSearch` with `coordinates` and `landmarks`):
+
+- **Coordinates** are read on this computer by `lib/coordinates.ts` and never sent to Mapbox: decimal degrees
+  (`20.2961, 85.8245`), hemisphere letters before or after (`20.2961 N 85.8245 E`, `N 20.2961 E 85.8245`, any order when both
+  carry a letter) and degrees-minutes-seconds (`20°17'46"N 85°49'28"E`). Plain numbers are latitude first; a reversed pair is
+  refused with a "did you mean" hint, never swapped. They work without a Mapbox token (on the plain offline map).
+- **Place names** go to Mapbox: the Search Box API (landmarks and points of interest) and the geocoding v6 API (addresses and
+  places) in parallel, biased with `proximity` towards the area being viewed, merged landmarks first and de-duplicated. Natural
+  features (mountains) are poorly covered by both; use coordinates for them.
+- The chosen position is kept in the address (`lat`, `lon`, `label`) so a view can be reloaded or shared. Clicking the map pins
+  a point and shows its position. Nothing is saved to the project.
+- The project's **georeferenced images** (not elevation files) are drawn in place over the satellite map from their tiles, with
+  a switch to hide them; `?image=<asset id>` frames one.
+
+In the **image viewer**, a georeferenced image shows the centre of its footprint and **Show on satellite map**. Clicking a point
+asks `GET /api/v1/assets/{id}/pixel?col=&row=` for its longitude/latitude, so the server's datum-transformation policy applies:
+where the conversion is not exact enough, its note is shown instead of a position. An image without georeferencing offers no
+positions.
+## Photos on the satellite map: where a photo was taken, and which way its objects are
+
+**Find a location** (Satellite Images) also shows the project's photos:
+
+- **Where each photo was taken.** Each photo with a *confirmed* location appears as a green marker, and the photos are listed
+  on the left. An unconfirmed GPS position from a file is never drawn; confirm it in Photo Analysis first. Opening a photo
+  (from the marker, the list, Photo Analysis → *Show on the satellite map*, or the Map page) zooms to it and shows the
+  photo with its detection boxes.
+- **What the AI found and what it sees.** Under the photo: the latest analysis counted by class ("AI analysis: 54
+  objects — car 23, person 19, …"; rejected findings left out), and **What the AI sees**: a short description of the scene
+  and what is going on, written by the local Qwen vision model (`qwen2.5vl` through Ollama, on this computer only) from
+  the preview picture and the counts (`POST /api/v1/assets/{id}/scene-description`). It is written once per photo per
+  session when the panel opens (12–70 s), checked before it is shown (numbers must be the detector's counts; no
+  targeting, threat or intent language; no positions), labelled as an unreviewed draft, never stored, and audited without
+  its text. The hover popup over a photo marker shows the photo with its boxes, the counts, and the description once it
+  has been written.
+- **Which way the camera faced.** If the photo file records a compass direction (EXIF `GPSImgDirection`), it is used and said
+  so, including whether it is from true or magnetic north. It is not checked: a phone compass can be off by tens of degrees.
+  Many files, including GPS Map Camera photos, record no direction. Then the person sets it: *Set on the map*, then click the
+  satellite map at something visible in the middle of the photo. Sliders fine-tune the direction, the width of view (from
+  the lens's 35 mm equivalent focal length when the file gives it, otherwise 65°, typical of a phone) and the line length.
+  These settings are kept in this browser only.
+- **Which way each object is.** Each object from the latest analysis is drawn as a coloured line from the camera, at the angle
+  given by where its box sits across the picture. **A photo gives a direction, not a distance: the object is somewhere along
+  its line.** Lens distortion and camera tilt are ignored, so directions are approximate. Objects a reviewer rejected are
+  not drawn, and whole classes can be hidden.
+- **Where an object is.** An object is put on the map only when a person marks it: *Mark*, then click the spot on the
+  satellite map. The panel shows the marked position and its distance from the camera. A mark stays in this browser
+  until *Save as a map note* turns it into a map annotation (point) in the project, with a note naming the object and the
+  photo. The annotation is the person's mark; it does not change the finding, which stays a position in the picture.
+
+- **Every object at once, from matched ground spots.** *Place all objects on the map* → *Match spots*. The panel widens so
+  the photo is large. Click a spot on the flat ground in the photo (the end of a lane marking, a kerb corner, the edge of
+  the median), then click exactly the same spot on the satellite map; repeat. With 4 or more pairs the app fits the
+  photo-to-ground mapping (a plane-to-plane homography) and places **every** detected object at the middle of its box's
+  bottom edge, where it touches the ground. Objects are coloured dots; hollow dots are outside the matched area
+  (extrapolated) and less reliable; objects whose bottom edge is at or above the horizon cannot be placed.
+  - **Accuracy.** Each pair shows how far the fit is from it. From 5 pairs, every spot is predicted from the others
+    (leave-one-out) and the panel says "about ±X m where you matched spots". A large figure, or one pair far off, means a
+    mismatched spot: remove it. Use 6–8 spots spread from near to far and left to right.
+  - **What it assumes.** The ground between the spots is flat (a road, a yard). Things not on that ground (signs, people on a
+    balcony, a vehicle on the flyover deck when the spots are on the road below) are placed wrongly. Lens distortion is
+    ignored. Positions are relative to Mapbox's imagery, which may itself be shifted a few metres from true ground.
+  - **Keeping the result.** The matched spots are kept in this browser with the photo's other settings. *Download positions
+    (GeoJSON)* gives a file with each object's class, number, score, review status, position, method and an extrapolated
+    flag. *Save positions as map notes* (after a confirmation that gives the count) adds one point annotation per object to
+    the project, with a note saying the position is an estimate and how it was found; extrapolated objects are left out
+    unless ticked. A person's own *Mark* on an object takes precedence over the estimate.
+
+The direction is read from the stored original by `GET /api/v1/assets/{id}/camera-view` (checksum checked first). It is read
+each time and never stored. The matching is computed in the browser; no backend or database change was needed.

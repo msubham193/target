@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
 import { assetPreviewUrl, type FindingsReport, getFindingsReport } from "../api/client";
+import { DraftSummary } from "../components/DraftSummary";
+import { EvidenceCrop } from "../components/EvidenceCrop";
 import { Badge, Breadcrumbs, Button, ErrorNotice, LinkButton, Loading, type Tone } from "../components/ui";
 import { formatArea, formatLength, formatPosition, KIND_LABEL, pointsOf } from "../lib/annotations";
 import { formatDateTime } from "../lib/format";
@@ -42,6 +44,35 @@ function Hash({ value }: { value: string }) {
   return <code className="font-mono text-[11px] break-all">{value}</code>;
 }
 
+/** A setting's value as readable text. Lists are joined with ", " so a long one can wrap; anything else nested stays JSON. */
+function settingText(value: unknown): string {
+  if (Array.isArray(value)) return value.map((item) => (typeof item === "object" ? JSON.stringify(item) : String(item))).join(", ");
+  if (value !== null && typeof value === "object") return JSON.stringify(value).replace(/,/g, ", ");
+  return String(value);
+}
+
+/** Text longer than this is a definition shared by many runs: it is printed once under the table, not in every run. */
+const LONG_SETTING = 90;
+const isLong = (value: unknown): value is string => typeof value === "string" && value.length > LONG_SETTING;
+
+/** The settings an analysis ran with, one per line, wrapping inside the table instead of running off the page. */
+function RunSettings({ settings }: { settings: Record<string, unknown> }) {
+  const entries = Object.entries(settings);
+  const shown = entries.filter(([, value]) => !isLong(value));
+  if (entries.length === 0) return null;
+  return (
+    <dl className="mt-1 space-y-0.5 text-[11px] text-fg-subtle" aria-label="Settings of this run">
+      {shown.map(([key, value]) => (
+        <div key={key} className="wrap-anywhere">
+          <dt className="inline font-medium text-fg-muted">{key.replace(/_/g, " ")}: </dt>
+          <dd className="inline whitespace-pre-wrap">{settingText(value)}</dd>
+        </div>
+      ))}
+      {shown.length < entries.length ? <p>Definitions for this run are given below the table.</p> : null}
+    </dl>
+  );
+}
+
 function describeRegion(region: Region): string {
   const c = region.coordinates as unknown[];
   if (region.type === "bbox_xyxy") {
@@ -52,47 +83,81 @@ function describeRegion(region: Region): string {
 }
 
 /** The asset's thumbnail with the stored region drawn over it, in percent of the stored image size. */
-function EvidenceThumb({ assetId, filename, region }: { assetId: string; filename: string; region: Region | null }) {
-  const aspect = region ? `${region.image_width} / ${region.image_height}` : "4 / 3";
-  const [x0 = 0, y0 = 0, x1 = 0, y1 = 0] = (region?.coordinates ?? []) as number[];
+function EvidenceThumb({
+  assetId,
+  filename,
+  region,
+  regions,
+  small = false,
+}: {
+  assetId: string;
+  filename: string;
+  region?: Region | null;
+  /** Several boxes on one picture (a group of findings). Overrides `region`. */
+  regions?: Region[];
+  small?: boolean;
+}) {
+  const drawn = regions ?? (region ? [region] : []);
+  const first = drawn[0] ?? null;
+  const aspect = first ? `${first.image_width} / ${first.image_height}` : "4 / 3";
   return (
-    <div className="relative w-40 shrink-0 overflow-hidden rounded border border-line bg-raised" style={{ aspectRatio: aspect }}>
-      <img
-        src={assetPreviewUrl(assetId, "thumb")}
-        alt={`Thumbnail of ${filename}`}
-        className="absolute inset-0 size-full object-fill"
-        loading="lazy"
-      />
-      {region ? (
+    <div
+      className={`relative ${small ? "w-28" : "w-40"} shrink-0 overflow-hidden rounded border border-line bg-raised`}
+      style={{ aspectRatio: aspect }}
+    >
+      <img src={assetPreviewUrl(assetId, "thumb")} alt={`Thumbnail of ${filename}`} className="absolute inset-0 size-full object-fill" loading="lazy" />
+      {first ? (
         <svg
           className="absolute inset-0 size-full"
-          viewBox={`0 0 ${region.image_width} ${region.image_height}`}
+          viewBox={`0 0 ${first.image_width} ${first.image_height}`}
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          {region.type === "bbox_xyxy" ? (
-            <rect
-              x={x0}
-              y={y0}
-              width={x1 - x0}
-              height={y1 - y0}
-              fill="none"
-              stroke="#e11d48"
-              strokeWidth={2}
-              vectorEffect="non-scaling-stroke"
-            />
-          ) : (
-            <polygon
-              points={(region.coordinates as number[][]).map(([x, y]) => `${x},${y}`).join(" ")}
-              fill="none"
-              stroke="#e11d48"
-              strokeWidth={2}
-              vectorEffect="non-scaling-stroke"
-            />
-          )}
+          {drawn.map((r, i) => {
+            const [x0 = 0, y0 = 0, x1 = 0, y1 = 0] = r.coordinates as number[];
+            return r.type === "bbox_xyxy" ? (
+              <rect key={i} x={x0} y={y0} width={x1 - x0} height={y1 - y0} fill="none" stroke="#e11d48" strokeWidth={small ? 1.5 : 2} vectorEffect="non-scaling-stroke" />
+            ) : (
+              <polygon
+                key={i}
+                points={(r.coordinates as number[][]).map(([x, y]) => `${x},${y}`).join(" ")}
+                fill="none"
+                stroke="#e11d48"
+                strokeWidth={small ? 1.5 : 2}
+                vectorEffect="non-scaling-stroke"
+              />
+            );
+          })}
         </svg>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The picture for one finding: a zoomed view of the detected object with its box and a small whole-image inset. A photograph
+ * is read from the original file; a video finding from the stored frame the model saw. With no box, the plain thumbnail.
+ */
+function EvidencePicture({ projectId, item, thumbs, className }: { projectId: string; item: ReportObservation; thumbs: Set<string>; className?: string }) {
+  if (!thumbs.has(item.asset_id)) return <span className="text-fg-subtle">no picture</span>;
+  const evidence = item.evidence.find((e) => e.region);
+  const region = evidence?.region ?? null;
+  if (!evidence || !region) return <EvidenceThumb assetId={item.asset_id} filename={item.asset_filename} small />;
+  const runId = item.model?.run_id;
+  const video = evidence.frame_index !== null && Boolean(runId);
+  return (
+    <EvidenceCrop
+      src={
+        video
+          ? `/api/v1/projects/${projectId}/assets/${item.asset_id}/video-analysis/runs/${runId}/frames/${evidence.frame_index}/image`
+          : `/api/v1/assets/${item.asset_id}/content`
+      }
+      fallback={video ? undefined : assetPreviewUrl(item.asset_id, "view")}
+      region={region}
+      alt={`Evidence: ${item.current_category} in ${item.asset_filename}`}
+      openTo={`/projects/${projectId}/assets/${item.asset_id}/${video ? "video" : "ground"}`}
+      className={className}
+    />
   );
 }
 
@@ -113,14 +178,74 @@ function Notes({ notes }: { notes: ReportRevision[] }) {
   );
 }
 
-function Finding({ item, thumbs }: { item: ReportObservation; thumbs: Set<string> }) {
-  const region = item.evidence.find((e) => e.region)?.region ?? null;
+/** Findings kept short when a report has many: grouped counts, and a row for each finding that needs a person's attention. */
+const FULL_DETAIL_LIMIT = 25;
+
+function whyNoticed(o: ReportObservation): string[] {
+  const reasons: string[] = [];
+  if (o.review_group === "reviewed") reasons.push(`reviewed: ${REVIEW_STATUS_LABELS[o.review_status] ?? o.review_status}`);
+  if (o.reviewer_notes.length > 0) reasons.push("has a reviewer note");
+  if (o.relabelled) reasons.push(`relabelled (model said ${o.model_category})`);
+  if (o.open_conflict_ids.length > 0) reasons.push("in an open conflict");
+  if (o.revision > 0 && o.review_group !== "reviewed") reasons.push("changed after it was created");
+  return reasons;
+}
+
+function AttentionRows({ items, thumbs, projectId }: { items: ReportObservation[]; thumbs: Set<string>; projectId: string }) {
+  return (
+    <div className="overflow-x-auto print:overflow-visible">
+      <table className="w-full border-collapse" aria-label="Findings listed one by one">
+        <thead>
+          <tr>
+            <th className={th}>Evidence</th>
+            <th className={th}>Class</th>
+            <th className={th}>Review state</th>
+            <th className={th}>Score</th>
+            <th className={th}>Source</th>
+            <th className={th}>Why it is listed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((o) => {
+            const frame = o.evidence.find((e) => e.frame_index !== null);
+            return (
+              <tr key={o.observation_id} className="report-avoid-break" data-testid="finding-row">
+                <td className={td}>
+                  <EvidencePicture projectId={projectId} item={o} thumbs={thumbs} />
+                </td>
+                <td className={td}>{o.current_category}</td>
+                <td className={td}>
+                  <StatusBadge status={o.review_status} />
+                </td>
+                <td className={td}>{o.score_value === null ? "—" : o.score_value.toFixed(2)}</td>
+                <td className={`${td} wrap-anywhere`}>
+                  {o.asset_filename}
+                  {frame ? <span className="block text-fg-subtle">frame {frame.frame_index}</span> : null}
+                </td>
+                <td className={td}>
+                  {whyNoticed(o).join("; ")}
+                  {o.reviewer_notes.length > 0 ? (
+                    <div className="mt-1">
+                      <Notes notes={o.reviewer_notes} />
+                    </div>
+                  ) : null}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Finding({ item, thumbs, projectId }: { item: ReportObservation; thumbs: Set<string>; projectId: string }) {
   const hasThumb = thumbs.has(item.asset_id);
   return (
     <li className="report-avoid-break rounded-lg border border-line p-3" data-testid="finding">
       <div className="flex flex-wrap gap-4">
-        {hasThumb ? <EvidenceThumb assetId={item.asset_id} filename={item.asset_filename} region={region} /> : null}
-        <div className="min-w-0 flex-1 space-y-1.5 text-[13px]">
+        {hasThumb ? <EvidencePicture projectId={projectId} item={item} thumbs={thumbs} className="w-56" /> : null}
+        <div className="min-w-0 flex-1 basis-64 space-y-1.5 text-[13px]">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-semibold text-fg">{item.current_category}</span>
             <StatusBadge status={item.review_status} />
@@ -217,7 +342,7 @@ function PhotoRow({ photo }: { photo: ReportPhoto }) {
       ) : null}
       {photo.state === "none" ? <p className="mt-1 text-fg-muted">No location is recorded for this photograph.</p> : null}
       {photo.history.length > 0 ? (
-        <table className="mt-2 w-full border-collapse text-left text-[12px]">
+        <div className="overflow-x-auto print:overflow-visible"><table className="mt-2 w-full border-collapse text-left text-[12px]">
           <caption className="sr-only">Location history of {photo.filename}</caption>
           <thead>
             <tr className="text-fg-subtle">
@@ -247,7 +372,7 @@ function PhotoRow({ photo }: { photo: ReportPhoto }) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       ) : null}
     </li>
   );
@@ -341,7 +466,7 @@ function AnnotationRow({ item }: { item: ReportAnnotation }) {
           </>
         ) : null}
       </dl>
-      <table className="mt-2 w-full border-collapse text-left text-[12px]">
+      <div className="overflow-x-auto print:overflow-visible"><table className="mt-2 w-full border-collapse text-left text-[12px]">
         <caption className="sr-only">Version history of this annotation</caption>
         <thead>
           <tr className="text-fg-subtle">
@@ -365,7 +490,7 @@ function AnnotationRow({ item }: { item: ReportAnnotation }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </li>
   );
 }
@@ -375,6 +500,14 @@ const td = "border-b border-line px-2 py-1.5 align-top text-[12px]";
 
 export function ReportView({ report }: { report: FindingsReport }) {
   const s = report.summary;
+  // A long report starts in the short view; a short one shows every finding in full, as before.
+  const [detail, setDetail] = useState<"summary" | "full">(report.observations.length > FULL_DETAIL_LIMIT ? "summary" : "full");
+  const attention = report.observations.filter((o) => whyNoticed(o).length > 0);
+  const definitions = [
+    ...new Map(
+      report.runs.flatMap((r) => Object.entries(r.settings).filter(([, v]) => isLong(v)).map(([k, v]) => [`${k}\u0000${v as string}`, [k, v as string] as const])),
+    ).values(),
+  ];
   const thumbs = new Set(report.assets.filter((a) => a.thumbnail_available).map((a) => a.asset_id));
   const reviewed = report.observations.filter((o) => o.review_group === "reviewed");
   const unreviewed = report.observations.filter((o) => o.review_group === "unreviewed");
@@ -423,6 +556,8 @@ export function ReportView({ report }: { report: FindingsReport }) {
         </dl>
       </header>
 
+      <DraftSummary key={report.generated_at} projectId={report.project.id} />
+
       <div className="mt-5">
         <Section id="summary" title="1. Summary" note="Counts are of stored records only. How each is counted is stated in section 2.">
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -466,7 +601,7 @@ export function ReportView({ report }: { report: FindingsReport }) {
           {report.assets.length === 0 ? (
             <p className="text-[13px] text-fg-muted">No files have been added to this project.</p>
           ) : (
-            <table className="w-full border-collapse">
+            <div className="overflow-x-auto print:overflow-visible"><table className="w-full border-collapse">
               <thead>
                 <tr>
                   <th className={th}>File</th>
@@ -498,7 +633,7 @@ export function ReportView({ report }: { report: FindingsReport }) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </Section>
 
@@ -506,6 +641,7 @@ export function ReportView({ report }: { report: FindingsReport }) {
           {report.runs.length === 0 ? (
             <p className="text-[13px] text-fg-muted">No analysis has been run in this project, so there is no model or run to report.</p>
           ) : (
+            <div className="overflow-x-auto print:overflow-visible">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -529,21 +665,33 @@ export function ReportView({ report }: { report: FindingsReport }) {
                     </td>
                     <td className={td}>{r.weights_sha256 ? <Hash value={r.weights_sha256} /> : <Unavailable />}</td>
                     <td className={td}>{r.device ?? <Unavailable />}</td>
-                    <td className={td}>
+                    <td className={`${td} wrap-anywhere`}>
                       {formatDateTime(r.started_at)} – {formatDateTime(r.finished_at)}
                       <span className="block text-fg-subtle">
                         <Hash value={r.run_id} />
                       </span>
-                      {Object.keys(r.settings).length > 0 ? (
-                        <span className="block text-fg-subtle">settings: {JSON.stringify(r.settings)}</span>
-                      ) : null}
+                      <RunSettings settings={r.settings} />
                     </td>
                     <td className={td}>{r.observation_count}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
           )}
+          {definitions.length > 0 ? (
+            <div className="mt-3 text-[12px]" data-testid="run-definitions">
+              <h3 className="mb-1 text-[12px] font-semibold">Definitions used by these runs</h3>
+              <dl className="space-y-1 text-fg-muted">
+                {definitions.map(([key, text]) => (
+                  <div key={`${key}-${text.slice(0, 20)}`} className="wrap-anywhere">
+                    <dt className="inline font-medium text-fg">{key.replace(/_/g, " ")}: </dt>
+                    <dd className="inline">{text}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ) : null}
         </Section>
 
         <Section
@@ -554,22 +702,59 @@ export function ReportView({ report }: { report: FindingsReport }) {
           {report.observations.length === 0 ? (
             <p className="text-[13px] text-fg-muted">There are no findings in this project.</p>
           ) : (
+            detail === "summary" ? (
+              <>
+                <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden" role="group" aria-label="Level of detail">
+                  <span className="text-[12px] text-fg-muted">Detail:</span>
+                  <Button size="sm" variant="primary" aria-pressed={true}>
+                    Summary
+                  </Button>
+                  <Button size="sm" variant="secondary" aria-pressed={false} onClick={() => setDetail("full")}>
+                    Every finding in full
+                  </Button>
+                </div>
+                <p className="mb-3 text-[13px] text-fg-muted" data-testid="summary-note">
+                  Summary view. {attention.length} of the {report.observations.length} findings need a person's attention and are listed one by
+                  one below. The other {report.observations.length - attention.length} are unreviewed proposals with no note and no conflict: they
+                  are counted in section 1 and are listed one by one in the full detail view and in the CSV, JSON and GeoJSON exports.
+                </p>
+                <h3 className="mb-2 text-sm font-semibold">Findings that need attention ({attention.length})</h3>
+                {attention.length === 0 ? (
+                  <p className="text-[13px] text-fg-muted">None of the findings is reviewed, noted, relabelled or in a conflict.</p>
+                ) : (
+                  <AttentionRows items={attention} thumbs={thumbs} projectId={report.project.id} />
+                )}
+              </>
+            ) : (
             <>
+              {report.observations.length > FULL_DETAIL_LIMIT ? (
+                <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden" role="group" aria-label="Level of detail">
+                  <span className="text-[12px] text-fg-muted">Detail:</span>
+                  <Button size="sm" variant="secondary" aria-pressed={false} onClick={() => setDetail("summary")}>
+                    Summary
+                  </Button>
+                  <Button size="sm" variant="primary" aria-pressed={true}>
+                    Every finding in full
+                  </Button>
+                  <span className="text-[12px] text-fg-subtle">A long list: printing this view makes a very long document.</span>
+                </div>
+              ) : null}
               <h3 className="mb-2 text-sm font-semibold">Reviewed findings ({reviewed.length})</h3>
               {reviewed.length === 0 ? <p className="mb-4 text-[13px] text-fg-muted">None of the findings has been reviewed.</p> : null}
               <ul className="mb-5 space-y-3">
                 {reviewed.map((o) => (
-                  <Finding key={o.observation_id} item={o} thumbs={thumbs} />
+                  <Finding key={o.observation_id} item={o} thumbs={thumbs} projectId={report.project.id} />
                 ))}
               </ul>
               <h3 className="mb-2 text-sm font-semibold">Unreviewed findings ({unreviewed.length})</h3>
               {unreviewed.length === 0 ? <p className="text-[13px] text-fg-muted">Every finding has been reviewed.</p> : null}
               <ul className="space-y-3">
                 {unreviewed.map((o) => (
-                  <Finding key={o.observation_id} item={o} thumbs={thumbs} />
+                  <Finding key={o.observation_id} item={o} thumbs={thumbs} projectId={report.project.id} />
                 ))}
               </ul>
             </>
+            )
           )}
         </Section>
 

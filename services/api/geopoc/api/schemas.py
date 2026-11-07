@@ -380,6 +380,9 @@ class ModelOut(BaseModel):
     weights_size_bytes: int | None
     available: bool
     reason_unavailable: str | None
+    custom: bool = Field(False, description="Uploaded through the application rather than listed in the manifest")
+    original_filename: str | None = None
+    added_at: str | None = None
 
 
 # --- CRS --------------------------------------------------------------------------------------------------------------
@@ -1263,6 +1266,25 @@ class PhotoLocationsOut(BaseModel):
     confirmed: int
     candidates: int
     without_location: int
+    note: str
+
+
+class CameraViewOut(BaseModel):
+    """Which way the camera faced and how wide its view was, as the photograph's file states it. Read, never stored."""
+
+    asset_id: uuid.UUID
+    heading_deg: float | None = Field(
+        description="Direction the camera faced, in degrees clockwise from north, as the file records it (EXIF GPS "
+        "image direction). Unverified: a phone compass can be off by tens of degrees."
+    )
+    heading_reference: Literal["true_north", "magnetic_north", "not_stated"] | None = Field(
+        description="Which north the direction is measured from, as the file says. None when there is no direction."
+    )
+    focal_length_35mm_mm: float | None = Field(
+        description="The lens's 35 mm equivalent focal length, from which the width of view can be estimated."
+    )
+    focal_length_mm: float | None = Field(description="The lens's actual focal length, for reference only.")
+    problems: list[PhotoLocationProblem]
     note: str
 
 

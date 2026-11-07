@@ -1,20 +1,24 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ChangeEvent, type ReactNode, useRef, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import {
   ApiError,
   type Asset,
   getIngestionRules,
+  getPixel,
   getRasterTools,
   listTerrain,
   renderUrl,
   uploadAsset,
 } from "../api/client";
-import { IconCube, IconSatellite, IconUpload } from "../components/icons";
+import { IconCube, IconSatellite, IconSearch, IconUpload } from "../components/icons";
 import { PanZoomViewer } from "../components/PanZoomViewer";
-import { Badge, Button, EmptyState, ErrorNotice, LinkButton, Loading, Notice } from "../components/ui";
+import { SatelliteLocationView } from "../components/SatelliteLocationView";
+import { Badge, Button, ErrorNotice, LinkButton, Loading, Notice } from "../components/ui";
+import { formatLatLon } from "../lib/coordinates";
 import { checkFile } from "../lib/ingestion";
+import { startView } from "../lib/location3d";
 import { useAsset, useAssets } from "../lib/queries";
 import { useProject } from "./ProjectLayout";
 
@@ -146,6 +150,73 @@ function UploadProblemNotice({ upload }: { upload: ImageUpload }) {
   );
 }
 
+function isPlaced(asset: Asset): boolean {
+  return Boolean(asset.georeferencing?.placed ?? asset.raster?.georeferenced);
+}
+
+/** The centre of the image's footprint on the Earth (from its georeferencing), or null when it has none. */
+export function footprintCentre(asset: Asset): { lat: number; lon: number } | null {
+  const view = startView({ aoi: asset.raster?.footprint_4326 as { type?: unknown; coordinates?: unknown } | undefined });
+  if (!view) return null;
+  const [west, south, east, north] = view.bounds;
+  return { lon: (west + east) / 2, lat: (south + north) / 2 };
+}
+
+/**
+ * Where a clicked point of a georeferenced image is on the Earth. The server reads it from the image's own
+ * georeferencing, with the same datum rules as everywhere else: when a conversion is not exact enough it says why and
+ * gives no position, rather than an approximate one.
+ */
+function PointReadout({ projectId, asset, picked }: { projectId: string; asset: Asset; picked: { col: number; row: number } | null }) {
+  const col = picked ? Math.floor(picked.col) : null;
+  const row = picked ? Math.floor(picked.row) : null;
+  const pixel = useQuery({
+    queryKey: ["pixel", asset.id, col, row],
+    queryFn: () => getPixel(asset.id, { col: col!, row: row! }),
+    enabled: col !== null && row !== null,
+  });
+  const box = "pointer-events-auto w-fit max-w-md rounded-lg border border-line bg-surface/95 px-3 py-2 text-[13px] shadow-panel backdrop-blur-md";
+  if (!picked) {
+    return <p className={`${box} text-xs text-fg-muted`}>Click the image to read the latitude and longitude of a point.</p>;
+  }
+  if (pixel.isLoading) return <p className={`${box} text-xs text-fg-muted`}>Reading the position…</p>;
+  if (pixel.isError) return <div className={box}><ErrorNotice error={pixel.error} /></div>;
+  const lonLat = pixel.data?.lon_lat;
+  if (!lonLat || lonLat.length < 2) {
+    return (
+      <div className={box} role="region" aria-label="Clicked point">
+        <p className="text-xs text-fg-subtle">Clicked point (pixel {col}, {row})</p>
+        <p className="text-fg-muted">{pixel.data?.lon_lat_note ?? "No latitude and longitude can be given for this point."}</p>
+      </div>
+    );
+  }
+  const [lon, lat] = lonLat as [number, number];
+  return (
+    <div className={box} role="region" aria-label="Clicked point">
+      <p className="text-xs text-fg-subtle">Clicked point (pixel {col}, {row})</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-fg">{formatLatLon(lat, lon, 6)}</span>
+        <Button size="sm" variant="ghost" onClick={() => void navigator.clipboard?.writeText(`${lat.toFixed(6)}, ${lon.toFixed(6)}`)}>
+          Copy
+        </Button>
+        <LinkButton
+          size="sm"
+          variant="ghost"
+          to={`/projects/${projectId}/satellite?${new URLSearchParams({
+            view: "location",
+            image: asset.id,
+            lat: lat.toFixed(6),
+            lon: lon.toFixed(6),
+            label: `Point on ${asset.original_filename}`,
+          }).toString()}`}
+        >
+          Show on satellite map
+        </LinkButton>
+      </div>
+    </div>
+  );
+}
+
 /** The thin bar above the picture: which image this is, whether it is placed on the Earth, and the way to add another. */
 function ViewerBar({
   projectId,
@@ -161,7 +232,8 @@ function ViewerBar({
   archived: boolean;
 }) {
   const navigate = useNavigate();
-  const placed = Boolean(asset.georeferencing?.placed ?? asset.raster?.georeferenced);
+  const placed = isPlaced(asset);
+  const centre = footprintCentre(asset);
   const options = choices.some((item) => item.id === asset.id) ? choices : [asset, ...choices];
   return (
     <div className="flex h-11 shrink-0 items-center gap-3 border-b border-line/70 bg-surface/80 px-3 backdrop-blur-md">
@@ -193,7 +265,26 @@ function ViewerBar({
       >
         <Badge tone={placed ? "ok" : "warn"}>{placed ? "Georeferenced" : "Not georeferenced"}</Badge>
       </span>
-      <div className="ml-auto">
+      {placed && centre ? (
+        <span
+          className="hidden font-mono text-xs text-fg-muted xl:inline"
+          title="The centre of the image's footprint, from its georeferencing"
+          aria-label="Image centre"
+        >
+          Centre {formatLatLon(centre.lat, centre.lon)}
+        </span>
+      ) : null}
+      <div className="ml-auto flex items-center gap-2">
+        {placed && centre ? (
+          <LinkButton size="sm" variant="secondary" to={`/projects/${projectId}/satellite?view=location&image=${asset.id}`}>
+            <IconSatellite size={14} />
+            Show on satellite map
+          </LinkButton>
+        ) : null}
+        <LinkButton size="sm" variant="secondary" to={`/projects/${projectId}/satellite?view=location`}>
+          <IconSearch size={14} />
+          Find a location
+        </LinkButton>
         <UploadButton upload={upload} archived={archived} variant="secondary" />
       </div>
     </div>
@@ -225,7 +316,8 @@ function ImageViewer({
   archived: boolean;
 }) {
   const tools = useRasterTools(asset.id);
-  const bar = <ViewerBar projectId={projectId} asset={asset} choices={choices} upload={upload} archived={archived} />;
+  const [picked, setPicked] = useState<{ col: number; row: number } | null>(null);
+  const bar =<ViewerBar projectId={projectId} asset={asset} choices={choices} upload={upload} archived={archived} />;
   const header = (
     <>
       {bar}
@@ -264,8 +356,12 @@ function ImageViewer({
   }
 
   const data = tools.data!;
+  const placed = isPlaced(asset);
   return (
     <PanZoomViewer
+      onPointPick={placed ? setPicked : undefined}
+      marker={placed ? picked : null}
+      overlay={placed ? <PointReadout projectId={projectId} asset={asset} picked={picked} /> : null}
       key={asset.id}
       // The address changes when statistics or a display copy become available, so a picture that could not be drawn
       // before (for example a new 16-bit raster without statistics yet) is requested again.
@@ -288,6 +384,8 @@ export function SatellitePage() {
   const upload = useImageUpload(project.id);
   const archived = Boolean(project.archived_at);
   const images = (rasters.data?.items ?? []).filter((item) => !elevation.ids.has(item.id));
+  const [params] = useSearchParams();
+  const findLocation = params.get("view") === "location";
 
   if (!assetId) {
     if (rasters.isLoading || elevation.loading) {
@@ -308,36 +406,38 @@ export function SatellitePage() {
         </Stage>
       );
     }
-    // The first real picture, never an elevation grid: a height map opened here is confusing.
-    if (images[0]) return <Navigate to={`/projects/${project.id}/assets/${images[0].id}/overhead`} replace />;
-    const onlyHeights = rasters.data!.items.length > 0;
+    // The first real picture, never an elevation grid: a height map opened here is confusing. Asked for (or with no
+    // pictures in the project), the screen is the online map instead, where any place can be found by name or position.
+    if (images[0] && !findLocation) {
+      return <Navigate to={`/projects/${project.id}/assets/${images[0].id}/overhead`} replace />;
+    }
+    const onlyHeights = rasters.data!.items.length > 0 && !images[0];
     return (
       <Stage>
-        <Centered>
-          <div className="w-full max-w-md space-y-3">
-            <EmptyState
-              icon={<IconSatellite size={28} />}
-              title="No satellite or aerial images"
-              action={<UploadButton upload={upload} archived={archived} />}
-            >
-              Upload a GeoTIFF satellite or aerial image to view it here.
+        <SatelliteLocationView
+          project={project}
+          imageIds={images.map((item) => item.id)}
+          actions={
+            <>
+              {images[0] ? (
+                <LinkButton size="sm" variant="secondary" to={`/projects/${project.id}/assets/${images[0].id}/overhead`}>
+                  <IconSatellite size={14} />
+                  Your images ({images.length})
+                </LinkButton>
+              ) : (
+                <span className="hidden text-xs text-fg-subtle md:inline">No images uploaded to this project</span>
+              )}
               {onlyHeights ? (
-                <span className="mt-2 block text-xs">
-                  The rasters in this project are elevation files (height grids).{" "}
-                  <Link to={`/projects/${project.id}/3d`} className="inline-flex items-center gap-1 text-accent hover:underline">
-                    <IconCube size={12} />
-                    View them in 3D Terrain
-                  </Link>
-                </span>
+                <LinkButton size="sm" variant="secondary" to={`/projects/${project.id}/3d`}>
+                  <IconCube size={14} />
+                  Elevation files in 3D
+                </LinkButton>
               ) : null}
-            </EmptyState>
-            {upload.problem ? (
-              <Notice tone="error" title={upload.problem.title}>
-                {upload.problem.detail ? <p>{upload.problem.detail}</p> : null}
-              </Notice>
-            ) : null}
-          </div>
-        </Centered>
+              <UploadButton upload={upload} archived={archived} variant="secondary" />
+            </>
+          }
+          notices={<UploadProblemNotice upload={upload} />}
+        />
       </Stage>
     );
   }
@@ -366,6 +466,7 @@ export function SatellitePage() {
   return (
     <Stage>
       <ImageViewer
+        key={file.id}
         projectId={project.id}
         asset={file}
         choices={images}

@@ -99,13 +99,18 @@ function render(path = "/projects/p1/3d") {
 let fetchSpy: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
   vi.clearAllMocks();
+  // These tests are about the local view of the project's own elevation files: no Mapbox token, whatever .env.local holds.
+  vi.stubEnv("VITE_MAPBOX_ACCESS_TOKEN", "");
   shown.length = 0;
   fetchSpy = vi.spyOn(globalThis, "fetch");
   getTerrain.mockResolvedValue(meta());
   fetchTerrainGrid.mockImplementation(async (_url, cells) => new Float32Array(cells).fill(150));
   transformPoint.mockResolvedValue({ x: 75.0123456, y: 27.0123456 } as client.CrsTransform);
 });
-afterEach(() => fetchSpy.mockRestore());
+afterEach(() => {
+  fetchSpy.mockRestore();
+  vi.unstubAllEnvs();
+});
 
 describe("when there is nothing to draw", () => {
   it("says a project with no rasters has none, offers the upload, and asks the server for nothing else", async () => {

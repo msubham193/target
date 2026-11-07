@@ -37,6 +37,23 @@ export interface PhotoMarker {
   label: string;
 }
 
+/**
+ * Direction lines from a photograph's camera position towards the objects found in it. Each object is somewhere along its
+ * line; only a position a person marked (`marked`) is a place on the ground.
+ */
+export interface SightLines {
+  /** The camera's view as a closed outline, drawn faintly. */
+  fan: [number, number][] | null;
+  rays: { id: string; colour: string; coordinates: [number, number][] }[];
+  /** Positions a person marked for objects, each joined to the camera by a dashed line. */
+  marked: { id: string; colour: string; at: [number, number]; from: [number, number] }[];
+  /** Positions estimated from matched ground spots; hollow when outside the matched area (extrapolated). */
+  estimated?: { id: string; colour: string; at: [number, number]; extrapolated: boolean }[];
+  /** The matched spots on the map, drawn as small white squares. */
+  controls?: { id: string; at: [number, number] }[];
+  selectedId: string | null;
+}
+
 /** A mark the person drew (an annotation). Not a finding and not a photograph location. */
 export interface AnnotationShape {
   id: string;
@@ -65,12 +82,21 @@ export interface MapCanvasProps {
   onPhotoSelect?: (id: string) => void;
   /** Called instead of `onPhotoSelect` when a click could mean several overlapping markers, nearest first. */
   onPhotoChoice?: (ids: string[]) => void;
+  /**
+   * Called while the pointer is over a photograph marker, with the marker's position on screen (pixels from the map's top
+   * left), and with null when it leaves or the map moves.
+   */
+  onPhotoHover?: (hover: { id: string; x: number; y: number } | null) => void;
   /** The person's own annotations (active ones only), drawn apart from photograph markers and findings. */
   annotations?: AnnotationShape[];
   showAnnotations?: boolean;
   selectedAnnotationId?: string | null;
   /** Called when a click lands on an annotation. Leave it out while drawing, so clicks add positions instead. */
   onAnnotationSelect?: (id: string) => void;
+  /** Direction lines from a photograph towards the objects in it (see `SightLines`). */
+  sightLines?: SightLines | null;
+  /** Called when a click lands on a direction line or a marked object. Leave it out while the map is being clicked to aim. */
+  onSightLineSelect?: (id: string) => void;
   /** A position being looked at but not saved (for example an unverified EXIF candidate), drawn as a hollow ring. */
   preview?: { lon: number; lat: number } | null;
   /** Tailwind classes for the frame's size. The default suits a full map page. */
@@ -84,7 +110,10 @@ export interface MapCanvasProps {
   /** Which label and feature groups of the Mapbox basemap are shown. Ignored by the offline map. */
   mapboxLabels?: LabelState;
   /** Move the view here. A new object asks for a new move; the same object is acted on once. */
-  goTo?: { lon: number; lat: number; zoom?: number } | null;
+  /** Go to a position. `instant` jumps there instead of flying (for a map that has only just opened). */
+  goTo?: { lon: number; lat: number; zoom?: number; instant?: boolean } | null;
+  /** Where a newly made map starts (used only when it has no earlier view), so it never flashes the whole world first. */
+  start?: { lon: number; lat: number; zoom: number } | null;
   /** Progress and problems of the Mapbox basemap (never called for the offline map). */
   onBasemapStatus?: (status: BasemapStatus) => void;
 }
@@ -122,6 +151,10 @@ function footprints(rasters: RasterDisplay[]): Data {
       geometry: layer.footprint_4326,
     })),
   } as unknown as Data;
+}
+
+function startCentre(start: MapCanvasProps["start"]): [number, number] {
+  return start ? [start.lon, start.lat] : [0, 20];
 }
 
 function aoiData(aoi: Record<string, unknown> | null): Data {
@@ -177,8 +210,8 @@ export function MapCanvas(props: MapCanvasProps) {
               style: MAPBOX_STYLE,
               // Label groups are set when the map is made, so a map made with a label off never draws it first.
               config: { basemap: { ...labelsNow.current } },
-              center: view?.center ?? [0, 20],
-              zoom: view?.zoom ?? 1,
+              center: view?.center ?? startCentre(callbacks.current.start),
+              zoom: view?.zoom ?? (callbacks.current.start?.zoom ?? 1),
               bearing: view?.bearing ?? 0,
               // Mercator, flat: the project's rasters, measurements and coordinates are all Web Mercator / geodetic.
               projection: "mercator",
@@ -192,8 +225,8 @@ export function MapCanvas(props: MapCanvasProps) {
             instance = new maplibre.Map({
               container: container.current,
               style: baseStyle(),
-              center: view?.center ?? [0, 20],
-              zoom: view?.zoom ?? 1,
+              center: view?.center ?? startCentre(callbacks.current.start),
+              zoom: view?.zoom ?? (callbacks.current.start?.zoom ?? 1),
               attributionControl: false,
               maxZoom: 22,
               dragRotate: false,
@@ -303,6 +336,75 @@ export function MapCanvas(props: MapCanvasProps) {
             filter: ["==", ["geometry-type"], "Point"],
             paint: { "circle-radius": 4, "circle-color": "#e7eaf0", "circle-stroke-color": "#5b9bff", "circle-stroke-width": 1.5 },
           });
+          // Direction lines from a photograph to its objects, under the photograph markers so a camera stays clickable.
+          instance.addSource("sight", { type: "geojson", data: EMPTY });
+          instance.addLayer({
+            id: "sight-fan",
+            type: "fill",
+            source: "sight",
+            filter: ["==", ["get", "part"], "fan"],
+            paint: { "fill-color": "#ffffff", "fill-opacity": 0.1 },
+          });
+          instance.addLayer({
+            id: "sight-fan-line",
+            type: "line",
+            source: "sight",
+            filter: ["==", ["get", "part"], "fan"],
+            paint: { "line-color": "#ffffff", "line-width": 1, "line-opacity": 0.55, "line-dasharray": [2, 2] },
+          });
+          instance.addLayer({
+            id: "sight-selected",
+            type: "line",
+            source: "sight",
+            filter: ["all", ["!=", ["get", "part"], "fan"], ["==", ["geometry-type"], "LineString"], ["==", ["get", "id"], ""]],
+            paint: { "line-color": "#ffffff", "line-width": 6, "line-opacity": 0.7 },
+          });
+          instance.addLayer({
+            id: "sight-rays",
+            type: "line",
+            source: "sight",
+            filter: ["==", ["get", "part"], "ray"],
+            layout: { "line-cap": "round" },
+            paint: { "line-color": ["get", "colour"], "line-width": 2.2, "line-opacity": 0.9 },
+          });
+          instance.addLayer({
+            id: "sight-link",
+            type: "line",
+            source: "sight",
+            filter: ["==", ["get", "part"], "link"],
+            paint: { "line-color": ["get", "colour"], "line-width": 2, "line-dasharray": [1.5, 1.5] },
+          });
+          instance.addLayer({
+            id: "sight-controls",
+            type: "circle",
+            source: "sight",
+            filter: ["==", ["get", "part"], "control"],
+            paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": "#11141a", "circle-stroke-width": 2 },
+          });
+          instance.addLayer({
+            id: "sight-estimated",
+            type: "circle",
+            source: "sight",
+            filter: ["==", ["get", "part"], "estimated"],
+            paint: {
+              "circle-radius": ["case", ["==", ["get", "id"], ""], 8, 5],
+              "circle-color": ["case", ["get", "extrapolated"], "rgba(0,0,0,0)", ["get", "colour"]],
+              "circle-stroke-color": ["case", ["get", "extrapolated"], ["get", "colour"], "#11141a"],
+              "circle-stroke-width": ["case", ["get", "extrapolated"], 2, 1.2],
+            },
+          });
+          instance.addLayer({
+            id: "sight-marked",
+            type: "circle",
+            source: "sight",
+            filter: ["==", ["get", "part"], "marked"],
+            paint: {
+              "circle-radius": ["case", ["==", ["get", "id"], ""], 9, 6.5],
+              "circle-color": ["get", "colour"],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-width": 2,
+            },
+          });
           instance.addSource("photos", { type: "geojson", data: EMPTY });
           instance.addLayer({
             id: "photos",
@@ -392,6 +494,21 @@ export function MapCanvas(props: MapCanvasProps) {
               return;
             }
           }
+          if (m && callbacks.current.onSightLineSelect && m.getLayer("sight-rays")) {
+            const { x, y } = event.point;
+            const hit = m.queryRenderedFeatures(
+              [
+                [x - 6, y - 6],
+                [x + 6, y + 6],
+              ],
+              { layers: ["sight-marked", "sight-estimated", "sight-link", "sight-rays"].filter((id) => m.getLayer(id)) },
+            );
+            const id = hit.map((feature) => feature.properties?.id).find((value): value is string => typeof value === "string");
+            if (id) {
+              callbacks.current.onSightLineSelect(id);
+              return;
+            }
+          }
           if (m && callbacks.current.onAnnotationSelect && m.getLayer("annotation-line")) {
             const { x, y } = event.point;
             const hit = m.queryRenderedFeatures(
@@ -414,7 +531,16 @@ export function MapCanvas(props: MapCanvasProps) {
         });
         instance.on("mouseleave", "photos", () => {
           if (instance) instance.getCanvas().style.cursor = "";
+          callbacks.current.onPhotoHover?.(null);
         });
+        instance.on("mousemove", "photos", (event) => {
+          const feature = event.features?.[0];
+          const id = feature?.properties?.id;
+          if (!instance || typeof id !== "string" || feature?.geometry.type !== "Point") return;
+          const at = instance.project(feature.geometry.coordinates as [number, number]);
+          callbacks.current.onPhotoHover?.({ id, x: at.x, y: at.y });
+        });
+        instance.on("movestart", () => callbacks.current.onPhotoHover?.(null));
         map.current = instance;
       })
       .catch(() => {
@@ -453,7 +579,9 @@ export function MapCanvas(props: MapCanvasProps) {
     if (!ready || !m || !target || moved.current === target) return;
     moved.current = target;
     m.resize();
-    m.flyTo({ center: [target.lon, target.lat], zoom: target.zoom ?? Math.max(m.getZoom(), 15), essential: true });
+    const zoom = target.zoom ?? Math.max(m.getZoom(), 15);
+    if (target.instant) m.jumpTo({ center: [target.lon, target.lat], zoom });
+    else m.flyTo({ center: [target.lon, target.lat], zoom, essential: true });
   }, [ready, props.goTo]);
 
   // Raster layers: add new ones, update visibility and opacity, remove those that are gone.
@@ -554,6 +682,49 @@ export function MapCanvas(props: MapCanvasProps) {
     m.setFilter("annotation-selected-line", ["all", ["!=", ["geometry-type"], "Point"], ["==", ["get", "id"], selected]]);
     m.setFilter("annotation-selected-point", ["all", ["==", ["geometry-type"], "Point"], ["==", ["get", "id"], selected]]);
   }, [ready, props.annotations, props.showAnnotations, props.selectedAnnotationId]);
+
+  // Direction lines from a photograph to its objects, and the positions a person marked for them.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    const sight = props.sightLines;
+    const features: unknown[] = [];
+    if (sight?.fan) {
+      features.push({ type: "Feature", properties: { part: "fan" }, geometry: { type: "Polygon", coordinates: [sight.fan] } });
+    }
+    for (const ray of sight?.rays ?? []) {
+      features.push({
+        type: "Feature",
+        properties: { part: "ray", id: ray.id, colour: ray.colour },
+        geometry: { type: "LineString", coordinates: ray.coordinates },
+      });
+    }
+    for (const mark of sight?.marked ?? []) {
+      features.push({
+        type: "Feature",
+        properties: { part: "link", id: mark.id, colour: mark.colour },
+        geometry: { type: "LineString", coordinates: [mark.from, mark.at] },
+      });
+      features.push({ type: "Feature", properties: { part: "marked", id: mark.id, colour: mark.colour }, geometry: { type: "Point", coordinates: mark.at } });
+    }
+    for (const spot of sight?.estimated ?? []) {
+      features.push({
+        type: "Feature",
+        properties: { part: "estimated", id: spot.id, colour: spot.colour, extrapolated: spot.extrapolated },
+        geometry: { type: "Point", coordinates: spot.at },
+      });
+    }
+    for (const control of sight?.controls ?? []) {
+      features.push({ type: "Feature", properties: { part: "control", id: control.id }, geometry: { type: "Point", coordinates: control.at } });
+    }
+    (m.getSource("sight") as GeoJSONSource | undefined)?.setData({ type: "FeatureCollection", features } as unknown as Data);
+    const selected = sight?.selectedId ?? "";
+    if (m.getLayer("sight-selected")) {
+      m.setFilter("sight-selected", ["all", ["!=", ["get", "part"], "fan"], ["==", ["geometry-type"], "LineString"], ["==", ["get", "id"], selected]]);
+      m.setPaintProperty("sight-marked", "circle-radius", ["case", ["==", ["get", "id"], selected], 9, 6.5]);
+      m.setPaintProperty("sight-estimated", "circle-radius", ["case", ["==", ["get", "id"], selected], 8, 5]);
+    }
+  }, [ready, props.sightLines]);
 
   useEffect(() => {
     const m = map.current;

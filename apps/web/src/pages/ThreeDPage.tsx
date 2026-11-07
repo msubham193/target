@@ -2,8 +2,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { fetchTerrainGrid, getTerrain, listTerrain, type TerrainMeta, type TerrainRaster, type TerrainRequest, transformPoint } from "../api/client";
+import {
+  fetchTerrainGrid,
+  getLayers,
+  getTerrain,
+  listPhotoLocations,
+  listTerrain,
+  type TerrainMeta,
+  type TerrainRaster,
+  type TerrainRequest,
+  transformPoint,
+} from "../api/client";
 import { IconCube, IconUpload } from "../components/icons";
+import { Mapbox3DView, type Photo3D } from "../components/Mapbox3DView";
+import { PlaceSearch } from "../components/PlaceSearch";
 import { type ColourMode, TerrainViewer } from "../components/TerrainViewer";
 import {
   Badge,
@@ -18,8 +30,11 @@ import {
   PageHeader,
   Panel,
   selectClass,
+  Tabs,
 } from "../components/ui";
 import { Workspace } from "../components/Workspace";
+import { startView } from "../lib/location3d";
+import { readMapboxToken } from "../lib/mapbox";
 import { formatElevation, formatMetres, type Hit, nativePosition } from "../lib/terrain";
 import { projectCrumbs, useProject } from "./ProjectLayout";
 
@@ -395,23 +410,104 @@ export function ThreeDPage() {
     items[0] ??
     null;
 
+  // The online 3D view (Mapbox) of the project's location, beside the local view of the project's own elevation files.
+  const token = useMemo(() => readMapboxToken(), []);
+  const usableCount = (list.data?.usable ?? 0) + (list.data?.needs_confirmation ?? 0);
+  const requestedMode = params.get("mode");
+  const mode: "online" | "local" =
+    requestedMode === "online" || requestedMode === "local" ? requestedMode : token.ok && list.isSuccess && usableCount === 0 ? "online" : "local";
+  const setMode = (next: "online" | "local") =>
+    setParams((current) => {
+      const updated = new URLSearchParams(current);
+      updated.set("mode", next);
+      return updated;
+    });
+  const photoLocations = useQuery({ queryKey: ["photo-locations", project.id], queryFn: () => listPhotoLocations(project.id), enabled: mode === "online" });
+  const layers = useQuery({ queryKey: ["layers", project.id, "online-3d"], queryFn: () => getLayers(project.id), enabled: mode === "online" });
+  const start = useMemo(
+    () =>
+      startView({
+        aoi: project.aoi?.geometry_4326 as { type?: unknown; coordinates?: unknown } | undefined,
+        photos: photoLocations.data?.items,
+        rasterBounds: layers.data?.rasters.map((r) => r.bounds_4326 as number[] | null),
+      }),
+    [project.aoi, photoLocations.data, layers.data],
+  );
+  const photos3d: Photo3D[] = (photoLocations.data?.items ?? []).flatMap((p) =>
+    p.state === "confirmed" && p.latitude !== null && p.longitude !== null ? [{ id: p.asset_id, filename: p.filename, lon: p.longitude, lat: p.latitude }] : [],
+  );
+  const [place, setPlace] = useState<{ lon: number; lat: number; label: string } | null>(null);
+
   const header = (
     <>
       <Breadcrumbs items={projectCrumbs(project, { label: "3D Terrain" })} />
       <div className="mt-2">
         <PageHeader
           title="3D Terrain"
-          description="Terrain from elevation rasters in this project, drawn on this computer."
+          description={
+            mode === "online"
+              ? "This project's location in 3D: Mapbox satellite imagery on Mapbox's terrain, with buildings and your located photographs (online)."
+              : "Terrain from elevation rasters in this project, drawn on this computer."
+          }
           meta={list.data ? <Badge tone="neutral">{list.data.usable + list.data.needs_confirmation} of {items.length} usable</Badge> : undefined}
         />
       </div>
     </>
   );
 
+  const modeTabs = (
+    <div className="mb-4">
+      <Tabs
+        label="3D view"
+        value={mode}
+        onChange={setMode}
+        tabs={[
+          { value: "online", label: "Online 3D (Mapbox)" },
+          { value: "local", label: `Your elevation files (${items.length})` },
+        ]}
+      />
+    </div>
+  );
+
+  if (mode === "online") {
+    return (
+      <div>
+        {header}
+        {modeTabs}
+        <div className="space-y-3">
+          {photoLocations.isLoading || layers.isLoading ? (
+            <Loading label="Finding this project's location…" />
+          ) : (
+            <Mapbox3DView
+              projectId={project.id}
+              photos={photos3d}
+              start={start}
+              goTo={place}
+              search={
+                <>
+                  <label htmlFor="place-search" className="sr-only">
+                    Look at another place
+                  </label>
+                  <PlaceSearch compact onPick={(match) => setPlace({ lon: match.lon, lat: match.lat, label: match.label })} />
+                </>
+              }
+            />
+          )}
+          <p className="text-xs text-fg-subtle" data-testid="online-3d-note">
+            Online: the view is sent to Mapbox. Imagery, terrain and building heights are Mapbox's, not measured by this app (building heights may
+            be Mapbox's estimates), and the imagery is not live. Buildings are raised only where Mapbox has a height for them. Nothing here is saved
+            to the project. For your own elevation data, use
+            &ldquo;Your elevation files&rdquo;.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (list.isLoading) return <div>{header}<Loading label="Checking this project's rasters…" /></div>;
   if (list.isError) return <div>{header}<ErrorNotice error={list.error} /></div>;
 
-  const usable = (list.data?.usable ?? 0) + (list.data?.needs_confirmation ?? 0);
+  const usable = usableCount;
   const main =
     items.length === 0 ? (
       <EmptyState
@@ -443,6 +539,7 @@ export function ThreeDPage() {
   return (
     <div>
       {header}
+      {modeTabs}
       <Workspace
         left={items.length > 0 ? <RasterList items={items} selectedId={selected?.asset_id ?? null} onSelect={(id) => setParams({ asset: id })} /> : undefined}
         main={main}

@@ -7,6 +7,7 @@ when. The stored original is never written, and nothing here touches the photogr
 
 import hashlib
 import uuid
+from pathlib import Path
 
 from fastapi import APIRouter
 from PIL import Image, UnidentifiedImageError
@@ -17,6 +18,7 @@ from sqlalchemy.orm import Session
 from geopoc.api.deps import ProfileDep, RequestIdDep, SessionDep, record_audit
 from geopoc.api.errors import ProblemError, problem_responses
 from geopoc.api.schemas import (
+    CameraViewOut,
     PhotoLocationApply,
     PhotoLocationCurrent,
     PhotoLocationExif,
@@ -30,6 +32,7 @@ from geopoc.api.schemas import (
 from geopoc.db.models import Asset, PhotoLocation, Project
 from geopoc.geo import georeference, photolocation
 from geopoc.geo.photolocation import LocationError
+from geopoc.ingestion import camera_view
 from geopoc.ingestion.gps import PROBLEMS, GpsReading, read_gps
 
 router = APIRouter(prefix="/api/v1", tags=["photo-locations"], responses=problem_responses(422))
@@ -148,6 +151,18 @@ def location_out(session: Session, asset: Asset) -> PhotoLocationOut:
     )
 
 
+def _check_original(path: Path, asset: Asset) -> None:
+    """The stored original is read only when its bytes still match the checksum recorded at upload."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    if digest.hexdigest() != asset.blob_sha256:
+        raise ProblemError(
+            409, "ORIGINAL_CHECKSUM_MISMATCH", "The stored original does not match its checksum", "It was not read."
+        )
+
+
 def _problem(exc: LocationError) -> ProblemError:
     return ProblemError(exc.status, exc.code, exc.title, exc.detail)
 
@@ -227,14 +242,7 @@ def read_exif_position(asset_id: uuid.UUID, session: SessionDep, profile: Profil
     path = georeference.original_path(session, asset)
     if path is None:
         raise ProblemError(409, "ORIGINAL_MISSING", "The stored original is missing", "It cannot be read.")
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    if digest.hexdigest() != asset.blob_sha256:
-        raise ProblemError(
-            409, "ORIGINAL_CHECKSUM_MISMATCH", "The stored original does not match its checksum", "It was not read."
-        )
+    _check_original(path, asset)
     try:
         with Image.open(path) as image:
             reading = read_gps(image.getexif())
@@ -261,6 +269,37 @@ def read_exif_position(asset_id: uuid.UUID, session: SessionDep, profile: Profil
     session.commit()
     return ReadExifOut(
         outcome=outcome, problems=_problems(list(reading.problems)), location=location_out(session, asset)
+    )
+
+
+CAMERA_VIEW_NOTE = (
+    "The direction and lens figures are what the file states. They are not checked: a phone compass can be off by tens "
+    "of degrees, and the file does not say how good the reading was. They are read from the stored original each time "
+    "and never stored. Nothing is placed on the map from them; a person decides what they mean."
+)
+
+
+@router.get("/assets/{asset_id}/camera-view", response_model=CameraViewOut, responses=problem_responses(404, 409))
+def get_camera_view(asset_id: uuid.UUID, session: SessionDep):
+    """Which way the camera faced and its lens figures, read from the photograph's EXIF. Read-only."""
+    asset = _photo(session, asset_id)
+    path = georeference.original_path(session, asset)
+    if path is None:
+        raise ProblemError(409, "ORIGINAL_MISSING", "The stored original is missing", "It cannot be read.")
+    _check_original(path, asset)
+    try:
+        with Image.open(path) as image:
+            view = camera_view.read_camera_view(image.getexif())
+    except (UnidentifiedImageError, OSError, SyntaxError, ValueError):
+        view = camera_view.CameraView(problems=("EXIF_UNREADABLE",))
+    return CameraViewOut(
+        asset_id=asset.id,
+        heading_deg=view.heading_deg,
+        heading_reference=view.heading_reference,
+        focal_length_35mm_mm=view.focal_length_35mm_mm,
+        focal_length_mm=view.focal_length_mm,
+        problems=[PhotoLocationProblem(code=c, message=camera_view.PROBLEMS[c]) for c in view.problems],
+        note=CAMERA_VIEW_NOTE,
     )
 
 

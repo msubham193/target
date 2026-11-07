@@ -42,9 +42,13 @@ earthengine = [
 # runs normally and analysis models are reported as unavailable.
 # cu128 is the CUDA 12.8 build, which includes the RTX 50-series architecture (sm_120). Verified on the
 # RTX 5060 with driver 595.95, and allowed by Smart App Control. Re-test before changing either version.
+# onnxruntime-gpu runs uploaded ONNX models (MIT). ultralytics runs uploaded YOLO .pt files; it is AGPL-3.0, so
+# distributing it to a third party carries AGPL obligations (or needs an Ultralytics licence). Both pinned exactly.
 ml = [
+    "onnxruntime-gpu==1.24.4",
     "torch==2.11.0+cu128",
     "torchvision==0.26.0+cu128",
+    "ultralytics==8.4.204",
 ]
 
 [tool.uv]

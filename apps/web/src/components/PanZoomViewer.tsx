@@ -8,6 +8,8 @@ const MAX_MAGNIFICATION = 6;
 const WHEEL_SENSITIVITY = 0.0015;
 const BUTTON_FACTOR = 1.5;
 const EPSILON = 1e-6;
+/** A press that moves less than this before release is a click, not a drag. */
+const CLICK_TOLERANCE_PX = 4;
 
 /**
  * Where the viewer is looking. `zoom` is relative to "fit" (1 = the whole picture is visible), and (cx, cy) is the point
@@ -57,6 +59,9 @@ export function PanZoomViewer({
   height,
   renderedSide,
   header,
+  onPointPick,
+  marker,
+  overlay,
 }: {
   src: string;
   alt: string;
@@ -66,6 +71,12 @@ export function PanZoomViewer({
   renderedSide: number;
   /** Drawn above the picture inside the viewer, so it stays visible in full screen. */
   header?: ReactNode;
+  /** A click (not a drag) on the picture, in the original's pixel grid (column and row from the top-left corner). */
+  onPointPick?: (point: { col: number; row: number }) => void;
+  /** A point drawn on the picture, in the original's pixel grid. */
+  marker?: { col: number; row: number } | null;
+  /** Drawn over the bottom-left of the picture, inside the viewer (so it stays visible in full screen). */
+  overlay?: ReactNode;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const port = useRef<HTMLDivElement>(null);
@@ -147,6 +158,18 @@ export function PanZoomViewer({
     setAnimate(false);
     setDragging(true);
   };
+  /** A press and release within a few screen pixels is a click on the picture, not a drag. */
+  const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const start = drag.current;
+    endDrag();
+    if (!start || !onPointPick || status !== "ready") return;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > CLICK_TOLERANCE_PX) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const col = shown.cx + (event.clientX - rect.left - box.w / 2) / scale;
+    const row = shown.cy + (event.clientY - rect.top - box.h / 2) / scale;
+    if (col < 0 || row < 0 || col >= width || row >= height) return;
+    onPointPick({ col, row });
+  };
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const start = drag.current;
     if (!start) return;
@@ -183,7 +206,7 @@ export function PanZoomViewer({
           className={`absolute inset-0 touch-none select-none ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
+          onPointerUp={onPointerUp}
           onPointerCancel={endDrag}
         >
           {status !== "error" ? (
@@ -205,7 +228,16 @@ export function PanZoomViewer({
               }}
             />
           ) : null}
+          {marker && measured && status === "ready" ? (
+            <span
+              data-testid="viewer-marker"
+              aria-hidden
+              className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-accent shadow-[0_0_0_2px_rgb(0_0_0/0.5)]"
+              style={{ left: box.w / 2 + (marker.col - shown.cx) * scale, top: box.h / 2 + (marker.row - shown.cy) * scale }}
+            />
+          ) : null}
         </div>
+        {overlay ? <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[calc(100%-1.5rem)]">{overlay}</div> : null}
 
         {status === "loading" ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

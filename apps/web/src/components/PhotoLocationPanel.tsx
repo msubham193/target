@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   ApiError,
@@ -190,6 +191,12 @@ export function PhotoLocationPanel({ asset }: { asset: Asset }) {
             </p>
             {confirmed.reason ? <p className="text-xs text-fg-muted">Note: “{confirmed.reason}”</p> : null}
             <p className="text-[11px] text-fg-subtle">WGS 84 (EPSG:4326). A person stands behind this position; the software cannot check it.</p>
+            <Link
+              to={`/projects/${projectId}/satellite?view=location&photo=${asset.id}`}
+              className="inline-block text-xs text-accent hover:underline"
+            >
+              Show on the satellite map, with the objects in this photo
+            </Link>
           </section>
         ) : (
           <p className="text-[13px] text-fg-muted">

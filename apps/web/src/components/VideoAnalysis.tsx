@@ -176,6 +176,7 @@ export function RunVideoAnalysis({ asset, onQueued }: { asset: Asset; onQueued: 
             {options.map((model) => (
               <option key={key(model)} value={key(model)}>
                 {model.name} {model.version}
+                {model.custom ? " (uploaded)" : ""}
                 {model.available ? "" : " — unavailable"}
               </option>
             ))}

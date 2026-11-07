@@ -930,6 +930,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/camera-view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Camera View
+         * @description Which way the camera faced and its lens figures, read from the photograph's EXIF. Read-only.
+         */
+        get: operations["get_camera_view_api_v1_assets__asset_id__camera_view_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/projects/{project_id}/photo-locations": {
         parameters: {
             query?: never;
@@ -1040,6 +1060,75 @@ export interface paths {
         get: operations["get_findings_report_api_v1_projects__project_id__report_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/report-summary/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Report Summary Status
+         * @description Whether the local language model for the draft summary can be used. Loads nothing.
+         */
+        get: operations["report_summary_status_api_v1_report_summary_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/report/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Write Report Summary
+         * @description A machine-written DRAFT summary of this project's findings report, from a local Qwen model.
+         *
+         *     The facts are counted by code from the stored report; the model only words them. The draft is checked (numbers,
+         *     photographs, forbidden language) before it is returned, is never stored, and is marked as machine-written and
+         *     unreviewed. It never recommends or ranks anything. Each request is recorded in the audit log, without its text.
+         */
+        post: operations["write_report_summary_api_v1_projects__project_id__report_summary_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/scene-description": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Write Scene Description
+         * @description A machine-written DRAFT description of what a ground photograph shows, from the local Qwen vision model.
+         *
+         *     The detector's counts for the photograph's latest analysis are worked out by code; the model looks at the preview
+         *     picture and describes the scene and what is going on. The draft is checked (numbers, forbidden language) before it
+         *     is returned, is never stored, and is marked as machine-written and unreviewed. Each request is recorded in the audit
+         *     log, without its text.
+         */
+        post: operations["write_scene_description_api_v1_assets__asset_id__scene_description_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1641,6 +1730,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/models/custom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Custom Model
+         * @description Add a detection model. The file is opened and test-run in a separate process before it is accepted.
+         */
+        post: operations["upload_custom_model_api_v1_models_custom_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/models/custom/{name}/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Custom Model
+         * @description Remove an uploaded model and its file. Past results keep the model's name, version and checksum.
+         */
+        delete: operations["delete_custom_model_api_v1_models_custom__name___version__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2129,6 +2258,41 @@ export interface components {
             configured: boolean;
             /** Detail */
             detail: string;
+        };
+        /**
+         * CameraViewOut
+         * @description Which way the camera faced and how wide its view was, as the photograph's file states it. Read, never stored.
+         */
+        CameraViewOut: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Heading Deg
+             * @description Direction the camera faced, in degrees clockwise from north, as the file records it (EXIF GPS image direction). Unverified: a phone compass can be off by tens of degrees.
+             */
+            heading_deg: number | null;
+            /**
+             * Heading Reference
+             * @description Which north the direction is measured from, as the file says. None when there is no direction.
+             */
+            heading_reference: ("true_north" | "magnetic_north" | "not_stated") | null;
+            /**
+             * Focal Length 35Mm Mm
+             * @description The lens's 35 mm equivalent focal length, from which the width of view can be estimated.
+             */
+            focal_length_35mm_mm: number | null;
+            /**
+             * Focal Length Mm
+             * @description The lens's actual focal length, for reference only.
+             */
+            focal_length_mm: number | null;
+            /** Problems */
+            problems: components["schemas"]["PhotoLocationProblem"][];
+            /** Note */
+            note: string;
         };
         /**
          * CdseS3StatusOut
@@ -4080,6 +4244,19 @@ export interface components {
             /** Observation Ids */
             observation_ids: string[];
         };
+        /** LlmStatus */
+        LlmStatus: {
+            /** Enabled */
+            enabled: boolean;
+            /** Reachable */
+            reachable: boolean;
+            /** Model */
+            model: string;
+            /** Model Installed */
+            model_installed: boolean;
+            /** Note */
+            note: string;
+        };
         /**
          * MapSheetAssessmentOut
          * @description The metadata assessment of a map sheet. Reports what the file states, what it does not, and what is needed.
@@ -4489,6 +4666,16 @@ export interface components {
             available: boolean;
             /** Reason Unavailable */
             reason_unavailable: string | null;
+            /**
+             * Custom
+             * @description Uploaded through the application rather than listed in the manifest
+             * @default false
+             */
+            custom: boolean;
+            /** Original Filename */
+            original_filename?: string | null;
+            /** Added At */
+            added_at?: string | null;
         };
         /** ModelRef */
         ModelRef: {
@@ -5812,6 +5999,44 @@ export interface components {
             /** Annotations Deleted */
             annotations_deleted: number | null;
         };
+        /**
+         * ReportSummaryDraft
+         * @description A draft written by a model. Never stored; never a finding.
+         */
+        ReportSummaryDraft: {
+            /**
+             * Machine Written
+             * @default true
+             */
+            machine_written: boolean;
+            /**
+             * Disclaimer
+             * @default Written by a language model on this computer from the stored data in this report. It is a draft: no person has reviewed it, it can contain mistakes, and it is not a finding. Check it against the report sections.
+             */
+            disclaimer: string;
+            /** Model */
+            model: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Attempts */
+            attempts: number;
+            /** Overview */
+            overview: string;
+            /** Photos */
+            photos: components["schemas"]["SummaryPhoto"][];
+            /** Notes */
+            notes: string[];
+            /**
+             * Facts Used
+             * @description The exact facts the model was given, so the draft can be checked.
+             */
+            facts_used: {
+                [key: string]: unknown;
+            };
+        };
         /** Review */
         Review: {
             status: components["schemas"]["ReviewStatus"];
@@ -5940,6 +6165,60 @@ export interface components {
              * Format: date-time
              */
             finished_at: string;
+        };
+        /**
+         * SceneDescriptionDraft
+         * @description A draft written by a model from one photograph. Never stored; never a finding.
+         */
+        SceneDescriptionDraft: {
+            /**
+             * Machine Written
+             * @default true
+             */
+            machine_written: boolean;
+            /**
+             * Disclaimer
+             * @default Written by a vision-language model on this computer from the photograph and the detector's counts. It is a draft: no person has reviewed it, it can be wrong, and it is not a finding.
+             */
+            disclaimer: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Model */
+            model: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Attempts */
+            attempts: number;
+            /**
+             * Scene
+             * @description What kind of place the photograph shows.
+             */
+            scene: string;
+            /**
+             * Activity
+             * @description What is going on in the picture.
+             */
+            activity: string;
+            /** Details */
+            details: string[];
+            /**
+             * Detector Check
+             * @description Whether the detector's counts look consistent with the picture.
+             */
+            detector_check: string;
+            /**
+             * Facts Used
+             * @description The exact facts the model was given, so the draft can be checked.
+             */
+            facts_used: {
+                [key: string]: unknown;
+            };
         };
         /** SceneOut */
         SceneOut: {
@@ -6335,6 +6614,13 @@ export interface components {
         SidecarValidation: {
             review: components["schemas"]["SidecarReviewOut"];
             validation: components["schemas"]["GeoreferenceValidation"] | null;
+        };
+        /** SummaryPhoto */
+        SummaryPhoto: {
+            /** Filename */
+            filename: string;
+            /** Text */
+            text: string;
         };
         /** TerrainBandOut */
         TerrainBandOut: {
@@ -14631,6 +14917,136 @@ export interface operations {
             };
         };
     };
+    get_camera_view_api_v1_assets__asset_id__camera_view_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CameraViewOut"];
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
     list_photo_locations_api_v1_projects__project_id__photo_locations_get: {
         parameters: {
             query?: never;
@@ -15882,6 +16298,616 @@ export interface operations {
             };
             /** @description Error */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    report_summary_status_api_v1_report_summary_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LlmStatus"];
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    write_report_summary_api_v1_projects__project_id__report_summary_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSummaryDraft"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    write_scene_description_api_v1_assets__asset_id__scene_description_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SceneDescriptionDraft"];
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            504: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20597,6 +21623,543 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["IndexRunOut"];
                 };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    upload_custom_model_api_v1_models_custom_post: {
+        parameters: {
+            query: {
+                /** @description Original file name */
+                filename: string;
+                /** @description Short name: lower-case letters, digits, '_', '-' or '.' */
+                name: string;
+                version?: string;
+                /** @description auto: .onnx is ONNX, .pt is Ultralytics YOLO, .pth is torchvision */
+                format?: "auto" | "onnx" | "ultralytics" | "torchvision";
+                /** @description Class names in the model's order, one per line or comma-separated */
+                classes?: string | null;
+                /** @description Detections scoring under this are not stored */
+                min_score?: number | null;
+                /** @description torchvision only. Omit to detect it from the weights (the two MobileNet ones look alike) */
+                architecture?: ("fasterrcnn_resnet50_fpn_v2" | "fasterrcnn_resnet50_fpn" | "fasterrcnn_mobilenet_v3_large_fpn" | "fasterrcnn_mobilenet_v3_large_320_fpn") | null;
+                licence?: string | null;
+                /** @description Required for a YOLO .pt file: the uploader trusts its source, because it can run code */
+                trust_code?: boolean;
+            };
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The raw bytes of the model file (.onnx, .pt or .pth). Not multipart. */
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelOut"];
+                };
+            };
+            /** @description Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+            /** @description Error */
+            507: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": {
+                        /**
+                         * Type
+                         * @default about:blank
+                         */
+                        type: string;
+                        /** Title */
+                        title: string;
+                        /** Status */
+                        status: number;
+                        /** Detail */
+                        detail?: string | null;
+                        /** Code */
+                        code: string;
+                        /** Request Id */
+                        request_id?: string | null;
+                        /**
+                         * Errors
+                         * @default []
+                         */
+                        errors: {
+                            [key: string]: string;
+                        }[];
+                        /** Context */
+                        context?: {
+                            [key: string]: unknown;
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    delete_custom_model_api_v1_models_custom__name___version__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description ID of the active local profile. Audit attribution only; not authentication. */
+                "x-workspace-profile"?: string | null;
+            };
+            path: {
+                name: string;
+                version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             401: {

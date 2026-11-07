@@ -8,6 +8,25 @@ The viewer draws **elevation rasters** that are already in a project. It is a vi
 never generates, fills in or guesses a surface. It does not reconstruct 3D from photographs (see
 [photogrammetry-feasibility.md](photogrammetry-feasibility.md)).
 
+## 0. Two views on the 3D Terrain screen
+
+The screen has two tabs:
+
+- **Online 3D (Mapbox)** – the project's location in 3D from Mapbox: satellite imagery draped on Mapbox's terrain model,
+  buildings raised where Mapbox has a height for them, hill shading (on by default) and height lines (contours, off by
+  default) from Mapbox's terrain, sky and haze at the horizon, the project's located photographs as markers,
+  tilt/rotate, a height exaggeration slider (1×–5×, default 1.5×), labels, top-down, reset and full screen. It starts on
+  the project's area of interest, else the confirmed photograph positions (street-level, zoom 15), else the extent of
+  the placed rasters; with none of these the person chooses a place (place search; a chosen place opens further back,
+  zoom 12.5, so the hills around it are seen from above). It is **online** (the view goes to Mapbox), needs the Mapbox
+  public token, and everything in it – imagery, terrain heights, building heights (which may be Mapbox's estimates) – is
+  Mapbox's, not measured by this app. The ground-height readout under the pointer, and the lowest–highest ground within
+  about 2 km of the centre, are from Mapbox's terrain model and approximate; when that range is under 30 m the view says
+  the area is nearly flat (so little relief can be seen, e.g. Bhubaneswar). Nothing is saved.
+  It opens by default when a token is set and the project has no usable elevation raster.
+- **Your elevation files** – the local viewer described below, unchanged. It draws only the project's own elevation
+  rasters and contacts nothing.
+
 ## 1. What is supported
 
 | Input | Supported | Notes |

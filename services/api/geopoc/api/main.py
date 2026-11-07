@@ -13,6 +13,7 @@ from geopoc.api.routers import (
     assets,
     control_points,
     crs,
+    custom_models,
     earth_engine,
     georeferencing,
     health,
@@ -107,6 +108,7 @@ def create_app() -> FastAPI:
     app.include_router(imagery.router)
     app.include_router(imagery_s3.router)
     app.include_router(indices.router)
+    app.include_router(custom_models.router)
     return app
 
 

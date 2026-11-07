@@ -101,6 +101,40 @@ export async function getHealth(): Promise<Health> {
 
 export const getModelHealth = () => unwrap(client.GET("/health/models"));
 
+export type CustomModelFormat = "auto" | "onnx" | "ultralytics" | "torchvision";
+export interface CustomModelUpload {
+  name: string;
+  version: string;
+  format: CustomModelFormat;
+  classes?: string;
+  minScore?: number;
+  architecture?: string;
+  licence?: string;
+  trustCode?: boolean;
+}
+
+/** Uploads a detection model. The server opens and test-runs it before accepting it, which can take a minute. */
+export function uploadCustomModel(
+  file: File,
+  options: CustomModelUpload,
+  onProgress?: (fraction: number) => void,
+): Promise<ModelInfo> {
+  const query = new URLSearchParams({ filename: file.name, name: options.name, version: options.version, format: options.format });
+  if (options.classes?.trim()) query.set("classes", options.classes.trim());
+  if (options.minScore !== undefined) query.set("min_score", String(options.minScore));
+  if (options.architecture) query.set("architecture", options.architecture);
+  if (options.licence?.trim()) query.set("licence", options.licence.trim());
+  if (options.trustCode) query.set("trust_code", "true");
+  return uploadBinary<ModelInfo>(`/api/v1/models/custom?${query.toString()}`, file, onProgress);
+}
+
+export const deleteCustomModel = (name: string, version: string) =>
+  unwrap(
+    client
+      .DELETE("/api/v1/models/custom/{name}/{version}", { params: { path: { name, version } }, parseAs: "text" })
+      .then((result) => ({ ...result, data: result.error === undefined ? true : undefined })),
+  );
+
 export const listProfiles = () => unwrap(client.GET("/api/v1/workspace/profiles"));
 
 export const createProfile = (displayName: string) =>
@@ -545,6 +579,11 @@ export const readPhotoExif = (assetId: string) =>
 export const listPhotoLocations = (projectId: string) =>
   unwrap(client.GET("/api/v1/projects/{project_id}/photo-locations", { params: { path: { project_id: projectId } } }));
 
+/** Which way the camera faced and its lens figures, as the photo file states them. Read on request, never stored. */
+export const getCameraView = (assetId: string) =>
+  unwrap(client.GET("/api/v1/assets/{asset_id}/camera-view", { params: { path: { asset_id: assetId } } }));
+export type CameraView = Awaited<ReturnType<typeof getCameraView>>;
+
 export type PhotoLocation = Awaited<ReturnType<typeof getPhotoLocation>>;
 export type PhotoLocations = Awaited<ReturnType<typeof listPhotoLocations>>;
 export type PhotoLocationItem = PhotoLocations["items"][number];
@@ -708,3 +747,22 @@ export type IndexScene = IndexInputs["scenes"][number];
 export type IndexRun = Schemas["IndexRunOut"];
 export type IndexRunResult = Schemas["IndexRunResult"];
 export type IndexDefinition = Awaited<ReturnType<typeof listIndices>>["indices"][number];
+
+// --- the machine-written DRAFT summary of the findings report (a local Qwen model; nothing is stored) -------------------
+
+export type ReportSummaryDraft = Schemas["ReportSummaryDraft"];
+export type LlmStatus = Schemas["LlmStatus"];
+
+export const getReportSummaryStatus = () => unwrap(client.GET("/api/v1/report-summary/status"));
+
+/** Asks the local model for a draft. Slow (tens of seconds). Recorded in the audit log without its text. */
+export const writeReportSummary = (projectId: string) =>
+  unwrap(client.POST("/api/v1/projects/{project_id}/report/summary", { params: { path: { project_id: projectId } } }));
+
+// --- the machine-written DRAFT description of one photograph (a local Qwen vision model; nothing is stored) -----------
+
+export type SceneDescriptionDraft = Schemas["SceneDescriptionDraft"];
+
+/** Asks the local vision model to describe a photograph. Slow (up to a minute). Audited without its text. */
+export const describeScene = (assetId: string) =>
+  unwrap(client.POST("/api/v1/assets/{asset_id}/scene-description", { params: { path: { asset_id: assetId } } }));

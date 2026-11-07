@@ -21,6 +21,7 @@ export function ImageViewer({
   large = false,
   imageFilter,
   allowFullscreen = false,
+  onPointPick,
 }: {
   src: string;
   alt: string;
@@ -37,6 +38,11 @@ export function ImageViewer({
   imageFilter?: string;
   /** Offer a full-screen button. */
   allowFullscreen?: boolean;
+  /**
+   * Called with the clicked point as fractions of the picture's width and height (0–1, from the top left). While it is set
+   * the picture shows a crosshair, and the overlay does not take clicks.
+   */
+  onPointPick?: (point: { fx: number; fy: number }) => void;
 }) {
   const frame = useRef<HTMLDivElement>(null);
   const shell = useRef<HTMLDivElement>(null);
@@ -134,7 +140,23 @@ export function ImageViewer({
           }
         }}
       >
-        <div className="relative mx-auto" style={{ width: shownWidth, height: shownHeight }}>
+        <div
+          className={`relative mx-auto ${onPointPick ? "cursor-crosshair" : ""}`}
+          style={{ width: shownWidth, height: shownHeight }}
+          data-testid="image-viewer-picture"
+          onClick={
+            onPointPick
+              ? (event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  if (rect.width <= 0 || rect.height <= 0) return;
+                  onPointPick({
+                    fx: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
+                    fy: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)),
+                  });
+                }
+              : undefined
+          }
+        >
           {failed ? (
             <p className="flex h-full items-center justify-center text-[13px] text-fg-muted">The preview picture could not be loaded.</p>
           ) : (
@@ -147,7 +169,7 @@ export function ImageViewer({
               style={imageFilter ? { filter: imageFilter } : undefined}
             />
           )}
-          {overlay && !failed ? <div className="absolute inset-0">{typeof overlay === "function" ? overlay(current) : overlay}</div> : null}
+          {overlay && !failed ? <div className={`absolute inset-0 ${onPointPick ? "pointer-events-none" : ""}`}>{typeof overlay === "function" ? overlay(current) : overlay}</div> : null}
         </div>
       </div>
       {caption ? <div className="border-t border-line px-3 py-2 text-xs text-fg-subtle">{caption}</div> : null}

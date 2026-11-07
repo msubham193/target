@@ -419,11 +419,38 @@ describe("SettingsPage", () => {
           weights_size_bytes: null,
           available: true,
           reason_unavailable: null,
+          custom: false,
+        },
+        {
+          name: "my-detector",
+          version: "v1",
+          pipeline: "ground_image",
+          task: "object_detection",
+          runtime: "onnx",
+          licence: "Ours",
+          score_semantics: "The uploaded model's own confidence.",
+          score_calibrated: false,
+          settings: { classes: ["tank", "truck", "tent"] },
+          weights_sha256: "ab".repeat(32),
+          weights_size_bytes: 1000,
+          available: true,
+          reason_unavailable: null,
+          custom: true,
+          original_filename: "best.onnx",
+          added_at: "2026-11-07T10:00:00+00:00",
         },
       ],
     } as client.ModelHealth);
     renderSettings("models");
     const list = await screen.findByRole("list", { name: "Models" });
     expect(list).toHaveTextContent("Not calibrated and not evaluated on representative data: no accuracy is claimed");
+    // An uploaded model says so, lists its classes and can be removed; a built-in one cannot.
+    const items = within(list).getAllByRole("listitem");
+    expect(items[1]).toHaveTextContent("Uploaded");
+    expect(items[1]).toHaveTextContent("ONNX · file best.onnx");
+    expect(items[1]).toHaveTextContent("classes: tank, truck, tent");
+    expect(within(items[1]!).getByRole("button", { name: "Remove" })).toBeInTheDocument();
+    expect(within(items[0]!).queryByRole("button", { name: "Remove" })).toBeNull();
+    expect(screen.getByRole("form", { name: "Add your own model" })).toBeInTheDocument();
   });
 });

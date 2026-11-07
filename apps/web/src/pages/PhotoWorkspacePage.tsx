@@ -33,6 +33,9 @@ import { useAssets } from "../lib/queries";
 import { projectCrumbs, useProject } from "./ProjectLayout";
 
 // The map library is large and needs WebGL, so it is loaded only when the map tab is opened.
+/** Zoom at which the map's scale bar reads about 20 m (at the latitudes this is used). */
+const PHOTO_MAP_ZOOM = 18;
+
 const MapCanvas = lazy(() => import("../components/MapCanvas").then((module) => ({ default: module.MapCanvas })));
 
 type TabId = "inspect" | "location" | "findings" | "map" | "compare";
@@ -267,88 +270,166 @@ function MapTab({
       ),
     [locations],
   );
+  // The map opens on the selected photograph (or the first located one) at about a 20 m scale. "Show all photos" fits them all.
+  const [showAll, setShowAll] = useState<object | null>(null);
+  const centre = markers.find((m) => m.id === focus) ?? markers[0] ?? null;
+  // With nothing chosen yet, the photograph the map is centred on is the one described.
+  const activeId = focus ?? centre?.id ?? null;
+  const goTo = useMemo(
+    () => (centre ? { lon: centre.lon, lat: centre.lat, zoom: PHOTO_MAP_ZOOM, instant: true } : null),
+    [centre?.id, centre?.lon, centre?.lat], // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const fitTo = useMemo<[number, number, number, number] | null>(() => {
-    if (markers.length === 0) return null;
+    if (markers.length === 0 || showAll === null) return null;
     const lons = markers.map((m) => m.lon);
     const lats = markers.map((m) => m.lat);
     const pad = 0.002;
     return [Math.min(...lons) - pad, Math.min(...lats) - pad, Math.max(...lons) + pad, Math.max(...lats) + pad];
-  }, [markers]);
-  const here = locations.find((item) => item.asset_id === focus);
-  const views = useAssetObservations(projectId, focus);
+  }, [markers, showAll]);
+  const here = locations.find((item) => item.asset_id === activeId);
+  const views = useAssetObservations(projectId, activeId);
   const run = views.data ? latestRun(views.data) : null;
   const names = new Map(photos.map((p) => [p.id, p.original_filename]));
 
+  const stateOf = new Map(locations.map((item) => [item.asset_id, item.state]));
+  const [listOpen, setListOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 768);
+  const hereAsset = photos.find((p) => p.id === activeId) ?? null;
+  // Glass panels laid over the map. The bottom strip is left clear so the basemap's logo, scale and attribution stay visible.
+  const glass = "pointer-events-auto rounded-xl border border-line/70 bg-surface/80 shadow-panel backdrop-blur-md";
+
+  if (markers.length === 0) {
+    return (
+      <Notice tone="info" title="No photograph has a confirmed location yet">
+        A GPS position read from a file is not drawn until a person confirms it in the Location step.
+      </Notice>
+    );
+  }
+
   return (
-    <div className="space-y-3">
-      {markers.length === 0 ? (
-        <Notice tone="info" title="No photograph has a confirmed location yet">
-          A GPS position read from a file is not drawn until a person confirms it in the Location step.
-        </Notice>
-      ) : (
-        <Suspense fallback={<Loading label="Loading the map…" />}>
-          <MapCanvas
-            basemap={readMapboxToken().ok ? "mapbox" : "offline"}
-            rasters={[]}
-            aoi={null}
-            showAoi={false}
-            showFootprints={false}
-            selectedRasterId={null}
-            fitTo={fitTo}
-            photos={markers}
-            showPhotos
-            selectedPhotoId={focus}
-            onPhotoSelect={(id) => {
-              setChoice(null);
-              onFocus(id);
-            }}
-            onPhotoChoice={(ids) => setChoice(ids)}
-            className="h-96 w-full"
-          />
-        </Suspense>
-      )}
-      {choice ? (
-        <Notice tone="info" title="Several photographs are close together here. Which one?">
-          <ul className="mt-1 flex flex-wrap gap-2">
-            {choice.map((id) => (
-              <li key={id}>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setChoice(null);
-                    onFocus(id);
-                  }}
-                >
-                  {names.get(id) ?? id}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </Notice>
-      ) : null}
-      <Panel title={here ? here.filename : "Selected photograph"} description="Marker and findings of the photograph chosen in the list or on the map">
-        {!here ? (
-          <p className="text-[13px] text-fg-muted">Choose a photograph.</p>
-        ) : here.state === "confirmed" ? (
-          <div className="space-y-1 text-[13px]" data-testid="marker-summary">
-            <p>
-              The marker is where this photograph is recorded as taken or placed
-              {here.confirmed_by ? `, confirmed by ${here.confirmed_by}` : ""}. It is not the position of anything shown in it.
-            </p>
-            <p className="text-fg-muted">
-              {run ? `${run.views.length} finding(s) in this photograph (image regions only).` : views.isLoading ? "Loading findings…" : "Not analysed: no findings stored."}
-            </p>
+    <div className="relative">
+      <Suspense fallback={<Loading label="Loading the map…" />}>
+        <MapCanvas
+          basemap={readMapboxToken().ok ? "mapbox" : "offline"}
+          rasters={[]}
+          aoi={null}
+          showAoi={false}
+          showFootprints={false}
+          selectedRasterId={null}
+          fitTo={fitTo}
+          goTo={goTo}
+          start={goTo ? { lon: goTo.lon, lat: goTo.lat, zoom: goTo.zoom } : null}
+          photos={markers}
+          showPhotos
+          selectedPhotoId={focus}
+          onPhotoSelect={(id) => {
+            setChoice(null);
+            onFocus(id);
+          }}
+          onPhotoChoice={(ids) => setChoice(ids)}
+          className="h-[min(calc(100vh-17rem),54rem)] min-h-[30rem] w-full rounded-xl"
+        />
+      </Suspense>
+
+      {/* the photographs, over the left of the map */}
+      <div className="pointer-events-none absolute top-3 bottom-14 left-3 flex w-64 max-w-[calc(100%-1.5rem)] flex-col gap-2">
+        <section className={`${glass} flex min-h-0 flex-col`} aria-label="Photographs on the map">
+          <button
+            type="button"
+            onClick={() => setListOpen((open) => !open)}
+            aria-expanded={listOpen}
+            className="flex items-center justify-between gap-2 px-3 py-2 text-left text-[13px] font-semibold text-fg"
+          >
+            <span>Photographs ({photos.length})</span>
+            <span className="text-xs font-normal text-fg-subtle">{listOpen ? "Hide" : "Show"}</span>
+          </button>
+          {listOpen ? (
+            <ul className="min-h-0 divide-y divide-line/60 overflow-y-auto border-t border-line/60" aria-label="Photographs shown over the map">
+              {photos.map((photo) => {
+                const state = stateOf.get(photo.id) ?? "none";
+                const placed = state === "confirmed";
+                return (
+                  <li key={photo.id}>
+                    <button
+                      type="button"
+                      onClick={() => onFocus(photo.id)}
+                      aria-pressed={activeId === photo.id}
+                      className={`flex w-full items-center gap-2 px-2.5 py-2 text-left transition-colors hover:bg-overlay/70 ${activeId === photo.id ? "bg-accent-soft" : ""}`}
+                    >
+                      <AssetThumb asset={photo} className="h-9 w-12" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs text-fg">{photo.original_filename}</span>
+                        <span className={`block text-[11px] ${placed ? "text-ok" : "text-fg-subtle"}`}>{LOCATION_BADGE[state].label}</span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+        {markers.length > 1 ? (
+          <Button size="sm" variant="secondary" className="pointer-events-auto self-start bg-surface/80 backdrop-blur-md" onClick={() => setShowAll({})}>
+            Show all photos
+          </Button>
+        ) : null}
+      </div>
+
+      {/* the selected photograph, along the bottom */}
+      <div className="pointer-events-none absolute right-3 bottom-14 left-3 flex flex-col items-end gap-2 sm:left-72">
+        {choice ? (
+          <div className={`${glass} w-full max-w-xl p-3 text-[13px]`} role="status">
+            <p className="font-medium text-fg">Several photographs are close together here. Which one?</p>
+            <ul className="mt-1.5 flex flex-wrap gap-2">
+              {choice.map((id) => (
+                <li key={id}>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setChoice(null);
+                      onFocus(id);
+                    }}
+                  >
+                    {names.get(id) ?? id}
+                  </Button>
+                </li>
+              ))}
+            </ul>
           </div>
-        ) : (
-          <p className="text-[13px] text-fg-muted" data-testid="marker-summary">
-            {here.state === "candidate"
-              ? "This photograph has a GPS position in its file that nobody has confirmed, so it has no marker."
-              : "This photograph has no recorded location, so it has no marker."}{" "}
-            Use the Location step.
-          </p>
-        )}
-      </Panel>
+        ) : null}
+        <section className={`${glass} flex w-full max-w-xl items-center gap-3 p-2.5 sm:p-3`} aria-label="Selected photograph">
+          {hereAsset ? <AssetThumb asset={hereAsset} className="h-12 w-16 sm:h-14 sm:w-20" /> : null}
+          <div className="min-w-0 flex-1 text-[13px]">
+            <p className="truncate font-semibold text-fg">{here ? here.filename : "Selected photograph"}</p>
+            {!here ? (
+              <p className="text-fg-muted">Choose a photograph in the list or on the map.</p>
+            ) : here.state === "confirmed" ? (
+              <div className="space-y-0.5" data-testid="marker-summary">
+                <p className="text-fg-muted max-sm:hidden">
+                  The marker is where this photograph is recorded as taken or placed
+                  {here.confirmed_by ? `, confirmed by ${here.confirmed_by}` : ""}. It is not the position of anything shown in it.
+                </p>
+                <p className="text-xs text-fg-muted sm:hidden">Where the camera was, as confirmed by a person.</p>
+                <p className="text-fg-muted">
+                  {run ? `${run.views.length} finding(s) in this photograph (image regions only).` : views.isLoading ? "Loading findings…" : "Not analysed: no findings stored."}
+                </p>
+              </div>
+            ) : (
+              <p className="text-fg-muted" data-testid="marker-summary">
+                {here.state === "candidate"
+                  ? "This photograph has a GPS position in its file that nobody has confirmed, so it has no marker."
+                  : "This photograph has no recorded location, so it has no marker."}{" "}
+                Use the Location step.
+              </p>
+            )}
+          </div>
+          {here ? (
+            <LinkButton size="sm" variant="secondary" to={`/projects/${projectId}/assets/${here.asset_id}/ground`}>
+              Photo Analysis
+            </LinkButton>
+          ) : null}
+        </section>
+      </div>
     </div>
   );
 }
@@ -429,16 +510,18 @@ export function PhotoWorkspacePage() {
       {locations.isError ? <ErrorNotice error={locations.error} title="Photograph locations could not be loaded" /> : null}
 
       {photos.data ? (
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
-          <PhotoPicker
-            projectId={project.id}
-            photos={items}
-            locations={byAsset}
-            focus={focus}
-            selected={selected}
-            onFocus={setFocus}
-            onToggle={toggle}
-          />
+        <div className={tab === "map" ? "space-y-3" : "grid grid-cols-1 items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]"}>
+          {tab === "map" ? null : (
+            <PhotoPicker
+              projectId={project.id}
+              photos={items}
+              locations={byAsset}
+              focus={focus}
+              selected={selected}
+              onFocus={setFocus}
+              onToggle={toggle}
+            />
+          )}
           <div className="min-w-0 space-y-3">
             <Tabs tabs={tabs} value={tab} onChange={setTab} label="Workspace steps" />
             {tab === "compare" ? (

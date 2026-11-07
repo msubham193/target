@@ -384,15 +384,16 @@ describe("FindingsReportPage", () => {
   it("draws an evidence thumbnail only for an asset that has one", async () => {
     vi.mocked(client.getFindingsReport).mockResolvedValue(report());
     const { unmount } = inProject(<FindingsReportPage />, "reports/findings");
-    const images = await screen.findAllByAltText("Thumbnail of street.jpg");
-    expect(images[0]).toHaveAttribute("src", "/api/v1/assets/a1/preview?variant=thumb");
+    const images = await screen.findAllByAltText("Evidence: coco:car in street.jpg");
+    // the zoomed picture is read from the original file, so the object can be seen; the viewer's preview is only a fallback
+    expect(images[0]).toHaveAttribute("src", "/api/v1/assets/a1/content");
     unmount();
     const without = report();
     first(without.assets).thumbnail_available = false;
     vi.mocked(client.getFindingsReport).mockResolvedValue(without);
     inProject(<FindingsReportPage />, "reports/findings");
     await screen.findByRole("heading", { level: 1, name: "Survey" });
-    expect(screen.queryByAltText("Thumbnail of street.jpg")).not.toBeInTheDocument();
+    expect(screen.queryByAltText("Evidence: coco:car in street.jpg")).not.toBeInTheDocument();
   });
 
   it("labels missing provenance, score, region and model as unavailable instead of filling them in", async () => {
@@ -736,5 +737,83 @@ describe("ReportsPage entry point", () => {
     expect(link).toHaveAttribute("href", "/projects/p1/reports/findings");
     expect(screen.queryByRole("button", { name: /pdf/i })).not.toBeInTheDocument();
     expect(screen.getByText("PDF report")).toBeInTheDocument();
+  });
+});
+
+describe("a long report stays short", () => {
+  const many = (n: number) =>
+    Array.from({ length: n }, (_, i) => finding(`m${i}`, "needs_review", { current_category: i % 3 === 0 ? "coco:person" : "coco:car", score_value: 0.4 + (i % 50) / 100 }));
+  const longReport = () => {
+    const note = revision(1, "Seen on site");
+    return report({
+      observations: [
+        finding("rev1", "rejected", { revision: 1, reviewer_notes: [note], revisions: [note] }),
+        finding("conf1", "disputed", { open_conflict_ids: ["c1"] }),
+        ...many(60),
+      ],
+    });
+  };
+
+  it("starts as a summary: only the findings that need attention, one by one, and no grouped table", async () => {
+    vi.mocked(client.getFindingsReport).mockResolvedValue(longReport());
+    inProject(<FindingsReportPage />, "reports/findings");
+    await screen.findByTestId("summary-note");
+    expect(screen.queryByRole("table", { name: "Findings grouped by source, class and review state" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Findings by source, class and review state")).not.toBeInTheDocument();
+    // only the two that need a person are listed individually, with the reason; the other 60 are not cards
+    expect(screen.queryAllByTestId("finding")).toHaveLength(0);
+    const rows = screen.getAllByTestId("finding-row");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("reviewed: Rejected");
+    expect(rows[0]).toHaveTextContent("Seen on site");
+    expect(rows[1]).toHaveTextContent("in an open conflict");
+    expect(screen.getByTestId("summary-note")).toHaveTextContent("2 of the 62 findings need a person's attention");
+    expect(screen.getByTestId("summary-note")).toHaveTextContent("The other 60 are unreviewed proposals");
+  });
+
+  it("keeps a zoomed picture, with its own box, for each finding that is listed", async () => {
+    vi.mocked(client.getFindingsReport).mockResolvedValue(longReport());
+    inProject(<FindingsReportPage />, "reports/findings");
+    await screen.findByTestId("summary-note");
+    const listed = screen.getByRole("table", { name: "Findings listed one by one" });
+    // each listed finding has a zoomed picture of its own object, with its box and a small whole-image inset
+    expect(within(listed).getAllByAltText(/Evidence: coco:car in street.jpg/)).toHaveLength(2);
+    for (const row of within(listed).getAllByTestId("finding-row")) {
+      expect(row.querySelector("img")).toHaveAttribute("src", "/api/v1/assets/a1/content");
+      expect(row.querySelectorAll("svg rect").length).toBeGreaterThanOrEqual(2);
+      expect(within(row).getByRole("link", { name: "Open the photograph" })).toHaveAttribute("href", "/projects/p1/assets/a1/ground");
+    }
+  });
+
+  it("can show every finding in full, and go back to the summary", async () => {
+    vi.mocked(client.getFindingsReport).mockResolvedValue(longReport());
+    inProject(<FindingsReportPage />, "reports/findings");
+    await screen.findByTestId("summary-note");
+    await userEvent.click(screen.getByRole("button", { name: "Every finding in full" }));
+    expect(screen.getAllByTestId("finding")).toHaveLength(62);
+    expect(screen.queryByTestId("summary-note")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Summary" }));
+    expect(screen.queryAllByTestId("finding")).toHaveLength(0);
+  });
+
+  it("keeps a short report exactly as it was: every finding in full, and no switch", async () => {
+    vi.mocked(client.getFindingsReport).mockResolvedValue(report());
+    inProject(<FindingsReportPage />, "reports/findings");
+    await screen.findByText("Reviewed findings (1)");
+    expect(screen.getAllByTestId("finding")).toHaveLength(2);
+    expect(screen.queryByRole("group", { name: "Level of detail" })).not.toBeInTheDocument();
+  });
+
+  it("prints a long definition once under the methods table, not in every run", async () => {
+    const definition = "Box coordinates are in the pixel grid of the extracted frame image, scaled back from the reduced image the model saw.";
+    const base = report();
+    const runs = [0, 1, 2].map((i) => ({ ...base.runs[0]!, run_id: `run-${i}`, settings: { min_score: 0.5, coordinates: definition } }));
+    vi.mocked(client.getFindingsReport).mockResolvedValue({ ...base, runs });
+    inProject(<FindingsReportPage />, "reports/findings");
+    const defs = await screen.findByTestId("run-definitions");
+    expect(within(defs).getAllByText(definition)).toHaveLength(1);
+    expect(screen.getAllByText(definition)).toHaveLength(1); // not repeated beside each of the three runs
+    expect(screen.getAllByLabelText("Settings of this run")).toHaveLength(3);
+    expect(screen.getAllByText(/min score:/)).toHaveLength(3);
   });
 });

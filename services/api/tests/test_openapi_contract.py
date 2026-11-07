@@ -329,6 +329,26 @@ def test_the_checks_can_fail(lenient):
 NOT_EXERCISED = {
     (
         "POST",
+        "/api/v1/models/custom",
+    ): "opens and test-runs an uploaded model in a child process; covered in test_custom_models.py",
+    (
+        "DELETE",
+        "/api/v1/models/custom/{name}/{version}",
+    ): "needs an uploaded model first; covered in test_custom_models.py",
+    (
+        "POST",
+        "/api/v1/projects/{project_id}/report/summary",
+    ): "calls a local language model; a schema fuzz must not drive it. Covered with a fake model in test_report_summary.py",
+    (
+        "GET",
+        "/api/v1/report-summary/status",
+    ): "asks the local Ollama server; covered with a fake in test_report_summary.py",
+    (
+        "POST",
+        "/api/v1/assets/{asset_id}/scene-description",
+    ): "calls a local vision model; a schema fuzz must not drive it. Covered with a fake model in test_scene_description.py",
+    (
+        "POST",
         "/api/v1/assets/{asset_id}/georeferencing",
     ): "records a version; covered end to end in test_georeferencing.py",
     (
@@ -574,6 +594,8 @@ def test_successful_responses_conform_and_every_operation_is_accounted_for(clien
         json={"action": "confirm_exif", "expected_version": 1, "confirm": True},
     )
     s.call("POST", "/api/v1/assets/{asset_id}/location/read-exif", 200, path={"asset_id": plain["id"]})
+    view = s.call("GET", "/api/v1/assets/{asset_id}/camera-view", 200, path=A).json()
+    assert view["heading_deg"] is None
     listing = s.call("GET", "/api/v1/projects/{project_id}/photo-locations", 200, path=P).json()
     assert listing["confirmed"] == 1
 

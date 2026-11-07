@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { type CoordinateQuery, formatLatLon, parseCoordinateText } from "../lib/coordinates";
 import { type PlaceMatch, readMapboxToken, redactSecrets, searchPlaces } from "../lib/mapbox";
 import { IconSearch } from "./icons";
 import { Button, inputClass, Loading, Notice, PlannedBadge } from "./ui";
@@ -19,7 +20,26 @@ type State =
  * are sent to Mapbox. Suggestions appear as you type; the arrow keys, Enter and Escape work. Without a Mapbox token it says
  * so and stays off.
  */
-export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void }) {
+export function PlaceSearch({
+  onPick,
+  compact = false,
+  coordinates = false,
+  landmarks = false,
+  near = null,
+}: {
+  onPick: (match: PlaceMatch) => void;
+  /** Also search landmarks and points of interest (Mapbox Search Box), not only addresses and places. */
+  landmarks?: boolean;
+  /** Prefer matches near this position. */
+  near?: { lon: number; lat: number } | null;
+  /** Leave out the help line (for use over a map). */
+  compact?: boolean;
+  /**
+   * Also accept a typed position ("20.2961, 85.8245", "20°17'46"N 85°49'28"E"). A position is read on this computer and
+   * never sent to Mapbox, so it works without a token; only place names are looked up online.
+   */
+  coordinates?: boolean;
+}) {
   const token = useMemo(() => readMapboxToken(), []);
   const listId = useId();
   const [text, setText] = useState("");
@@ -30,15 +50,22 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
   // After a result is chosen the box shows its name; that change must not start another search.
   const skipNext = useRef(false);
   const tokenValue = token.ok ? token.token : null;
+  const position: CoordinateQuery = coordinates ? parseCoordinateText(text) : { kind: "text" };
 
   const run = async (query: string) => {
-    if (!tokenValue) return;
+    if (!tokenValue) {
+      setState({
+        kind: "error",
+        message: "Searching by place name needs a Mapbox token. Type coordinates instead, for example 20.2961, 85.8245.",
+      });
+      return;
+    }
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
     setState({ kind: "loading" });
     try {
-      const matches = await searchPlaces(query, tokenValue, controller.signal);
+      const matches = await searchPlaces(query, tokenValue, controller.signal, { landmarks, near });
       if (controller.signal.aborted) return;
       setState({ kind: "done", matches, query });
       setOpen(true);
@@ -51,9 +78,20 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
 
   // Suggest while typing, after a short pause.
   useEffect(() => {
-    if (!tokenValue) return;
     if (skipNext.current) {
       skipNext.current = false;
+      return;
+    }
+    // A typed position is never sent anywhere: it is offered as the only suggestion.
+    if (coordinates && parseCoordinateText(text).kind !== "text") {
+      request.current?.abort();
+      setState({ kind: "idle" });
+      setOpen(true);
+      setActive(0);
+      return;
+    }
+    if (!tokenValue) {
+      setState({ kind: "idle" });
       return;
     }
     const query = text.trim();
@@ -67,11 +105,11 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
     return () => window.clearTimeout(timer);
     // `run` only reads the token, which does not change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, tokenValue]);
+  }, [text, tokenValue, coordinates]);
 
   useEffect(() => () => request.current?.abort(), []);
 
-  if (!tokenValue) {
+  if (!tokenValue && !coordinates) {
     return (
       <div className="flex items-center gap-2">
         <input id="place-search" className={inputClass} disabled placeholder="Unavailable: no Mapbox token" />
@@ -80,8 +118,12 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
     );
   }
 
-  const matches = state.kind === "done" ? state.matches : [];
-  const showList = open && state.kind === "done" && matches.length > 0;
+  const typedPosition: PlaceMatch | null =
+    position.kind === "coordinates"
+      ? { id: "typed-coordinates", label: formatLatLon(position.lat, position.lon), lat: position.lat, lon: position.lon }
+      : null;
+  const matches = typedPosition ? [typedPosition] : state.kind === "done" ? state.matches : [];
+  const showList = open && matches.length > 0 && (typedPosition !== null || state.kind === "done");
 
   const choose = (match: PlaceMatch) => {
     skipNext.current = true;
@@ -102,9 +144,9 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
       setActive((index) => (index <= 0 ? matches.length - 1 : index - 1));
     } else if (event.key === "Enter") {
       event.preventDefault();
-      const picked = showList ? matches[active] : undefined;
+      const picked = typedPosition ?? (showList ? matches[active] : undefined);
       if (picked) choose(picked);
-      else if (text.trim()) void run(text.trim());
+      else if (text.trim() && position.kind === "text") void run(text.trim());
     } else if (event.key === "Escape") {
       setOpen(false);
       setActive(-1);
@@ -126,7 +168,10 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
             autoComplete="off"
             className={`${inputClass} pl-8`}
             value={text}
-            placeholder="Start typing a place, e.g. Bhubaneswar"
+            aria-label={coordinates ? "Place name or coordinates" : undefined}
+            placeholder={
+              coordinates ? "Place name or latitude, longitude (e.g. 20.2961, 85.8245)" : "Start typing a place, e.g. Bhubaneswar"
+            }
             onChange={(event) => setText(event.target.value)}
             onFocus={() => matches.length > 0 && setOpen(true)}
             onKeyDown={onKeyDown}
@@ -154,9 +199,11 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
                   }}
                   onMouseEnter={() => setActive(index)}
                 >
-                  <span className="text-fg">{match.label}</span>
+                  <span className="text-fg">{match.id === "typed-coordinates" ? `Go to ${match.label}` : match.label}</span>
                   <span className="block text-xs text-fg-subtle">
-                    {match.lat.toFixed(5)}, {match.lon.toFixed(5)}
+                    {match.id === "typed-coordinates"
+                      ? "The position you typed (read on this computer, not looked up)"
+                      : `${match.lat.toFixed(5)}, ${match.lon.toFixed(5)}`}
                   </span>
                 </li>
               ))}
@@ -165,13 +212,28 @@ export function PlaceSearch({ onPick }: { onPick: (match: PlaceMatch) => void })
         </div>
         <Button
           variant="secondary"
-          onClick={() => text.trim() && void run(text.trim())}
-          disabled={!text.trim() || state.kind === "loading"}
+          onClick={() => {
+            if (typedPosition) choose(typedPosition);
+            else if (text.trim() && position.kind === "text") void run(text.trim());
+          }}
+          disabled={!text.trim() || state.kind === "loading" || position.kind === "invalid"}
         >
-          Search places
+          {coordinates ? "Go" : "Search places"}
         </Button>
       </div>
-      <p className="text-xs text-fg-subtle">Suggestions appear as you type (at least {MIN_CHARACTERS} letters). Use the arrow keys and Enter, or click one.</p>
+      {position.kind === "invalid" ? (
+        <Notice tone="warning" title="This position cannot be used">
+          <p>{position.message}</p>
+        </Notice>
+      ) : null}
+      {coordinates && !tokenValue && position.kind === "text" && text.trim().length >= MIN_CHARACTERS ? (
+        <p className="text-xs text-fg-subtle">
+          Searching by place name needs a Mapbox token. Coordinates work without one.
+        </p>
+      ) : null}
+      {compact ? null : (
+        <p className="text-xs text-fg-subtle">Suggestions appear as you type (at least {MIN_CHARACTERS} letters). Use the arrow keys and Enter, or click one.</p>
+      )}
       {state.kind === "loading" ? <Loading label="Searching places…" /> : null}
       {state.kind === "error" ? (
         <Notice tone="error" title="The place search did not work">

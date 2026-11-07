@@ -1,14 +1,17 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 
-import { type Crs } from "../api/client";
+import { type Crs, deleteCustomModel, type ModelInfo } from "../api/client";
 import { useHealth, useModelHealth } from "../lib/queries";
 import { CrsPicker } from "../components/CrsPicker";
+import { CustomModelUpload } from "../components/CustomModelUpload";
 import { IconCpu, IconDatabase, IconGlobe, IconSettings, IconSliders } from "../components/icons";
 import {
   Badge,
   Button,
   DescriptionList,
+  Dialog,
   ErrorNotice,
   Loading,
   Notice,
@@ -29,6 +32,58 @@ const SECTIONS = [
 
 const readOnly = <Badge tone="neutral">Read-only</Badge>;
 
+const RUNTIME_LABELS: Record<string, string> = {
+  onnx: "ONNX",
+  ultralytics: "YOLO .pt (Ultralytics)",
+  torchvision: "torchvision Faster R-CNN",
+};
+
+function classSummary(classes: unknown): string {
+  if (!Array.isArray(classes) || classes.length === 0) return "none listed";
+  const shown = classes.slice(0, 12).map(String).join(", ");
+  return classes.length > 12 ? `${shown} and ${classes.length - 12} more` : shown;
+}
+
+function RemoveModel({ model }: { model: ModelInfo }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const remove = useMutation({
+    mutationFn: () => deleteCustomModel(model.name, model.version),
+    onSuccess: () => {
+      setOpen(false);
+      void queryClient.invalidateQueries({ queryKey: ["health-models"] });
+    },
+  });
+  return (
+    <>
+      <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
+        Remove
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={`Remove ${model.name} ${model.version}?`}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>
+              {remove.isPending ? "Removing…" : "Remove model"}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-[13px] text-fg-muted">
+          The model file is deleted and the model is no longer offered for analysis. Findings it has already produced are
+          kept, with the model's name, version and file checksum.
+        </p>
+        {remove.isError ? <ErrorNotice error={remove.error} title="The model was not removed" /> : null}
+      </Dialog>
+    </>
+  );
+}
+
 function Models() {
   const models = useModelHealth();
   if (models.isLoading) return <Loading />;
@@ -41,9 +96,14 @@ function Models() {
         <Notice key={error} tone="warning" title={error} />
       ))}
       <Panel
+        title="Add your own model"
+        description="Upload a trained object-detection model. It is checked by opening it and running it once, then offered in Photo Analysis and Video Analysis like the built-in models. It runs on this computer; nothing is sent anywhere."
+      >
+        <CustomModelUpload />
+      </Panel>
+      <Panel
         title="Analysis models"
-        description="From models/manifest.yaml. Models are added by editing the manifest and installing their weights."
-        actions={readOnly}
+        description="Built-in models come from models/manifest.yaml. Uploaded models can be removed here."
       >
         {data.models.length === 0 ? (
           <p className="text-[13px] text-fg-muted">No analysis models are installed. Analysis is unavailable until one is.</p>
@@ -55,14 +115,26 @@ function Models() {
                   <p className="wrap-anywhere font-medium text-fg">
                     {model.name} {model.version}
                   </p>
-                  {model.available ? <Badge tone="ok">Available</Badge> : <Badge tone="danger">Unavailable</Badge>}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {model.custom ? <Badge tone="neutral">Uploaded</Badge> : null}
+                    {model.available ? <Badge tone="ok">Available</Badge> : <Badge tone="danger">Unavailable</Badge>}
+                    {model.custom ? <RemoveModel model={model} /> : null}
+                  </div>
                 </div>
                 {model.reason_unavailable ? <p className="mt-1 text-danger">{model.reason_unavailable}</p> : null}
                 <div className="mt-2 space-y-1 text-fg-muted">
                   <p>
-                    For: {(MODALITY_NAMES[model.pipeline] ?? model.pipeline).toLowerCase()}s · task:{" "}
-                    {model.task.replaceAll("_", " ")} · runs on this computer
+                    For: {(MODALITY_NAMES[model.pipeline] ?? model.pipeline).toLowerCase()}s and video frames · task:{" "}
+                    {model.task.replaceAll("_", " ")} ·{" "}
+                    {model.runtime.startsWith("roboflow") ? "online: photos are sent to Roboflow" : "runs on this computer"}
                   </p>
+                  {model.custom ? (
+                    <p>
+                      {RUNTIME_LABELS[model.runtime] ?? model.runtime} · file {model.original_filename} · added{" "}
+                      {model.added_at ? new Date(model.added_at).toLocaleString() : "—"} · classes:{" "}
+                      {classSummary(model.settings.classes)}
+                    </p>
+                  ) : null}
                   <p>Score: {model.score_semantics}</p>
                   <p>
                     {model.score_calibrated

@@ -89,9 +89,20 @@ class Settings(BaseSettings):
     roboflow_world_classes: str | None = None
     roboflow_api_url: str = "https://detect.roboflow.com"
     roboflow_timeout_s: float = 30.0
+    # The local language model that writes the DRAFT summary in the findings report (geopoc.report_summary), reached
+    # through Ollama. It must run on this computer: a host that is not a loopback address is refused. Nothing it
+    # writes is stored. GEOPOC_LLM_ENABLED=false switches the feature off.
+    llm_enabled: bool = True
+    llm_host: str = "http://127.0.0.1:11434"
+    llm_model: str = "qwen2.5vl:latest"
+    llm_timeout_s: float = 240.0
     manifest_path: Path = REPO_ROOT / "models" / "manifest.yaml"
     # Folder that the manifest's weight paths are relative to. Defaults to the data root.
     weights_base: Path | None = None
+    # Models uploaded through the application (geopoc.registry.custom_models): largest file accepted, and how long the
+    # check that opens and test-runs a new upload may take before it is refused.
+    custom_model_max_bytes: int = 2 * 1024**3
+    custom_model_check_timeout_s: float = 300.0
 
     # Ingestion limits. These bound what is accepted; they do not promise a file is processable.
     max_ground_image_bytes: int = 50 * 1024**2

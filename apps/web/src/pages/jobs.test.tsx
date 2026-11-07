@@ -109,6 +109,7 @@ function models(available = true, workerRunning = true): client.ModelHealth {
         weights_size_bytes: 10,
         available,
         reason_unavailable: available ? null : "The model weights are not installed on this machine.",
+        custom: false,
       },
     ],
   };

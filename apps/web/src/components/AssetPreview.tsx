@@ -48,12 +48,15 @@ export function AssetPreview({
   toolbar,
   compact = false,
   large = false,
+  onPointPick,
 }: {
   asset: Asset;
   overlay?: ReactNode | ((scale: number) => ReactNode);
   toolbar?: ReactNode;
   compact?: boolean;
   large?: boolean;
+  /** Clicks on the picture, as fractions of its width and height (see `ImageViewer`). */
+  onPointPick?: (point: { fx: number; fy: number }) => void;
 }) {
   const { preview } = asset;
   if (!preview.variants.includes("view")) return <PreviewProblem asset={asset} />;
@@ -81,6 +84,7 @@ export function AssetPreview({
       overlay={overlay}
       toolbar={toolbar}
       large={large}
+      onPointPick={onPointPick}
       caption={
         <>
           {captionFor(asset)}

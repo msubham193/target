@@ -103,15 +103,23 @@ export function PhotoMapPanel({ projectId, item, onClose }: { projectId: string;
               </ul>
               <Notice tone="warning" title="Model predictions, not confirmed findings">
                 Scores are the model's own values, not probabilities. Boxes are positions in the picture only: the findings have no
-                geographic location, only the photograph does.
+                geographic location, only the photograph does. The satellite map can show the direction to each one.
               </Notice>
             </>
           ) : null}
         </div>
 
-        <Link to={`/projects/${projectId}/assets/${item.asset_id}/ground`} className="inline-block text-xs text-accent hover:underline">
-          Open in Photo Analysis (review findings, change the location)
-        </Link>
+        <div className="flex flex-col gap-1">
+          <Link
+            to={`/projects/${projectId}/satellite?view=location&photo=${item.asset_id}`}
+            className="inline-block text-xs text-accent hover:underline"
+          >
+            Show the objects' directions on the satellite map
+          </Link>
+          <Link to={`/projects/${projectId}/assets/${item.asset_id}/ground`} className="inline-block text-xs text-accent hover:underline">
+            Open in Photo Analysis (review findings, change the location)
+          </Link>
+        </div>
       </div>
     </Panel>
   );

@@ -130,12 +130,85 @@ export interface PlaceMatch {
   lat: number;
 }
 
+export interface PlaceSearchOptions {
+  /** Prefer matches near this position (the area being looked at). It is sent to Mapbox with the query. */
+  near?: { lon: number; lat: number } | null;
+  /**
+   * Also ask Mapbox's Search Box service, which knows landmarks and points of interest ("Konark Sun Temple") that the
+   * address geocoder does not. Its matches come first; the geocoder's addresses and places follow.
+   */
+  landmarks?: boolean;
+}
+
+/** Two matches this close together with the same name are the same place, listed once. */
+const SAME_PLACE_DEGREES = 0.002;
+
 /**
  * Looks a place name up with Mapbox's geocoding service (online). The typed text is sent to Mapbox. Returns at most five
- * matches, each with the position Mapbox gives for it; nothing is chosen for the person.
+ * matches (eight with landmarks), each with the position Mapbox gives for it; nothing is chosen for the person.
  */
-export async function searchPlaces(query: string, token: string, signal?: AbortSignal): Promise<PlaceMatch[]> {
-  const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(query)}&limit=5&access_token=${encodeURIComponent(token)}`;
+export async function searchPlaces(
+  query: string,
+  token: string,
+  signal?: AbortSignal,
+  options: PlaceSearchOptions = {},
+): Promise<PlaceMatch[]> {
+  if (!options.landmarks) return geocode(query, token, signal, options.near);
+  const [landmarks, addresses] = await Promise.allSettled([
+    searchBox(query, token, signal, options.near),
+    geocode(query, token, signal, options.near),
+  ]);
+  if (landmarks.status === "rejected" && addresses.status === "rejected") throw addresses.reason;
+  const merged: PlaceMatch[] = [];
+  for (const match of [
+    ...(landmarks.status === "fulfilled" ? landmarks.value : []),
+    ...(addresses.status === "fulfilled" ? addresses.value : []),
+  ]) {
+    const name = match.label.split(",")[0]!.trim().toLowerCase();
+    const repeat = merged.some(
+      (kept) =>
+        kept.label.split(",")[0]!.trim().toLowerCase() === name &&
+        Math.abs(kept.lat - match.lat) < SAME_PLACE_DEGREES &&
+        Math.abs(kept.lon - match.lon) < SAME_PLACE_DEGREES,
+    );
+    if (!repeat) merged.push(match);
+  }
+  return merged.slice(0, 8);
+}
+
+function proximity(near: PlaceSearchOptions["near"]): string {
+  return near ? `&proximity=${near.lon.toFixed(4)},${near.lat.toFixed(4)}` : "";
+}
+
+/** Mapbox's Search Box service (text search): landmarks, points of interest and places. */
+async function searchBox(query: string, token: string, signal: AbortSignal | undefined, near: PlaceSearchOptions["near"]) {
+  const url = `https://api.mapbox.com/search/searchbox/v1/forward?q=${encodeURIComponent(query)}&limit=5${proximity(near)}&access_token=${encodeURIComponent(token)}`;
+  const response = await fetch(url, { signal });
+  if (response.status === 401 || response.status === 403) {
+    throw new Error("Mapbox did not accept the access token, so places cannot be searched.");
+  }
+  if (!response.ok) throw new Error(`The landmark search failed (HTTP ${response.status}).`);
+  const body = (await response.json()) as {
+    features?: {
+      geometry?: { coordinates?: [number, number] };
+      properties?: { mapbox_id?: string; name?: string; full_address?: string; place_formatted?: string };
+    }[];
+  };
+  const matches: PlaceMatch[] = [];
+  for (const [index, feature] of (body.features ?? []).entries()) {
+    const [lon, lat] = feature.geometry?.coordinates ?? [];
+    if (typeof lon !== "number" || typeof lat !== "number") continue;
+    const name = feature.properties?.name ?? "";
+    const where = feature.properties?.full_address || feature.properties?.place_formatted || "";
+    const label = name && where && !where.startsWith(name) ? `${name}, ${where}` : name || where;
+    if (!label) continue;
+    matches.push({ id: `sb-${feature.properties?.mapbox_id ?? index}`, label, lon, lat });
+  }
+  return matches;
+}
+
+async function geocode(query: string, token: string, signal: AbortSignal | undefined, near: PlaceSearchOptions["near"]) {
+  const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(query)}&limit=5${proximity(near)}&access_token=${encodeURIComponent(token)}`;
   const response = await fetch(url, { signal });
   if (response.status === 401 || response.status === 403) {
     throw new Error("Mapbox did not accept the access token, so places cannot be searched.");

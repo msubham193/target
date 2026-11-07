@@ -46,4 +46,12 @@ def load_adapter(entry: ModelEntry) -> DetectorAdapter:
         from geopoc.pipelines.adapters.roboflow import RoboflowWorldDetector
 
         return RoboflowWorldDetector()
+    if entry.runtime == "onnx":
+        from geopoc.pipelines.adapters.onnx_detection import OnnxDetector
+
+        return OnnxDetector()
+    if entry.runtime == "ultralytics":
+        from geopoc.pipelines.adapters.ultralytics_detection import UltralyticsDetector
+
+        return UltralyticsDetector()
     raise ValueError(f"no adapter for runtime {entry.runtime!r}")

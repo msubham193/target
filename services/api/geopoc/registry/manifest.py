@@ -13,7 +13,7 @@ import yaml
 
 from geopoc.config import get_settings
 
-RUNTIMES = {"torchvision", "stub", "roboflow", "roboflow_world"}
+RUNTIMES = {"torchvision", "stub", "roboflow", "roboflow_world", "onnx", "ultralytics"}
 # Runtimes that send the photo to a third party. Only these may be declared `locality: remote`; every other model must
 # run on this machine. They stay unavailable until the account owner switches online mode on (GEOPOC_ONLINE_ENABLED).
 REMOTE_RUNTIMES = {"roboflow", "roboflow_world"}
@@ -37,14 +37,21 @@ class ModelEntry:
     weights_source_url: str | None = None
     card: str | None = None
     locality: str = "local"  # "remote" means the photo is sent to a third party
+    custom: bool = False  # uploaded through the application (geopoc.registry.custom_models), not in the manifest
+    original_filename: str | None = None
+    added_at: str | None = None
 
     @property
     def key(self) -> str:
         return f"{self.name}@{self.version}"
 
     def weights_file(self) -> Path | None:
+        if not self.weights_path:
+            return None
+        if self.custom:  # an uploaded model's path is absolute
+            return Path(self.weights_path)
         settings = get_settings()
-        return (settings.weights_base or settings.data_root) / self.weights_path if self.weights_path else None
+        return (settings.weights_base or settings.data_root) / self.weights_path
 
 
 @dataclass
@@ -118,7 +125,45 @@ def load_manifest() -> Manifest:
             errors.append(parsed)
         else:
             models.append(parsed)
-    return Manifest(True, models, errors)
+    custom, custom_errors = custom_entries()
+    taken = {(m.name, m.version) for m in models}
+    for entry in custom:
+        if (entry.name, entry.version) in taken:
+            errors.append(f"Uploaded model {entry.key} has the same name as a manifest model and was ignored.")
+        else:
+            models.append(entry)
+    return Manifest(True, models, errors + custom_errors)
+
+
+def custom_entries() -> tuple[list[ModelEntry], list[str]]:
+    """Models uploaded through the application, as manifest entries. Always local; never remote."""
+    from geopoc.registry import custom_models
+
+    uploaded, errors = custom_models.list_models()
+    entries = []
+    for model in uploaded:
+        entries.append(
+            ModelEntry(
+                name=model.name,
+                version=model.version,
+                pipeline="ground_image",
+                task="object_detection",
+                runtime=model.runtime,
+                licence=model.licence,
+                score_semantics=custom_models.SCORE_SEMANTICS,
+                score_calibrated=False,
+                score_range=(0.0, 1.0),
+                settings={**model.settings, "classes": model.classes, "taxonomy": f"custom_{model.name}"},
+                weights_path=str(model.absolute_file()),
+                weights_sha256=model.sha256,
+                weights_size_bytes=model.size_bytes,
+                locality="local",
+                custom=True,
+                original_filename=model.original_filename,
+                added_at=model.added_at,
+            )
+        )
+    return entries, errors
 
 
 @lru_cache(maxsize=8)
@@ -175,6 +220,12 @@ def runtime_problem(entry: ModelEntry, capabilities: dict[str, Any] | None) -> s
         return "No worker is running, so it is not known whether this model can be run."
     if capabilities.get("probe") == "running":
         return "The worker has just started and is still checking whether PyTorch is available. Try again shortly."
+    if entry.runtime == "onnx":
+        if not capabilities.get("onnxruntime"):
+            return capabilities.get("onnxruntime_error") or "ONNX Runtime is not installed in the worker's environment."
+        return None
+    if entry.runtime == "ultralytics" and not capabilities.get("ultralytics"):
+        return capabilities.get("ultralytics_error") or "Ultralytics is not installed in the worker's environment."
     if not capabilities.get("torch") or not capabilities.get("torchvision"):
         return (
             capabilities.get("torch_error") or "PyTorch and torchvision are not installed in the worker's environment."
