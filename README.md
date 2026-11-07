@@ -6,6 +6,8 @@ The application does not make operational targeting or engagement decisions and 
 
 **Status: in development.** Working today: projects and areas of interest; file upload (photographs, GeoTIFF rasters, video, OSM/ESM map sheets); a background worker with local object detection on photographs and sampled video frames; a review workflow for findings; a map with an optional online satellite basemap; a satellite-image viewer; 3D terrain from elevation rasters; place search; findings reports and exports. Planned, not built: AI analysis of rasters, custom CRS definitions, online data sources. NDVI Studio is hidden from the app (its code is kept, and its database migration `0010` is not yet applied to the author's working database). Phase reports are in [docs/](docs/).
 
+**Installing from a delivered package (zip)?** Follow [INSTALLATION-GUIDE.md](INSTALLATION-GUIDE.md): install the listed programs, then double-click `SETUP.cmd` once and `START.cmd` to run.
+
 ## Quick start (from GitHub)
 
 This is a **Windows** application. It runs entirely on your own computer.
@@ -109,6 +111,7 @@ Tests use scratch databases (`geopoc_test`, `geopoc_e2e`, `geopoc_smoke`, `geopo
 - **Optional online satellite basemap.** Mapbox Standard Satellite can be drawn under the map layers if a Mapbox public token is set in `apps/web/.env.local`; it is off by default and it is the one feature that sends map views to a third party. See [docs/mapbox-satellite.md](docs/mapbox-satellite.md).
 - **Datum shifts worse than 10 m need your acknowledgement.** A transformation with a documented accuracy over 10 m, or none stated, is not used until it is acknowledged; ballpark ones never are. See [docs/transformation-acknowledgement.md](docs/transformation-acknowledgement.md). A raster georeferenced by its own file that needs one stays blocked.
 - **No real OSM or ESM map sheet has been validated.** `.\scripts\validate-map-sheets.ps1` checks sheets against independent reference points offline and says NOT VALIDATED until real, authorised samples are supplied ([docs/map-sheet-validation.md](docs/map-sheet-validation.md)).
+- **Draft report summary (local AI).** The findings report can show a short, plain-language draft written by a local Qwen model (`qwen2.5vl`) through Ollama on this computer. It is only worded from counts the software already stored, is checked before it is shown (invented numbers, wrong review words and any language about targeting or action are refused), is never saved, and is marked machine-written and unreviewed. Install Ollama and run `ollama pull qwen2.5vl`; switch it off with `GEOPOC_LLM_ENABLED=false`. It describes what was detected; it never says what anything means or what to do.
 - **The worker must be running** for previews and analysis; `dev.ps1` starts it. Without it, jobs wait in the queue.
 - **Model output is unevaluated.** Scores are not probabilities and every finding needs review. See `models/cards/`.
 - **Uploaded originals** are stored unmodified and read-only under `GEOPOC_DATA_ROOT` (default `D:/geopoc-data`), named by checksum.
